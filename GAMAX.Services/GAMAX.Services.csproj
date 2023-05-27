@@ -12,11 +12,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\Business\Business.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Business\Business.csproj" />
+    <Folder Include="Controllers\" />
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="iisreset /stop&#xD;&#xA;xcopy /Y /F /R &quot;D:\GAMAX\GAMAX\GAMAX.Services\bin\Debug\net7.0\*.*&quot; &quot;D:\GAMAX\GAMAX\GAMAX.Services\Site\GamaxTest&quot;&#xD;&#xA;iisreset /start" />
+  </Target>
 
 </Project>
