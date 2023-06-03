@@ -14,7 +14,7 @@ namespace GAMAX.Services
         }
         public string GetDbConnectionString()
         {
-            var aes   = new AES_Security(encryptionKey);
+            var aes   = new AES_Security();
             return aes.Decrypt(_connectionString);
         }
     }

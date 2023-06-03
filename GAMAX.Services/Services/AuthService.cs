@@ -70,7 +70,7 @@ namespace GAMAX.Services.Services
                 return  errors ;
             }
 
-            return await SendNewConfirmMail(user);
+            return await SendNewConfirmMail(model.Email);
             
         }
         public async Task<AuthModel> VerifyAsync(VerificationModel model)
@@ -334,18 +334,19 @@ namespace GAMAX.Services.Services
 
             return userName;
         }
-        public async Task <string> SendNewConfirmMail(ApplicationUser user)
+        public async Task <string> SendNewConfirmMail(string email)
         {
-            if (await _userManager.FindByEmailAsync(user.Email) is not null)
+            var result = await _userManager.FindByEmailAsync(email);
+            if (result is not null)
                 return "this Email is not  registered yet!";
 
-            var verificationCode = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var verificationCode = await _userManager.GenerateEmailConfirmationTokenAsync(result);
 
             string baseUrl = "http://localhost:5285";
             string routePrefix = "api/Auth";
             string actionRoute = "verify";
 
-            string url = $"{baseUrl}/{routePrefix}/{actionRoute}?Email={HttpUtility.UrlEncode(user.Email)}&verificationCode={HttpUtility.UrlEncode(verificationCode)}";
+            string url = $"{baseUrl}/{routePrefix}/{actionRoute}?Email={HttpUtility.UrlEncode(result.Email)}&verificationCode={HttpUtility.UrlEncode(verificationCode)}";
 
             //string url = $"http://localhost:5285/api/Auth/verify?Email={user.Email}&verificationCode={verificationCode}";
             string WelcomeMessage = $@"
@@ -362,17 +363,17 @@ namespace GAMAX.Services.Services
                                             </p>
                                         </body>
                                     </html>";
-            await _mailingService.SendEmailAsync(user.Email, "Welcome To Gamax !", WelcomeMessage);
+            await _mailingService.SendEmailAsync(result.Email, "Welcome To Gamax !", WelcomeMessage);
             return  "verification  send yo your mail";
         }
-        public async Task<string> SendResetPasswordMail(ApplicationUser user)
+        public async Task<string> SendResetPasswordMail(string Email)
         {
-            
-            if (await _userManager.FindByEmailAsync(user.Email) == null)
+            var result = await _userManager.FindByEmailAsync(Email);
+            if (result == null)
                 return "this Email is not  registered yet!";
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var encrypt = new Secuirty.AES_Security("P@ssw0rd123");
-            var encryptedEmail= encrypt.Encrypt(user.Email);
+            var token = await _userManager.GeneratePasswordResetTokenAsync(result);
+            var encrypt = new Secuirty.AES_Security();
+            var encryptedEmail= encrypt.Encrypt(result.Email);
             string url = $"http://localhost:3000/resetpassword?t={token}&u=%{encryptedEmail}";
             string PasswordMail = $@"
                                     <html>
@@ -388,7 +389,7 @@ namespace GAMAX.Services.Services
                                             </p>            
                                         </body>
                                     </html>";
-            await _mailingService.SendEmailAsync(user.Email, "Gamax Reset Password !", PasswordMail);
+            await _mailingService.SendEmailAsync(result.Email, "Gamax Reset Password !", PasswordMail);
             return "reset Password Code Semd to your mail";
 
         }

@@ -12,8 +12,8 @@ namespace GAMAX.Services.Services
         Task<string> AddRoleAsync(AddRoleModel model);
         Task<AuthModel> RefreshTokenAsync(string token);
         Task<bool> RevokeTokenAsync(string token);
-        Task<string> SendNewConfirmMail(ApplicationUser user);
-        Task<string> SendResetPasswordMail(ApplicationUser user);
+        Task<string> SendNewConfirmMail(string email);
+        Task<string> SendResetPasswordMail(string email);
         Task<bool> ResetPassword(RessetPassword user);
     }
     

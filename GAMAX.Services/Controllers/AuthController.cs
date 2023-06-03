@@ -3,6 +3,7 @@ using GAMAX.Services.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Web;
 
 namespace GAMAX.Services.Controllers
 {
@@ -142,11 +143,8 @@ namespace GAMAX.Services.Controllers
         [HttpPost("ResendConfirmMail")]
         public async Task<IActionResult> ResendConfirmMail(string Email)
         {
-            var user = new ApplicationUser
-            {
-                Email = Email
-            };
-            var result = await _authService.SendNewConfirmMail(user);
+            
+            var result = await _authService.SendNewConfirmMail(Email);
             if(result!= "verification  send yo your mail")
                 return BadRequest(result);
             return Ok(result);
@@ -155,11 +153,11 @@ namespace GAMAX.Services.Controllers
         [HttpPost("ResetPasswordCode")]
         public async Task<IActionResult> ResetPasswordCode(string Email)
         {
-            var user = new ApplicationUser
-            {
-                Email = Email
-            };
-            var result = await _authService.SendResetPasswordMail(user);
+            //var user = new ApplicationUser
+            //{
+            //    Email = Email
+            //};
+            var result = await _authService.SendResetPasswordMail(Email);
             if(result!= "reset Password Code Semd to your mail")
                 return BadRequest(result);
             return Ok(result);
@@ -168,9 +166,10 @@ namespace GAMAX.Services.Controllers
         [HttpPost("UpdatePassword")]
         public async Task<IActionResult> UpdatePassword([FromBody] RessetPassword model)
         {
-            var encrypt = new Secuirty.AES_Security("P@ssw0rd123");
-            var Email = encrypt.Encrypt(model.Email);
+            var encrypt = new Secuirty.AES_Security();
+            var Email = encrypt.Decrypt(model.Email);
             model.Email = Email;
+            //model.Token = decodedToken;
             var result = await _authService.ResetPassword(model);
             if(result)
                 return Ok(result);
