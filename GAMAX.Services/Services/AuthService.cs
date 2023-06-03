@@ -9,6 +9,8 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using GAMAX.Services.Models;
 using GAMAX.Services.Data;
+using System.Security.Policy;
+using System.Web;
 
 namespace GAMAX.Services.Services
 {
@@ -36,13 +38,22 @@ namespace GAMAX.Services.Services
         {
             if (await _userManager.FindByEmailAsync(model.Email) is not null)
                 return   "Email is already registered!" ;
-
-            if (await _userManager.FindByNameAsync(model.Username) is not null)
-                return "Username is already registered or taken!" ;
+            var userName = GenerateUserName(model.FirstName , model.LastName);
+            while (true)
+            {
+                if (await _userManager.FindByNameAsync(userName) is not null)
+                {
+                    userName = GenerateUserName(model.FirstName, model.LastName);
+                }
+                else
+                    break;
+            }
+            //if (await _userManager.FindByNameAsync(userName) is not null)
+            //    return "Username is already registered or taken!" ;
 
             var user = new ApplicationUser
             {
-                UserName = model.Username,
+                UserName = userName,
                 Email = model.Email,
                 FirstName = model.FirstName,
                 LastName = model.LastName
@@ -60,21 +71,40 @@ namespace GAMAX.Services.Services
                 return  errors ;
             }
             // sending verification mail
-            var code = GenerateRandomVerificationCode(6);
+            //var code = GenerateRandomVerificationCode(6);
             var verificationCode = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-            var tokenCode = new TokenCode
-            {
-                Token = verificationCode,
-                Code = code
-            };
+            //var tokenCode = new TokenCode
+            //{
+            //    Token = verificationCode,
+            //    Code = code
+            //};
 
-            _context.TokenCodes.Add(tokenCode);
-            await _context.SaveChangesAsync();
+            //_context.TokenCodes.Add(tokenCode);
+            //await _context.SaveChangesAsync();
+            string baseUrl = "http://localhost:5285";
+            string routePrefix = "api/Auth";
+            string actionRoute = "verify";
 
-            await _mailingService.SendEmailAsync(model.Email, "Welcome To Gamax !",
-                $"your verification code : {code} \n Please keep it secret and dont share with anyone");
-            return "verification code send yo your mail";
+            string url = $"{baseUrl}/{routePrefix}/{actionRoute}?Email={HttpUtility.UrlEncode(user.Email)}&verificationCode={HttpUtility.UrlEncode(verificationCode)}";
+
+            //string url = $"http://localhost:5285/api/Auth/verify?Email={user.Email}&verificationCode={verificationCode}";
+            string WelcomeMessage = $@"
+                                    <html>
+                                        <body>
+                                            <h1>Welcome to Gamax!</h1>
+                                            <p>Please keep it secret and don't share it with anyone.</p>
+                                            <p>
+                                                <a href=""{url}"">
+                                                    <button style=""background-color: #4CAF50; color: white; padding: 10px 20px; border: none; cursor: pointer;"">
+                                                        Click Here
+                                                    </button>
+                                                </a>
+                                            </p>
+                                        </body>
+                                    </html>";
+            await _mailingService.SendEmailAsync(model.Email, "Welcome To Gamax !", WelcomeMessage);
+            return "verification  send yo your mail";
             
         }
         public async Task<AuthModel> VerifyAsync(VerificationModel model)
@@ -84,23 +114,23 @@ namespace GAMAX.Services.Services
             {
                 return new AuthModel { Message = "Email not  registered!" };
             }
-            var token = model.VerificationCode; 
+            //var token = model.VerificationCode; 
 
-            var tokenCode = await _context.TokenCodes
-                .FirstOrDefaultAsync(t => t.Token == token);
+            //var tokenCode = await _context.TokenCodes
+            //    .FirstOrDefaultAsync(t => t.Token == token);
 
-            if (tokenCode == null)
-            {
-                return new AuthModel { Message = "Wrong  code " };
-            }
+            //if (tokenCode == null)
+            //{
+            //    return new AuthModel { Message = "Wrong  code " };
+            //}
     
-            var result = await _userManager.ConfirmEmailAsync(user, tokenCode.Token);
+            var result = await _userManager.ConfirmEmailAsync(user, model.VerificationCode);
             if (!result.Succeeded)
             {
                 return new AuthModel { Message = "Wrong  code " };
             }
-            _context.TokenCodes.Remove(tokenCode); // Remove the record
-            await _context.SaveChangesAsync(); // Save changes to the database
+            //_context.TokenCodes.Remove(tokenCode); // Remove the record
+            //await _context.SaveChangesAsync(); // Save changes to the database
             //get refresh  token 
             await _userManager.AddToRoleAsync(user, "User");
 
@@ -325,6 +355,28 @@ namespace GAMAX.Services.Services
             var code = random.Next((int)Math.Pow(10, length - 1), (int)Math.Pow(10, length)).ToString("D" + length);
             return code;
         }
+        private string GenerateUserName(string firstName, string lastName)
+        {
+            // Remove any leading or trailing spaces from the first name and last name
+            firstName = firstName.Trim();
+            lastName = lastName.Trim();
+
+            // Concatenate the first name and last name
+            var baseName = $"{firstName}{lastName}";
+
+            // Remove any non-alphanumeric characters from the base name
+            var cleanBaseName = new string(baseName.Where(char.IsLetterOrDigit).ToArray());
+
+            // Generate a random number with 8 digits
+            var random = new Random();
+            var randomNumber = random.Next(10000000, 99999999);
+
+            // Combine the clean base name with the random number
+            var userName = $"{cleanBaseName}{randomNumber}";
+
+            return userName;
+        }
+
         private async Task<JwtSecurityToken> CreateJwtToken(ApplicationUser user)
         {
             var userClaims = await _userManager.GetClaimsAsync(user);

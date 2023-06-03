@@ -28,20 +28,24 @@ namespace GAMAX.Services.Controllers
             return Ok(result);
         }
 
-        [HttpPost("verify")]
-        public async Task<IActionResult> Verify([FromBody] VerificationModel model)
+        [HttpGet("verify")]
+        public async Task<IActionResult> Verify(string Email , string verificationCode)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            VerificationModel model = new VerificationModel();
+            model.VerificationCode = verificationCode;
+            model.Email = Email;
+            if (Email==null && verificationCode ==null)
+                return BadRequest("wrong params");
 
             var result = await _authService.VerifyAsync(model);
 
             if (!result.IsAuthenticated)
                 return BadRequest(result.Message);
 
-            SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
-
-            return Ok(result);
+            //SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+            string redirectUrl = "http://localhost:3000/login?verfiy=true";
+            return Redirect(redirectUrl);
+            
         }
 
         [HttpPost("token")]

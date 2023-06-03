@@ -10,9 +10,6 @@ namespace GAMAX.Services.Models
         [StringLength(100)]
         public string LastName { get; set; }
 
-        [StringLength(50)]
-        public string Username { get; set; }
-
         [StringLength(128)]
         public string Email { get; set; }
 
