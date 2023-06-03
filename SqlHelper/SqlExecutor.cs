@@ -17,7 +17,7 @@ namespace SqlHelper
             this.connectionString = connectionString;
         }
 
-        public DataTable ExecuteQuery(string query, Dictionary<string, object> parameters = null)
+        public async Task<DataTable> ExecuteQueryAsync(string query, Dictionary<string, object> parameters = null)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -31,14 +31,15 @@ namespace SqlHelper
                         }
                     }
 
-                    connection.Open();
+                    await connection.OpenAsync();
                     DataTable dataTable = new DataTable();
-                    dataTable.Load(command.ExecuteReader());
+                    dataTable.Load(await command.ExecuteReaderAsync());
                     return dataTable;
                 }
             }
         }
-        public int ExecuteNonQuery(string query, Dictionary<string, object> parameters = null)
+
+        public async Task<int> ExecuteNonQueryAsync(string query, Dictionary<string, object> parameters = null)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -52,12 +53,13 @@ namespace SqlHelper
                         }
                     }
 
-                    connection.Open();
-                    return command.ExecuteNonQuery();
+                    await connection.OpenAsync();
+                    return await command.ExecuteNonQueryAsync();
                 }
             }
         }
     }
 
-    
+
+
 }
