@@ -31,6 +31,9 @@ namespace GAMAX.Services.Controllers
         [HttpPost("verify")]
         public async Task<IActionResult> Verify([FromBody] VerificationModel model)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var result = await _authService.VerifyAsync(model);
 
             if (!result.IsAuthenticated)
@@ -68,6 +71,10 @@ namespace GAMAX.Services.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> LoginAsync([FromBody] TokenRequestModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var result = await _authService.GetTokenAsync(model);
 
             if (!result.IsAuthenticated)
@@ -97,6 +104,8 @@ namespace GAMAX.Services.Controllers
         public async Task<IActionResult> RefreshToken()
         {
             var refreshToken = Request.Cookies["refreshToken"];
+            if (refreshToken == null)
+                return BadRequest("refresh Token Needed in Cookies");
 
             var result = await _authService.RefreshTokenAsync(refreshToken);
 
