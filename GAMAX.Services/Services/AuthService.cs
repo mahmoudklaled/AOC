@@ -11,6 +11,9 @@ using GAMAX.Services.Models;
 using GAMAX.Services.Data;
 using System.Security.Policy;
 using System.Web;
+using Microsoft.CodeAnalysis.Elfie.Model.Strings;
+using System;
+using NuGet.Common;
 
 namespace GAMAX.Services.Services
 {
@@ -21,16 +24,14 @@ namespace GAMAX.Services.Services
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly JWT _jwt;
         private readonly IMailingService _mailingService;
-        private readonly ApplicationDbContext _context;
 
         public AuthService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
-            IOptions<JWT> jwt, IMailingService mailingService, ApplicationDbContext applicationDbContext)
+            IOptions<JWT> jwt, IMailingService mailingService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _jwt = jwt.Value;
             _mailingService = mailingService;
-            _context = applicationDbContext;
 
         }
 
@@ -48,8 +49,6 @@ namespace GAMAX.Services.Services
                 else
                     break;
             }
-            //if (await _userManager.FindByNameAsync(userName) is not null)
-            //    return "Username is already registered or taken!" ;
 
             var user = new ApplicationUser
             {
@@ -70,41 +69,8 @@ namespace GAMAX.Services.Services
 
                 return  errors ;
             }
-            // sending verification mail
-            //var code = GenerateRandomVerificationCode(6);
-            var verificationCode = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-            //var tokenCode = new TokenCode
-            //{
-            //    Token = verificationCode,
-            //    Code = code
-            //};
-
-            //_context.TokenCodes.Add(tokenCode);
-            //await _context.SaveChangesAsync();
-            string baseUrl = "http://localhost:5285";
-            string routePrefix = "api/Auth";
-            string actionRoute = "verify";
-
-            string url = $"{baseUrl}/{routePrefix}/{actionRoute}?Email={HttpUtility.UrlEncode(user.Email)}&verificationCode={HttpUtility.UrlEncode(verificationCode)}";
-
-            //string url = $"http://localhost:5285/api/Auth/verify?Email={user.Email}&verificationCode={verificationCode}";
-            string WelcomeMessage = $@"
-                                    <html>
-                                        <body>
-                                            <h1>Welcome to Gamax!</h1>
-                                            <p>Please keep it secret and don't share it with anyone.</p>
-                                            <p>
-                                                <a href=""{url}"">
-                                                    <button style=""background-color: #4CAF50; color: white; padding: 10px 20px; border: none; cursor: pointer;"">
-                                                        Click Here
-                                                    </button>
-                                                </a>
-                                            </p>
-                                        </body>
-                                    </html>";
-            await _mailingService.SendEmailAsync(model.Email, "Welcome To Gamax !", WelcomeMessage);
-            return "verification  send yo your mail";
+            return await SendNewConfirmMail(user);
             
         }
         public async Task<AuthModel> VerifyAsync(VerificationModel model)
@@ -114,24 +80,13 @@ namespace GAMAX.Services.Services
             {
                 return new AuthModel { Message = "Email not  registered!" };
             }
-            //var token = model.VerificationCode; 
-
-            //var tokenCode = await _context.TokenCodes
-            //    .FirstOrDefaultAsync(t => t.Token == token);
-
-            //if (tokenCode == null)
-            //{
-            //    return new AuthModel { Message = "Wrong  code " };
-            //}
-    
+            
             var result = await _userManager.ConfirmEmailAsync(user, model.VerificationCode);
             if (!result.Succeeded)
             {
                 return new AuthModel { Message = "Wrong  code " };
             }
-            //_context.TokenCodes.Remove(tokenCode); // Remove the record
-            //await _context.SaveChangesAsync(); // Save changes to the database
-            //get refresh  token 
+
             await _userManager.AddToRoleAsync(user, "User");
 
             var jwtSecurityToken = await CreateJwtToken(user);
@@ -163,6 +118,9 @@ namespace GAMAX.Services.Services
                 authModel.Message = "Email or Password is incorrect!";
                 return authModel;
             }
+            var confirmed = await _userManager.IsEmailConfirmedAsync(user);
+            if (!confirmed)
+                return new AuthModel { Message = "Please Confirm your Email " };
 
             var jwtSecurityToken = await CreateJwtToken(user);
             var rolesList = await _userManager.GetRolesAsync(user);
@@ -375,6 +333,76 @@ namespace GAMAX.Services.Services
             var userName = $"{cleanBaseName}{randomNumber}";
 
             return userName;
+        }
+        public async Task <string> SendNewConfirmMail(ApplicationUser user)
+        {
+            if (await _userManager.FindByEmailAsync(user.Email) is not null)
+                return "this Email is not  registered yet!";
+
+            var verificationCode = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+            string baseUrl = "http://localhost:5285";
+            string routePrefix = "api/Auth";
+            string actionRoute = "verify";
+
+            string url = $"{baseUrl}/{routePrefix}/{actionRoute}?Email={HttpUtility.UrlEncode(user.Email)}&verificationCode={HttpUtility.UrlEncode(verificationCode)}";
+
+            //string url = $"http://localhost:5285/api/Auth/verify?Email={user.Email}&verificationCode={verificationCode}";
+            string WelcomeMessage = $@"
+                                    <html>
+                                        <body>
+                                            <h1>Welcome to Gamax!</h1>
+                                            <p>Please keep it secret and don't share it with anyone.</p>
+                                            <p>
+                                                <a href=""{url}"">
+                                                    <button style=""background-color: #4CAF50; color: white; padding: 10px 20px; border: none; cursor: pointer;"">
+                                                        Click Here
+                                                    </button>
+                                                </a>
+                                            </p>
+                                        </body>
+                                    </html>";
+            await _mailingService.SendEmailAsync(user.Email, "Welcome To Gamax !", WelcomeMessage);
+            return  "verification  send yo your mail";
+        }
+        public async Task<string> SendResetPasswordMail(ApplicationUser user)
+        {
+            
+            if (await _userManager.FindByEmailAsync(user.Email) == null)
+                return "this Email is not  registered yet!";
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var encrypt = new Secuirty.AES_Security("P@ssw0rd123");
+            var encryptedEmail= encrypt.Encrypt(user.Email);
+            string url = $"http://localhost:3000/resetpassword?t={token}&u=%{encryptedEmail}";
+            string PasswordMail = $@"
+                                    <html>
+                                        <body>
+                                            <h1>Attention!</h1>
+                                            <p>Please keep it secret and don't share it with anyone.</p>
+                                            <p>
+                                                <a href=""{url}"">
+                                                    <button style=""background-color: #4CAF50; color: white; padding: 10px 20px; border: none; cursor: pointer;"">
+                                                        Click Here
+                                                    </button>
+                                                </a>
+                                            </p>            
+                                        </body>
+                                    </html>";
+            await _mailingService.SendEmailAsync(user.Email, "Gamax Reset Password !", PasswordMail);
+            return "reset Password Code Semd to your mail";
+
+        }
+        public async Task<bool> ResetPassword(RessetPassword model)
+        {
+            var applicationUser = await _userManager.FindByEmailAsync(model.Email);
+            if (applicationUser == null)
+                return false;// "this Email is not  registered yet!";
+            var result = await _userManager.ResetPasswordAsync(applicationUser, model.Token, model.Password);
+            if (result.Succeeded)
+              return true;
+            else
+               return false;
+            
         }
 
         private async Task<JwtSecurityToken> CreateJwtToken(ApplicationUser user)

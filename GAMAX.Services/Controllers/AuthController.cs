@@ -24,7 +24,8 @@ namespace GAMAX.Services.Controllers
                 return BadRequest(ModelState);
 
             var result = await _authService.RegisterAsync(model);
-
+            if(result!= "verification  send yo your mail")
+                return BadRequest(result);
             return Ok(result);
         }
 
@@ -136,6 +137,44 @@ namespace GAMAX.Services.Controllers
 
             RemoveRefreshTokenFromCookie();
             return Ok();
+        }
+        
+        [HttpPost("ResendConfirmMail")]
+        public async Task<IActionResult> ResendConfirmMail(string Email)
+        {
+            var user = new ApplicationUser
+            {
+                Email = Email
+            };
+            var result = await _authService.SendNewConfirmMail(user);
+            if(result!= "verification  send yo your mail")
+                return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpPost("ResetPasswordCode")]
+        public async Task<IActionResult> ResetPasswordCode(string Email)
+        {
+            var user = new ApplicationUser
+            {
+                Email = Email
+            };
+            var result = await _authService.SendResetPasswordMail(user);
+            if(result!= "reset Password Code Semd to your mail")
+                return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpPost("UpdatePassword")]
+        public async Task<IActionResult> UpdatePassword([FromBody] RessetPassword model)
+        {
+            var encrypt = new Secuirty.AES_Security("P@ssw0rd123");
+            var Email = encrypt.Encrypt(model.Email);
+            model.Email = Email;
+            var result = await _authService.ResetPassword(model);
+            if(result)
+                return Ok(result);
+            return BadRequest("your data is wrong!");
         }
 
         private void SetRefreshTokenInCookie(string refreshToken, DateTime expires)
