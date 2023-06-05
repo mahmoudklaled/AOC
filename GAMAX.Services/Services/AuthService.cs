@@ -107,7 +107,7 @@ namespace GAMAX.Services.Services
                 RefreshTokenExpiration = refreshToken.ExpiresOn
             };
         }
-        public async Task<AuthModel> GetTokenAsync(TokenRequestModel model)
+        public async Task<AuthModel> LoginAndGetTokenAsync(TokenRequestModel model)
         {
             var authModel = new AuthModel();
 
@@ -337,7 +337,7 @@ namespace GAMAX.Services.Services
         public async Task <string> SendNewConfirmMail(string email)
         {
             var result = await _userManager.FindByEmailAsync(email);
-            if (result is not null)
+            if (result is null)
                 return "this Email is not  registered yet!";
 
             var verificationCode = await _userManager.GenerateEmailConfirmationTokenAsync(result);
@@ -374,7 +374,7 @@ namespace GAMAX.Services.Services
             var token = await _userManager.GeneratePasswordResetTokenAsync(result);
             var encrypt = new Secuirty.AES_Security();
             var encryptedEmail= encrypt.Encrypt(result.Email);
-            string url = $"http://localhost:3000/resetpassword?t={token}&u=%{encryptedEmail}";
+            string url = $"http://localhost:3000/resetpassword?t={token}&u={encryptedEmail}";
             string PasswordMail = $@"
                                     <html>
                                         <body>

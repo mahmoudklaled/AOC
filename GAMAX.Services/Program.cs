@@ -1,17 +1,15 @@
 using GAMAX.Services.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using NETCore.MailKit.Extensions;
 using NETCore.MailKit.Infrastructure.Internal;
-using NETCore.MailKit.Core;
 using GAMAX.Services.Services;
-using Utilites;
 using GAMAX.Services.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using GAMAX.Services.Models;
+using GAMAX.Services.MiddleWare;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -107,6 +105,20 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Define the routes that should skip token validation
+var routesToSkipTokenValidation = new List<string>
+{
+    "/api/Auth/register",
+    "/api/Auth/verify",
+    "/api/Auth/token",
+    "/api/Auth/login",
+    "/api/Auth/refreshToken",
+    "/api/Auth/revokeToken",
+    "/api/Auth/ResendConfirmMail",
+    "/api/Auth/ResetPasswordCode",
+    "/api/Auth/UpdatePassword"
+};
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
@@ -116,10 +128,28 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 
 
 app.UseHttpsRedirection();
+app.UseRouting();
+
+app.UseWhen(context => !routesToSkipTokenValidation.Contains(context.Request.Path.Value), builder =>
+{
+    builder.UseMiddleware<TokenValidationMiddleware>();
+});
+
+app.UseCors(builder =>
+{
+    builder.WithOrigins("*")
+        .AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+});
+
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
 app.MapControllers();
 
 app.Run();

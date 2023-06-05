@@ -7,7 +7,7 @@ namespace GAMAX.Services.Services
     {
         Task<string> RegisterAsync(RegisterModel model);
         Task<AuthModel> VerifyAsync(VerificationModel model);
-        Task<AuthModel> GetTokenAsync(TokenRequestModel model);
+        Task<AuthModel> LoginAndGetTokenAsync(TokenRequestModel model);
         Task<AuthModel> GetTokenAsync(string refreshToken);
         Task<string> AddRoleAsync(AddRoleModel model);
         Task<AuthModel> RefreshTokenAsync(string token);
