@@ -1,4 +1,4 @@
-using GAMAX.Services.Data;
+using Business;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NETCore.MailKit.Extensions;

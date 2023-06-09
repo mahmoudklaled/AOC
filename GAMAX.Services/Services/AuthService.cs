@@ -8,12 +8,11 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Business.Authentication.Models;
-using GAMAX.Services.Data;
-using System.Security.Policy;
 using System.Web;
-using Microsoft.CodeAnalysis.Elfie.Model.Strings;
-using System;
-using NuGet.Common;
+using Business.Accounts.Models;
+using Business.Enums;
+using Business.Accounts.LogicBusiness;
+using Business;
 
 namespace GAMAX.Services.Services
 {
@@ -24,15 +23,16 @@ namespace GAMAX.Services.Services
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly JWT _jwt;
         private readonly IMailingService _mailingService;
+        private readonly ApplicationDbContext _dbContext;
 
         public AuthService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
-            IOptions<JWT> jwt, IMailingService mailingService)
+            IOptions<JWT> jwt, IMailingService mailingService, ApplicationDbContext dbContext)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _jwt = jwt.Value;
             _mailingService = mailingService;
-
+            _dbContext = dbContext;
         }
 
         public async Task<string> RegisterAsync(RegisterModel model)
@@ -95,6 +95,8 @@ namespace GAMAX.Services.Services
             user.RefreshTokens?.Add(refreshToken);
             await _userManager.UpdateAsync(user);
 
+            AddProfileAccount(user);
+
             return new AuthModel
             {
                 Email = user.Email,
@@ -107,6 +109,33 @@ namespace GAMAX.Services.Services
                 RefreshTokenExpiration = refreshToken.ExpiresOn
             };
         }
+
+        private async void AddProfileAccount(ApplicationUser user)
+        {
+            var profile = new ProfileAccounts
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                CoverPhoto= AccountHelpers.GetDefaultCoverPohot(),
+                ProfilePohot= AccountHelpers.GetDefaultProfilePohot()
+
+            };
+            var roles = await _userManager.GetRolesAsync(user);
+            if (roles.Any())
+            {
+                if (Enum.TryParse(roles.First(), out ProfileTypes profileType))
+                {
+                    profile.Type = profileType;
+                }
+            }
+
+            // Step 4: Add the new profile to the DbContext and save changes
+            _dbContext.ProfileAccounts.Add(profile);
+            await _dbContext.SaveChangesAsync();
+        }
+
         public async Task<AuthModel> LoginAndGetTokenAsync(TokenRequestModel model)
         {
             var authModel = new AuthModel();
