@@ -1,4 +1,4 @@
-﻿using GAMAX.Services.Models;
+﻿using Business.Authentication.Models;
 using GAMAX.Services.Services;
 using Microsoft.AspNetCore.Mvc;
 

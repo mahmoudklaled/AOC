@@ -7,7 +7,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
-using GAMAX.Services.Models;
+using Business.Authentication.Models;
 using GAMAX.Services.Data;
 using System.Security.Policy;
 using System.Web;

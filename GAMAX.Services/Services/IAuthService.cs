@@ -1,4 +1,4 @@
-﻿using GAMAX.Services.Models;
+﻿using Business.Authentication.Models;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace GAMAX.Services.Services

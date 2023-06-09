@@ -8,8 +8,8 @@ using GAMAX.Services.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using GAMAX.Services.Models;
 using GAMAX.Services.MiddleWare;
+using Business.Authentication.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
