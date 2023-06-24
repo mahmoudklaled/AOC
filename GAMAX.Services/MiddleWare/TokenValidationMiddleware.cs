@@ -33,7 +33,7 @@ namespace GAMAX.Services.MiddleWare
                     ClaimsPrincipal claimsPrincipal = tokenHandler.ValidateToken(accessToken, validationParameters, out SecurityToken validatedToken);
 
                     // Set the validated claims principal on the current request
-                    context.User = claimsPrincipal;
+                    context.User= claimsPrincipal;
 
                     // Get the roles from the token and set them in the context
                     var roles = claimsPrincipal.FindAll("roles").Select(c => c.Value).ToList();

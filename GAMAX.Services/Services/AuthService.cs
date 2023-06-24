@@ -95,9 +95,9 @@ namespace GAMAX.Services.Services
             user.RefreshTokens?.Add(refreshToken);
             await _userManager.UpdateAsync(user);
 
-            AddProfileAccount(user);
+            await AddProfileAccount(user);
 
-            return new AuthModel
+            return  new AuthModel
             {
                 Email = user.Email,
                 ExpiresOn = jwtSecurityToken.ValidTo,
@@ -110,7 +110,7 @@ namespace GAMAX.Services.Services
             };
         }
 
-        private async void AddProfileAccount(ApplicationUser user)
+        private async Task AddProfileAccount(ApplicationUser user)
         {
             var profile = new ProfileAccounts
             {
@@ -118,8 +118,11 @@ namespace GAMAX.Services.Services
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
+                UserName =user.UserName,
                 CoverPhoto= AccountHelpers.GetDefaultCoverPohot(),
                 ProfilePohot= AccountHelpers.GetDefaultProfilePohot()
+                ,City="",
+                Country=""
 
             };
             var roles = await _userManager.GetRolesAsync(user);

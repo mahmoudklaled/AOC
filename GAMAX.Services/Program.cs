@@ -10,6 +10,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using GAMAX.Services.MiddleWare;
 using Business.Authentication.Models;
+using Microsoft.Extensions.FileProviders;
+using Business.Accounts.Services;
+using Business.Posts.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +21,7 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnC
 
 
 
-
+builder.Services.AddHttpContextAccessor();
 builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
      .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -27,6 +30,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 builder.Services.AddTransient<IMailingService, MailingService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAcountService, AcountService>();
+builder.Services.AddScoped<IPostService, PostService>();
 
 builder.Services.AddMailKit(config =>
 {
@@ -77,7 +82,7 @@ builder.Services.AddCors(options =>
         });
 });
 
-//EmailSender Configration
+
 
 
 
@@ -102,12 +107,22 @@ builder.Services.AddSwaggerGen();
 
 
 
-
 var app = builder.Build();
+
+var apiProjectPath = Directory.GetCurrentDirectory();
+var solutionPath = Directory.GetParent(apiProjectPath)?.FullName;
+var photosFolderPath = Path.Combine(solutionPath, "StaticFiles");
+
+// Configure the static files middleware
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(photosFolderPath),
+    RequestPath = "/Photos"
+});
 
 // Define the routes that should skip token validation
 var routesToSkipTokenValidation = new List<string>
-{
+{ 
     "/api/Auth/register",
     "/api/Auth/verify",
     "/api/Auth/token",
@@ -116,7 +131,8 @@ var routesToSkipTokenValidation = new List<string>
     "/api/Auth/revokeToken",
     "/api/Auth/ResendConfirmMail",
     "/api/Auth/ResetPasswordCode",
-    "/api/Auth/UpdatePassword"
+    "/api/Auth/UpdatePassword",
+    "/api/StaticFiles/download"
 };
 
 // Configure the HTTP request pipeline.
@@ -126,7 +142,6 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     app.UseSwaggerUI();
 }
 
-
 app.UseHttpsRedirection();
 app.UseRouting();
 
@@ -134,7 +149,12 @@ app.UseWhen(context => !routesToSkipTokenValidation.Contains(context.Request.Pat
 {
     builder.UseMiddleware<TokenValidationMiddleware>();
 });
-
+//app.UseWhen(context =>
+//    !context.Request.Path.StartsWithSegments("/Photos") &&
+//    !context.Request.Path.StartsWithSegments("/StaticFiles"), builder =>
+//    {
+//        builder.UseMiddleware<TokenValidationMiddleware>();
+//    });
 app.UseCors(builder =>
 {
     builder.WithOrigins("*")
@@ -142,7 +162,6 @@ app.UseCors(builder =>
         .AllowAnyMethod()
         .AllowAnyHeader();
 });
-
 
 app.UseAuthentication();
 app.UseAuthorization();
