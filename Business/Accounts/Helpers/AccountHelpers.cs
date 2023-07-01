@@ -8,7 +8,8 @@ namespace Business.Accounts.LogicBusiness
 {
     public static class AccountHelpers
     {
-        private static string PhotoPath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "StaticFiles", "Photos");
+        //Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
+        private static string PhotoPath = Path.Combine("StaticFiles", "Photos");
 
         public static string GetDefaultProfilePohot()
         {

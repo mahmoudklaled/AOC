@@ -7,12 +7,11 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
-using Business.Authentication.Models;
 using System.Web;
-using Business.Accounts.Models;
-using Business.Enums;
-using Business.Accounts.LogicBusiness;
-using Business;
+using DataBase.Core.Models.Authentication;
+using DataBase.Core.Enums;
+using BDataBase.Core.Models.Accounts;
+using DataBase.Core;
 
 namespace GAMAX.Services.Services
 {
@@ -23,16 +22,22 @@ namespace GAMAX.Services.Services
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly JWT _jwt;
         private readonly IMailingService _mailingService;
-        private readonly ApplicationDbContext _dbContext;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IConfiguration _configuration;
 
-        public AuthService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
-            IOptions<JWT> jwt, IMailingService mailingService, ApplicationDbContext dbContext)
+
+        public AuthService(IHttpContextAccessor httpContextAccessor, IConfiguration configuration,
+            UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+            IOptions<JWT> jwt, IMailingService mailingService, IUnitOfWork unitOfWork)
         {
+            _httpContextAccessor = httpContextAccessor;
             _userManager = userManager;
             _roleManager = roleManager;
             _jwt = jwt.Value;
             _mailingService = mailingService;
-            _dbContext = dbContext;
+            _unitOfWork = unitOfWork;
+            _configuration = configuration;
         }
 
         public async Task<string> RegisterAsync(RegisterModel model)
@@ -49,13 +54,13 @@ namespace GAMAX.Services.Services
                 else
                     break;
             }
-
             var user = new ApplicationUser
             {
                 UserName = userName,
                 Email = model.Email,
                 FirstName = model.FirstName,
-                LastName = model.LastName
+                LastName = model.LastName,
+                RegistrationIP = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? "Unknown"
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -119,9 +124,9 @@ namespace GAMAX.Services.Services
                 LastName = user.LastName,
                 Email = user.Email,
                 UserName =user.UserName,
-                CoverPhoto= AccountHelpers.GetDefaultCoverPohot(),
-                ProfilePohot= AccountHelpers.GetDefaultProfilePohot()
-                ,City="",
+                //CoverPhoto= new DataBase.Core.Models.PhotoModels.CoverPhoto {Id = new Guid(),PhotoPath= AccountHelpers.GetDefaultCoverPohot() ,ProfileId= user.Id },  
+                //ProfilePohot= new DataBase.Core.Models.PhotoModels.ProfilePhoto { Id = new Guid(), PhotoPath = AccountHelpers.GetDefaultProfilePohot(), ProfileId = user.Id } ,
+                City="",
                 Country=""
 
             };
@@ -135,8 +140,8 @@ namespace GAMAX.Services.Services
             }
 
             // Step 4: Add the new profile to the DbContext and save changes
-            _dbContext.ProfileAccounts.Add(profile);
-            await _dbContext.SaveChangesAsync();
+            await _unitOfWork.ProfileAccount.AddAsync(profile);
+            _unitOfWork.Complete();
         }
 
         public async Task<AuthModel> LoginAndGetTokenAsync(TokenRequestModel model)
@@ -305,7 +310,7 @@ namespace GAMAX.Services.Services
             return new RefreshToken
             {
                 Token = Convert.ToBase64String(randomNumber),
-                ExpiresOn = DateTime.UtcNow.AddDays(15),
+                ExpiresOn = DateTime.UtcNow.AddDays(_configuration.GetValue<int>("RefreshToken:DurationInDays")),
                 CreatedOn = DateTime.UtcNow
             };
         }

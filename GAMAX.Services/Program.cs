@@ -1,4 +1,3 @@
-using Business;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NETCore.MailKit.Extensions;
@@ -9,10 +8,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using GAMAX.Services.MiddleWare;
-using Business.Authentication.Models;
 using Microsoft.Extensions.FileProviders;
 using Business.Accounts.Services;
 using Business.Posts.Services;
+using DataBase.Core;
+using DataBase.EF;
+using DataBase.Core.Models.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,11 +25,12 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnC
 builder.Services.AddHttpContextAccessor();
 builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-     .AddEntityFrameworkStores<ApplicationDbContext>()
+     .AddEntityFrameworkStores<DataBase.EF.ApplicationDbContext>()
      .AddDefaultTokenProviders();
 
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 builder.Services.AddTransient<IMailingService, MailingService>();
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAcountService, AcountService>();
 builder.Services.AddScoped<IPostService, PostService>();
@@ -90,8 +92,13 @@ builder.Services.AddCors(options =>
 // Retrieve the configuration from the builder
 var configuration = builder.Configuration;
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContext<DataBase.EF.ApplicationDbContext>(options =>
     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//                options.UseSqlServer(
+//                    configuration.GetConnectionString("DefaultConnection"),
+//                        b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
 
 
