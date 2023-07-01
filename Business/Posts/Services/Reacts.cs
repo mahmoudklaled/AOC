@@ -1,6 +1,5 @@
-﻿using Business.Enums;
-using Business.Posts.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using DataBase.Core;
+using DataBase.Core.Models.Reacts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,109 +10,154 @@ namespace Business.Posts.Services
 {
     public class Reacts : IReacts
     {
-        private readonly ApplicationDbContext _dbContext;
-        public Reacts(ApplicationDbContext applicationDbContext)
+        private readonly IUnitOfWork _unitOfWork;
+        public Reacts(IUnitOfWork unitOfWork)
         {
-            _dbContext = applicationDbContext;
-        }
-        public async Task<bool> AddReactAsync(ReactRequest reactRequest , string userEmail)
-        {
-            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
-            if (user == null) return false;
-            if (reactRequest.IsOnComment == true)
-            {
-                await _dbContext.Reacts.AddAsync(new Models.Reacts
-                {
-                    Id = new Guid(),
-                    CommentID = reactRequest.commentId
-                }) ;
-            }
-            else if (reactRequest.IsOnPost == true)
-            {
-                switch (reactRequest.postsType)
-                {
-                    case PostsTypes.Post:
-                        await _dbContext.Reacts.AddAsync(new Models.Reacts
-                        {
-                            Id = new Guid(),
-                            PostID = reactRequest.postId
-                        });
-                        break;
-                    case PostsTypes.Question:
-                        await _dbContext.Reacts.AddAsync(new Models.Reacts
-                        {
-                            Id = new Guid(),
-                            PostID = reactRequest.postId
-                        });
-                        break;
-                    default:
-                        break;
-                }
-            }
-            await _dbContext.SaveChangesAsync();
-            return true;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<bool> DeleteReactAsync(Guid reactId, string userEmail)
+        public async Task<bool> AddReactOnPostAsync(ReactRequest reactRequest, string userEmail)
         {
-            var isAuth = await IsAuthorizedToDoActions(reactId, userEmail);
-            if (!isAuth)return false;
-            _dbContext.Reacts.Remove(await _dbContext.Reacts.FindAsync(reactId));
-            _dbContext.SaveChanges();
-            return true;
+            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var post = await _unitOfWork.Post.FindAsync(p => p.Id == reactRequest.ObjectId);
+            if(user == null || post==null) return false;
+            var react = new PostReact
+            {
+                Id = new Guid(),
+                PostId = post.Id,
+                reacts = reactRequest.ReactType
+            };
+            await _unitOfWork.PostReact.AddAsync(react);
+            return _unitOfWork.Complete() > 0;
         }
 
-        public async Task<List<ReactResponse>> GetAllReacts(ReactRequest reactRequest)
+        public async Task<bool> AddReactOnPostCommentAsync(ReactRequest reactRequest, string userEmail)
         {
-            List<Models.Reacts> reacts = new List<Models.Reacts>(); 
-            if (reactRequest.IsOnComment == true)
+            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var Comment = await _unitOfWork.PostComment.FindAsync(p => p.Id == reactRequest.ObjectId);
+            if (user == null || Comment == null) return false;
+            var react = new PostCommentReact
             {
-                reacts = await _dbContext.Reacts.Where(r=> r.CommentID == reactRequest.commentId).ToListAsync();
-            }
-            else if(reactRequest.IsOnPost == true)
-            {
-                switch (reactRequest.postsType)
-                {
-                    case PostsTypes.Post:
-                        reacts = await _dbContext.Reacts.Where(r => r.PostID == reactRequest.postId).ToListAsync();
-                        break;
-                    case PostsTypes.Question:
-                        reacts = await _dbContext.Reacts.Where(r => r.QuestionID == reactRequest.postId).ToListAsync();
-                        break;
-                    default:
-                        break;
-                }
-            }
-            List<ReactResponse> result = new List<ReactResponse>();
-            foreach (var react in reacts)
-            {
-                result.Add(new ReactResponse
-                {
-                    Id = react.Id,
-                    Type = react.reacts
-                });
-            }
-            return result;
+                Id = new Guid(),
+                PostCommentId = Comment.Id,
+                reacts = reactRequest.ReactType
+            };
+            await _unitOfWork.PostCommentReact.AddAsync(react);
+            return _unitOfWork.Complete() > 0;
         }
 
-        public async Task<bool> UpdateReact(Guid Id, string userEmail,ReactsType reactType)
+        public async Task<bool> AddReactOnQuestionPostAsync(ReactRequest reactRequest, string userEmail)
         {
-            var isAuth = await IsAuthorizedToDoActions(Id, userEmail);
-            if (!isAuth) return false;
-            var react = await _dbContext.Reacts.FindAsync(Id);
-            if (react == null) return false;
-            react.reacts = reactType;
-            await _dbContext.SaveChangesAsync();
-            return true;
+            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var post = await _unitOfWork.QuestionPost.FindAsync(p => p.Id == reactRequest.ObjectId);
+            if (user == null || post == null) return false;
+            var react = new QuestionReact
+            {
+                Id = new Guid(),
+                QuestionPostId = post.Id,
+                reacts = reactRequest.ReactType
+            };
+            await _unitOfWork.QuestionReact.AddAsync(react);
+            return _unitOfWork.Complete() > 0;
         }
-        private async Task<bool> IsAuthorizedToDoActions(Guid Id,string email)
+
+        public async Task<bool> AddReactOnQuestionPostCommentAsync(ReactRequest reactRequest, string userEmail)
         {
-            var user = await _dbContext.ProfileAccounts.FirstOrDefaultAsync(p=>p.Email == email);
-            if (user == null)return false;
-            var react = await _dbContext.Reacts.FirstOrDefaultAsync(p=>p.Id == Id);
-            if (react == null) return false;
-            if (user.Id == react.ProfileAccountId) return true;
-            return false;
+            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var Comment = await _unitOfWork.QuestionComment.FindAsync(p => p.Id == reactRequest.ObjectId);
+            if (user == null || Comment == null) return false;
+            var react = new QuestionCommentReact
+            {
+                Id = new Guid(),
+                QuestionCommentId = Comment.Id,
+                reacts = reactRequest.ReactType
+            };
+            await _unitOfWork.QuestionCommentReact.AddAsync(react);
+            return _unitOfWork.Complete() > 0;
+        }
+
+        public async Task<bool> DeleteCommentPostReactAsync(Guid reactId, string userEmail)
+        {
+            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var react = await _unitOfWork.PostCommentReact.FindAsync(r => r.Id == reactId);
+            if ((react == null || user == null) || react.ProfileAccountId != user.Id)
+                return false;
+            _unitOfWork.PostCommentReact.Delete(react);
+            return _unitOfWork.Complete() > 0;
+        }
+
+        public async Task<bool> DeleteCommentQuestionReactAsync(Guid reactId, string userEmail)
+        {
+            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var react = await _unitOfWork.QuestionCommentReact.FindAsync(r => r.Id == reactId);
+            if ((react == null || user == null) || react.ProfileAccountId != user.Id)
+                return false;
+            _unitOfWork.QuestionCommentReact.Delete(react);
+            return _unitOfWork.Complete() > 0;
+        }
+
+        public async Task<bool> DeletePostReactAsync(Guid reactId, string userEmail)
+        {
+            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var react = await _unitOfWork.PostReact.FindAsync(r => r.Id == reactId);
+            if ((react == null || user == null) || react.ProfileAccountId != user.Id)
+                return false;
+            _unitOfWork.PostReact.Delete(react);
+            return _unitOfWork.Complete() > 0;
+        }
+
+        public async Task<bool> DeleteQuestionPostReactAsync(Guid reactId, string userEmail)
+        {
+            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var react = await _unitOfWork.QuestionReact.FindAsync(r => r.Id == reactId);
+            if ((react == null || user == null) || react.ProfileAccountId != user.Id)
+                return false;
+            _unitOfWork.QuestionReact.Delete(react);
+            return _unitOfWork.Complete() > 0;
+        }
+
+        public async Task<bool> UpdatePostCommentReact(ReactRequest reactRequest, string userEmail)
+        {
+            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var react = await _unitOfWork.PostCommentReact.FindAsync(r => r.Id == reactRequest.ReactId);
+            if ((react == null || user == null) || react.ProfileAccountId != user.Id)
+                return false;
+            react.reacts = reactRequest.ReactType;
+            _unitOfWork.PostCommentReact.Update(react);
+            return _unitOfWork.Complete() > 0;
+        }
+
+        public async Task<bool> UpdatePostReact(ReactRequest reactRequest, string userEmail)
+        {
+            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var react = await _unitOfWork.PostReact.FindAsync(r => r.Id == reactRequest.ReactId);
+            if ((react == null || user == null) || react.ProfileAccountId != user.Id)
+                return false;
+            react.reacts = reactRequest.ReactType;
+            _unitOfWork.PostReact.Update(react);
+            return _unitOfWork.Complete() > 0;
+        }
+
+        public async Task<bool> UpdateQuestionCommentReact(ReactRequest reactRequest, string userEmail)
+        {
+            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var react = await _unitOfWork.QuestionCommentReact.FindAsync(r => r.Id == reactRequest.ReactId);
+            if ((react == null || user == null) || react.ProfileAccountId != user.Id)
+                return false;
+            react.reacts = reactRequest.ReactType;
+            _unitOfWork.QuestionCommentReact.Update(react);
+            return _unitOfWork.Complete() > 0;
+        }
+
+        public async Task<bool> UpdateQuestionReact(ReactRequest reactRequest, string userEmail)
+        {
+            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var react = await _unitOfWork.QuestionReact.FindAsync(r => r.Id == reactRequest.ReactId);
+            if ((react == null || user == null) || react.ProfileAccountId != user.Id)
+                return false;
+            react.reacts = reactRequest.ReactType;
+            _unitOfWork.QuestionReact.Update(react);
+            return _unitOfWork.Complete() > 0;
         }
     }
 }

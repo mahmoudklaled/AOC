@@ -1,10 +1,6 @@
-﻿using Business;
-using Business.Accounts.Services;
-using Business.Enums;
-using Business.Posts.Models;
-using Business.Posts.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Business.Posts.Services;
+using DataBase.Core.Enums;
+using DataBase.Core.Models.Posts;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -22,20 +18,20 @@ namespace GAMAX.Services.Controllers
             _postService = postService;
         }
         [HttpPost("GetAllPosts")]  
-        public async Task<IActionResult> GetAllPosts()
+        public async Task<IActionResult> GetAllPosts(int take , int skip)
         {
-            return Ok(_postService.GetAllPostAsync());
+            return Ok(_postService.GetPostAsync(take,skip));
         }
         [HttpPost("GetAllQuestionPosts")]
-        public async Task<IActionResult> GetAllQuestionPosts()
+        public async Task<IActionResult> GetAllQuestionPosts(int take, int skip)
         {
-            return Ok(_postService.GetAllQuestionPostAsync());
+            return Ok(_postService.GetQuestionPostAsync(take, skip));
         }
 
         [HttpPost("GetAllPostTypes")]
-        public async Task<IActionResult> GetAllPostTypes()
+        public async Task<IActionResult> GetAllPostTypes(int take, int skip)
         {
-            return Ok(_postService.GetAllPostTypesAsync());
+            return Ok(_postService.GetPostTypesAsync(take, skip));
         }
 
         [HttpPost("DeletePost")]

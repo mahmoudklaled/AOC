@@ -24,6 +24,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Business\Business.csproj" />
+    <ProjectReference Include="..\DataBase.Core\DataBase.Core.csproj" />
+    <ProjectReference Include="..\DataBase.EF\DataBase.EF.csproj" />
     <ProjectReference Include="..\Secuirty\Secuirty.csproj" />
   </ItemGroup>
 

@@ -1,11 +1,10 @@
-﻿using AutoMapper;
-using Business.Accounts.Models;
-using Business.Authentication.Models;
-using Business.Enums;
+﻿using BDataBase.Core.Models.Accounts;
 using Business.Posts.Helper;
-using Business.Posts.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
+using DataBase.Core;
+using DataBase.Core.Enums;
+using DataBase.Core.Models.PhotoModels;
+using DataBase.Core.Models.Posts;
+using DataBase.Core.Models.VedioModels;
 using System.Collections.ObjectModel;
 
 namespace Business.Posts.Services
@@ -13,25 +12,40 @@ namespace Business.Posts.Services
     public class PostService : IPostService
     {
 
-        private readonly ApplicationDbContext _dbContext;
-        public PostService(ApplicationDbContext dbContext)
+        private readonly IUnitOfWork _unitOfWork;
+        public PostService(IUnitOfWork unitOfWork)
         {
-            _dbContext = dbContext;
+            _unitOfWork = unitOfWork;
         }
 
-        
-        public async Task<List<Post>> GetAllPostAsync()
+
+        public async Task<List<Post>> GetPostAsync(int ? take,int ? skip)
         {
-            var result  = await _dbContext.Posts.Include(p=>p.Photos).Include(v=>v.Vedios).ToListAsync();
-            return result;
+            string[] includes = { "Photos", "Vedios" , "Reacts" };
+            var result = await _unitOfWork.Post.FindAllAsync(null,take ,skip, includes);
+            return result.ToList();
         }
-        public async Task<List<AllPostsModel>> GetAllPostTypesAsync()
+        public async Task<List<QuestionPost>> GetQuestionPostAsync(int? take, int? skip)
         {
-            var posts = await GetAllPostAsync();
-            var questions = await GetAllQuestionPostAsync();
+            string[] includes = { "Photos", "Vedios" , "Reacts" };
+            var result = await _unitOfWork.QuestionPost.FindAllAsync(null, take, skip, includes);
+            return result.ToList();
+        }
+        public async Task<List<AllPostsModel>> GetPostTypesAsync(int? take, int? skip)
+        {
+            var posts = await GetPostAsync(take,skip);
+            var questions = await GetQuestionPostAsync(take, skip);
 
             var allPostsModel = new List<AllPostsModel>();
 
+            List<PostPhoto> postPhotos = new List<PostPhoto>();
+            // Populate the postPhotos list with data
+
+            List<BasePhoto> basePhotos = postPhotos.Select(pp => new BasePhoto
+            {
+                Id = pp.Id,
+                PhotoPath = pp.PhotoPath
+            }).ToList();
             // Add posts with type 'Post'
             allPostsModel.AddRange(posts.Select(post => new AllPostsModel
             {
@@ -39,8 +53,8 @@ namespace Business.Posts.Services
                 Title = post.Title,
                 Description = post.Description,
                 TimeCreated = post.TimeCreated,
-                Photo = post.Photos.ToList(),
-                Vedio = post.Vedios.ToList(),
+                Photo = post.Photos.Select(pp => new BasePhoto{Id = pp.Id,PhotoPath = pp.PhotoPath}).ToList(),
+                Vedio = post.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
                 Type = PostsTypes.Post,
                 Question = null, // Set to null for posts
                 Answer = null // Set to null for posts
@@ -53,8 +67,8 @@ namespace Business.Posts.Services
                 Title = question.Title,
                 Description = question.Description,
                 TimeCreated = question.TimeCreated,
-                Photo = question.Photos.ToList(),
-                Vedio= question.Vedios.ToList(),
+                Photo = question.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList().ToList(),
+                Vedio = question.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
                 Type = PostsTypes.Question,
                 Question = question.Question, // Set the Question property for questions
                 Answer = question.Answer // Set the Answer property for questions
@@ -65,107 +79,98 @@ namespace Business.Posts.Services
 
             return allPostsModel;
         }
-        public async Task<List<QuestionPost>> GetAllQuestionPostAsync()
-        {
-            var result = await _dbContext.QuestionPosts.Include(p => p.Photos).Include(v=>v.Vedios).ToListAsync();
-            return result;
-        }
         public async Task<bool> AddPostAsync(AllPostsModel postmodel, string userEmail)
         {
-            var user = await _dbContext.ProfileAccounts.FindAsync(userEmail);
+            var user = await _unitOfWork.ProfileAccount.FindAsync(p=>p.Email ==userEmail);
             if (user == null) return false;
             postmodel = PostHelper.ConvertToPaths(postmodel, "PostPhoto", "PostVedios");
             var post = PreparePostModel(postmodel, user);
-            await _dbContext.Posts.AddAsync(post);
-            var saveresult = await _dbContext.SaveChangesAsync();
+            await _unitOfWork.Post.AddAsync(post);
+            var saveresult = _unitOfWork.Complete();
             return saveresult > 0;
         }
         public async Task<bool> AddQuestionPostAsync(AllPostsModel postmodel, string userEmail)
         {
-            var user = await _dbContext.ProfileAccounts.FindAsync(userEmail);
+            var user = await _unitOfWork.ProfileAccount.FindAsync(p=>p.Email==userEmail);
             if (user == null) return false;
             postmodel = PostHelper.ConvertToPaths(postmodel, "PostPhoto", "PostVedios");
             var post = PrepareQuestonPostModel(postmodel, user);
-            await _dbContext.QuestionPosts.AddAsync(post);
-            var saveresult = await _dbContext.SaveChangesAsync();
+            await _unitOfWork.QuestionPost.AddAsync(post);
+            var saveresult =  _unitOfWork.Complete();
             return saveresult > 0;
         }
-        public async Task<bool> UpdatePostAsync(AllPostsModel postmodel , string userEmail)
+        public async Task<bool> UpdatePostAsync(AllPostsModel postmodel, string userEmail)
         {
-            var post = await _dbContext.Posts
-                                        .Include(p => p.Photos)
-                                        .Include(p => p.Vedios)
-                                        .FirstOrDefaultAsync(p => p.Id == postmodel.Id);
+            string[] includes = { "Photos", "Vedios" };
+            var post = await _unitOfWork.Post.FindAsync(p => p.Id == postmodel.Id, includes);
 
             if (post == null)
                 return false;
-            
-            var user = await _dbContext.ProfileAccounts.FindAsync(userEmail);
-            if(user == null) 
-                return false;  
+
+            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            if (user == null)
+                return false;
             if (post.ProfileAccountId != user.Id)
                 return false;
             UpdateOldPhotoAndVedio(postmodel, post);
-            post = PreparePostModel(postmodel, user , post);
-            _dbContext.Posts.Update(post);
-            var update = await _dbContext.SaveChangesAsync();
+            post = PreparePostModel(postmodel, user, post);
+            _unitOfWork.Post.Update(post);
+            var update = _unitOfWork.Complete();
             return update > 0;
         }
-        public async Task<bool> UpdateQuestionPostAsync(AllPostsModel postmodel , string userEmail)
+        public async Task<bool> UpdateQuestionPostAsync(AllPostsModel postmodel, string userEmail)
         {
-            var questionpost = await _dbContext.QuestionPosts
-                                        .Include(p => p.Photos)
-                                        .Include(p => p.Vedios)
-                                        .FirstOrDefaultAsync(p => p.Id == postmodel.Id);
-
+            string[] includes = { "Photos", "Vedios" };
+            var questionpost = await _unitOfWork.QuestionPost.FindAsync(p => p.Id == postmodel.Id, includes);
+                                        
             if (questionpost == null)
                 return false;
 
-            var user = await _dbContext.ProfileAccounts.FindAsync(userEmail);
+            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
             if (user == null)
                 return false;
             if (questionpost.ProfileAccountId != user.Id)
                 return false;
             UpdateOldPhotoAndVedio(postmodel, questionpost);
             questionpost = PrepareQuestonPostModel(postmodel, user, questionpost);
-            _dbContext.QuestionPosts.Update(questionpost);
-            var update = await _dbContext.SaveChangesAsync();
+            _unitOfWork.QuestionPost.Update(questionpost);
+            var update =  _unitOfWork.Complete();
             return update > 0;
         }
-        public async Task<bool> DeletePostAsync(Guid id , string userEmail)
+        public async Task<bool> DeletePostAsync(Guid id, string userEmail)
         {
-            var post = await _dbContext.Posts.FindAsync(id);
+            var post = await _unitOfWork.Post.FindAsync(p=>p.Id==id);
             if (post == null)
                 return false;
-            var user = await _dbContext.ProfileAccounts.FindAsync(userEmail);
+            var user = await _unitOfWork.ProfileAccount.FindAsync(p=>p.Email==userEmail);
             if (user == null)
                 return false;
             if (post.ProfileAccountId != user.Id)
                 return false;
-            _dbContext.Posts.Remove(post);
-            var result =await _dbContext.SaveChangesAsync();
-            if(result>0)
+            _unitOfWork.Post.Delete(post);
+            var result =  _unitOfWork.Complete();
+            if (result > 0)
                 return true;
             return false;
 
         }
-        public async Task<bool> DeleteQuestionPostAsync(Guid id , string userEmail)
+        public async Task<bool> DeleteQuestionPostAsync(Guid id, string userEmail)
         {
-            var questionpost = await _dbContext.QuestionPosts.FindAsync(id);
+            var questionpost = await _unitOfWork.QuestionPost.FindAsync(q=>q.Id==id);
             if (questionpost == null)
                 return false;
-            var user = await _dbContext.ProfileAccounts.FindAsync(userEmail);
-            if(user==null)
+            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            if (user == null)
                 return false;
             if (questionpost.ProfileAccountId != user.Id)
                 return false;
-            _dbContext.QuestionPosts.Remove(questionpost);
-            var result = await _dbContext.SaveChangesAsync();
+            _unitOfWork.QuestionPost.Delete(questionpost);
+            var result =  _unitOfWork.Complete();
             if (result > 0)
                 return true;
             return false;
         }
-        
+
 
         private QuestionPost PrepareQuestonPostModel(AllPostsModel postmodel, ProfileAccounts user, QuestionPost post = null)
         {
@@ -178,23 +183,23 @@ namespace Business.Posts.Services
             }
 
             if (post.Photos == null)
-                post.Photos = new Collection<Photo>();
+                post.Photos = new Collection<QuestionPhoto>();
             foreach (var photo in postmodel.PhotosPath)
             {
-                var photoModel = new Photo()
+                var photoModel = new QuestionPhoto()
                 {
                     Id = new Guid(),
                     PhotoPath = photo,
                     QuestionPost = post,
-                    QuestionPostId = post.Id
+                    QuestionId = post.Id
                 };
                 post.Photos.Add(photoModel);
             }
             if (post.Vedios == null)
-                post.Vedios = new Collection<Vedio>();
+                post.Vedios = new Collection<QuestionVedio>();
             foreach (var vedio in postmodel.VediosPath)
             {
-                var vedioModel = new Vedio()
+                var vedioModel = new QuestionVedio()
                 {
                     Id = new Guid(),
                     VedioPath = vedio,
@@ -220,10 +225,10 @@ namespace Business.Posts.Services
                 post.ProfileAccountId = user.Id;
             }
             if (post.Photos == null)
-                post.Photos = new Collection<Photo>();
+                post.Photos = new Collection<PostPhoto>();
             foreach (var photo in postmodel.PhotosPath)
             {
-                var photoModel = new Photo()
+                var photoModel = new PostPhoto()
                 {
                     Id = new Guid(),
                     PhotoPath = photo,
@@ -233,10 +238,10 @@ namespace Business.Posts.Services
                 post.Photos.Add(photoModel);
             }
             if (post.Vedios == null)
-                post.Vedios = new Collection<Vedio>();
+                post.Vedios = new Collection<PostVedio>();
             foreach (var vedio in postmodel.VediosPath)
             {
-                var vedioModel = new Vedio()
+                var vedioModel = new PostVedio()
                 {
                     Id = new Guid(),
                     VedioPath = vedio,
@@ -257,7 +262,7 @@ namespace Business.Posts.Services
 
                 if (postmodel.Photo.Count != actualPost.Photos.Count)
                 {
-                    var photosToRemove = new List<Photo>();
+                    var photosToRemove = new List<PostPhoto>();
                     foreach (var photo in actualPost.Photos)
                     {
                         var result = postmodel.Photo.FirstOrDefault(p => p.Id == photo.Id);
@@ -270,7 +275,7 @@ namespace Business.Posts.Services
                     foreach (var photoToRemove in photosToRemove)
                     {
                         actualPost.Photos.Remove(photoToRemove);
-                        _dbContext.Photos.Remove(photoToRemove);
+                        _unitOfWork.PostPhoto.Delete(photoToRemove);
                     }
                 }
             }
@@ -280,7 +285,7 @@ namespace Business.Posts.Services
 
                 if (postmodel.Photo.Count != actualQuestionPost.Photos.Count)
                 {
-                    var photosToRemove = new List<Photo>();
+                    var photosToRemove = new List<QuestionPhoto>();
                     foreach (var photo in actualQuestionPost.Photos)
                     {
                         var result = postmodel.Photo.FirstOrDefault(p => p.Id == photo.Id);
@@ -293,11 +298,11 @@ namespace Business.Posts.Services
                     foreach (var photoToRemove in photosToRemove)
                     {
                         actualQuestionPost.Photos.Remove(photoToRemove);
-                        _dbContext.Photos.Remove(photoToRemove);
+                        _unitOfWork.QuestionPhoto.Delete(photoToRemove);
                     }
                 }
             }
         }
-        
+
     }
 }

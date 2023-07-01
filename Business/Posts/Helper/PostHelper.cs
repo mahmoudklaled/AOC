@@ -1,4 +1,4 @@
-﻿using Business.Posts.Models;
+﻿using DataBase.Core.Models.Posts;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -48,18 +48,18 @@ namespace Business.Posts.Helper
                     {
                         string photoExtension = Path.GetExtension(photo.FileName);
                         string newPhotoFileName = $"{Guid.NewGuid()}{photoExtension}";
-                        string photoPath = Path.Combine(FolderPath,photoFolderPath, newPhotoFileName);
+                        string photoPath = Path.Combine(FolderPath, photoFolderPath, newPhotoFileName);
 
                         using (var fileStream = new FileStream(photoPath, FileMode.Create))
                         {
                             photo.CopyTo(fileStream);
                         }
 
-                        photoPaths.Add(Path.Combine("StaticFiles" ,photoFolderPath, newPhotoFileName));
+                        photoPaths.Add(Path.Combine("StaticFiles", photoFolderPath, newPhotoFileName));
                     }
                 }
 
-                model.PhotosPath= photoPaths;
+                model.PhotosPath = photoPaths;
             }
 
             if (model.Vedios != null)
@@ -71,14 +71,14 @@ namespace Business.Posts.Helper
                     {
                         string videoExtension = Path.GetExtension(video.FileName);
                         string newVideoFileName = $"{Guid.NewGuid()}{videoExtension}";
-                        string videoPath = Path.Combine(FolderPath,videoFolderPath, newVideoFileName);
+                        string videoPath = Path.Combine(FolderPath, videoFolderPath, newVideoFileName);
 
                         using (var fileStream = new FileStream(videoPath, FileMode.Create))
                         {
                             video.CopyTo(fileStream);
                         }
 
-                        videoPaths.Add(Path.Combine("StaticFiles" ,videoFolderPath, newVideoFileName));
+                        videoPaths.Add(Path.Combine("StaticFiles", videoFolderPath, newVideoFileName));
                     }
                 }
 
@@ -87,7 +87,6 @@ namespace Business.Posts.Helper
 
             return model;
         }
-
         public static string ConverIformToPath(IFormFile formFile , string FileFolderPath)
         {
             

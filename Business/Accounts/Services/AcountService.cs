@@ -1,48 +1,49 @@
-﻿using Business.Accounts.Models;
-using Business.Authentication.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
-using System.Linq;
-using AutoMapper;
-using Elfie.Serialization;
+﻿using BDataBase.Core.Models.Accounts;
+using DataBase.Core.Models.Accounts;
+using DataBase.Core;
 
 namespace Business.Accounts.Services
 {
     public class AcountService : IAcountService
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ApplicationDbContext _dbContext;
-        public AcountService(UserManager<ApplicationUser> userManager , ApplicationDbContext applicationDbContext )
+        private readonly IUnitOfWork _unitOfWork;
+        public AcountService(IUnitOfWork unitOfWork)
         {
-            _dbContext = applicationDbContext;
-            _userManager = userManager;
+            _unitOfWork = unitOfWork;
         }
-        public async Task<ProfileAccounts> GetAccountProfileAsync(string userNameId)
+        public async Task<ProfileAccounts> GetAccountProfileAsync(string userId)
         {
-            var accountProfile = await _dbContext.ProfileAccounts
-                                                    .Where(a => a.UserName.Equals(userNameId))
-                                                    .Include(p => p.Posts)
-                                                    .Include(q => q.QuestionPosts)
-                                                    .FirstOrDefaultAsync();
-
-            return accountProfile;
+            string[] includes = { "Posts", "QuestionPosts" };
+            var accountProfile = await _unitOfWork.ProfileAccount.FindAllAsync(p => p.UserName == userId, includes);
+            return accountProfile.FirstOrDefault();
         }
 
         public async Task<bool> UpdateAccountProfileAsync(ProfileUpdateModel profileUpdateModel)
         {
-            var mapperConfig = new MapperConfiguration(cfg =>
+            var profileAccount= await _unitOfWork.ProfileAccount.FindAsync(p=>p.Email==profileUpdateModel.Email);
+            var UpdateProfileAccount = new ProfileAccounts
             {
-                cfg.CreateMap<ProfileUpdateModel, ProfileAccounts>();
-            });
-            var mapper = mapperConfig.CreateMapper();
-            var result = await _dbContext.ProfileAccounts.FindAsync(profileUpdateModel.Id);
-            if (result == null) return false;
-            mapper.Map(profileUpdateModel, result);
-            var update  = await _dbContext.SaveChangesAsync();
-            if(update>0)
-                return true;
-            return false;
+                Id = profileAccount.Id,
+                UserName= profileAccount.UserName,
+                Email = profileAccount.Email,
+                FirstName = profileUpdateModel.FirstName,
+                LastName = profileUpdateModel.LastName,
+                City = profileUpdateModel.City,
+                Country = profileUpdateModel.Country
+            };
+             _unitOfWork.ProfileAccount.Update(UpdateProfileAccount);
+            var UpdateResult = _unitOfWork.Complete();
+            return UpdateResult>0;
+        }
+
+        public Task<bool> UpdateProfileCoverAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateProfilePhotoAsync()
+        {
+            throw new NotImplementedException();
         }
     }
 }

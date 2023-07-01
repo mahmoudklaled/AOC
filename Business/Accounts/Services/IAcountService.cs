@@ -1,4 +1,5 @@
-﻿using Business.Accounts.Models;
+﻿using BDataBase.Core.Models.Accounts;
+using DataBase.Core.Models.Accounts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,7 @@ namespace Business.Accounts.Services
     {
         Task<ProfileAccounts> GetAccountProfileAsync(string userId);
         Task<bool> UpdateAccountProfileAsync(ProfileUpdateModel profileUpdateModel);
+        Task<bool> UpdateProfilePhotoAsync();
+        Task<bool> UpdateProfileCoverAsync();
     }
 }
