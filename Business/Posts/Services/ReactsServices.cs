@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace Business.Posts.Services
 {
-    public class Reacts : IReacts
+    public class ReactsServices : IReactServices
     {
         private readonly IUnitOfWork _unitOfWork;
-        public Reacts(IUnitOfWork unitOfWork)
+        public ReactsServices(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
