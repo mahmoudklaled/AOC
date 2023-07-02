@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Business.Posts.Services
 {
-    public interface IReacts
+    public interface IReactServices
     {
         Task<bool> DeletePostReactAsync(Guid reactId, string userEmail);
         Task<bool> DeleteQuestionPostReactAsync(Guid reactId, string userEmail);
