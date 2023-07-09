@@ -10,7 +10,7 @@ namespace Business.Accounts.Services
 {
     public interface IAcountService
     {
-        Task<ProfileAccounts> GetAccountProfileAsync(string userId);
+        Task<ProfileAccounts> GetAccountProfileAsync(string email);
         Task<bool> UpdateAccountProfileAsync(ProfileUpdateModel profileUpdateModel);
         Task<bool> UpdateProfilePhotoAsync();
         Task<bool> UpdateProfileCoverAsync();

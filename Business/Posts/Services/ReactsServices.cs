@@ -28,7 +28,7 @@ namespace Business.Posts.Services
                 reacts = reactRequest.ReactType
             };
             await _unitOfWork.PostReact.AddAsync(react);
-            return _unitOfWork.Complete() > 0;
+            return await _unitOfWork.Complete() > 0;
         }
 
         public async Task<bool> AddReactOnPostCommentAsync(ReactRequest reactRequest, string userEmail)
@@ -43,7 +43,7 @@ namespace Business.Posts.Services
                 reacts = reactRequest.ReactType
             };
             await _unitOfWork.PostCommentReact.AddAsync(react);
-            return _unitOfWork.Complete() > 0;
+            return await _unitOfWork.Complete() > 0;
         }
 
         public async Task<bool> AddReactOnQuestionPostAsync(ReactRequest reactRequest, string userEmail)
@@ -58,7 +58,7 @@ namespace Business.Posts.Services
                 reacts = reactRequest.ReactType
             };
             await _unitOfWork.QuestionReact.AddAsync(react);
-            return _unitOfWork.Complete() > 0;
+            return await _unitOfWork.Complete() > 0;
         }
 
         public async Task<bool> AddReactOnQuestionPostCommentAsync(ReactRequest reactRequest, string userEmail)
@@ -73,7 +73,7 @@ namespace Business.Posts.Services
                 reacts = reactRequest.ReactType
             };
             await _unitOfWork.QuestionCommentReact.AddAsync(react);
-            return _unitOfWork.Complete() > 0;
+            return await _unitOfWork.Complete() > 0;
         }
 
         public async Task<bool> DeleteCommentPostReactAsync(Guid reactId, string userEmail)
@@ -83,7 +83,7 @@ namespace Business.Posts.Services
             if ((react == null || user == null) || react.ProfileAccountId != user.Id)
                 return false;
             _unitOfWork.PostCommentReact.Delete(react);
-            return _unitOfWork.Complete() > 0;
+            return await _unitOfWork.Complete() > 0;
         }
 
         public async Task<bool> DeleteCommentQuestionReactAsync(Guid reactId, string userEmail)
@@ -93,7 +93,7 @@ namespace Business.Posts.Services
             if ((react == null || user == null) || react.ProfileAccountId != user.Id)
                 return false;
             _unitOfWork.QuestionCommentReact.Delete(react);
-            return _unitOfWork.Complete() > 0;
+            return await _unitOfWork.Complete() > 0;
         }
 
         public async Task<bool> DeletePostReactAsync(Guid reactId, string userEmail)
@@ -103,7 +103,7 @@ namespace Business.Posts.Services
             if ((react == null || user == null) || react.ProfileAccountId != user.Id)
                 return false;
             _unitOfWork.PostReact.Delete(react);
-            return _unitOfWork.Complete() > 0;
+            return  await _unitOfWork.Complete() > 0;
         }
 
         public async Task<bool> DeleteQuestionPostReactAsync(Guid reactId, string userEmail)
@@ -113,7 +113,7 @@ namespace Business.Posts.Services
             if ((react == null || user == null) || react.ProfileAccountId != user.Id)
                 return false;
             _unitOfWork.QuestionReact.Delete(react);
-            return _unitOfWork.Complete() > 0;
+            return await _unitOfWork.Complete() > 0;
         }
 
         public async Task<bool> UpdatePostCommentReact(ReactRequest reactRequest, string userEmail)
@@ -124,7 +124,7 @@ namespace Business.Posts.Services
                 return false;
             react.reacts = reactRequest.ReactType;
             _unitOfWork.PostCommentReact.Update(react);
-            return _unitOfWork.Complete() > 0;
+            return await _unitOfWork.Complete() > 0;
         }
 
         public async Task<bool> UpdatePostReact(ReactRequest reactRequest, string userEmail)
@@ -135,7 +135,7 @@ namespace Business.Posts.Services
                 return false;
             react.reacts = reactRequest.ReactType;
             _unitOfWork.PostReact.Update(react);
-            return _unitOfWork.Complete() > 0;
+            return await _unitOfWork.Complete() > 0;
         }
 
         public async Task<bool> UpdateQuestionCommentReact(ReactRequest reactRequest, string userEmail)
@@ -146,7 +146,7 @@ namespace Business.Posts.Services
                 return false;
             react.reacts = reactRequest.ReactType;
             _unitOfWork.QuestionCommentReact.Update(react);
-            return _unitOfWork.Complete() > 0;
+            return await _unitOfWork.Complete() > 0;
         }
 
         public async Task<bool> UpdateQuestionReact(ReactRequest reactRequest, string userEmail)
@@ -157,7 +157,7 @@ namespace Business.Posts.Services
                 return false;
             react.reacts = reactRequest.ReactType;
             _unitOfWork.QuestionReact.Update(react);
-            return _unitOfWork.Complete() > 0;
+            return await _unitOfWork.Complete() > 0;
         }
     }
 }

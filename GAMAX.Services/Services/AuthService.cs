@@ -44,7 +44,8 @@ namespace GAMAX.Services.Services
         {
             if (await _userManager.FindByEmailAsync(model.Email) is not null)
                 return   "Email is already registered!" ;
-            var userName = GenerateUserName(model.FirstName , model.LastName);
+            var userName = //model.FirstName + Guid.NewGuid().ToString();
+            GenerateUserName(model.FirstName, model.LastName);
             while (true)
             {
                 if (await _userManager.FindByNameAsync(userName) is not null)
@@ -101,7 +102,7 @@ namespace GAMAX.Services.Services
             await _userManager.UpdateAsync(user);
 
             await AddProfileAccount(user);
-
+            
             return  new AuthModel
             {
                 Email = user.Email,
@@ -117,6 +118,9 @@ namespace GAMAX.Services.Services
 
         private async Task AddProfileAccount(ApplicationUser user)
         {
+            var isAlreadyUser = _unitOfWork.ProfileAccount.Find(i => i.Id == user.Id);
+            if (isAlreadyUser != null)
+                return;
             var profile = new ProfileAccounts
             {
                 Id = user.Id,
@@ -316,17 +320,21 @@ namespace GAMAX.Services.Services
         }
         private async Task<ApplicationUser> FindUserByRefreshToken(string refreshToken)
         {
-            var users = await _userManager.Users.ToListAsync();
 
-            foreach (var user in users)
-            {
-                if (user.RefreshTokens.Any(t => t.Token == refreshToken))
-                {
-                    return user;
-                }
-            }
+            //TODO wrong logic // to fix search token in token tables then match with user id ;
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshToken));
+            return user;
+            //var users = await _userManager.Users.ToListAsync();
 
-            return null;
+            //foreach (var user in users)
+            //{
+            //    if (user.RefreshTokens.Any(t => t.Token == refreshToken))
+            //    {
+            //        return user;
+            //    }
+            //}
+
+            //return null;
         }
 
         //public async Task<JwtSecurityToken> Login(Models.LoginModel model)
@@ -401,7 +409,7 @@ namespace GAMAX.Services.Services
                                         </body>
                                     </html>";
             await _mailingService.SendEmailAsync(result.Email, "Welcome To Gamax !", WelcomeMessage);
-            return  "verification  send yo your mail";
+            return  "verification  send To your mail";
         }
         public async Task<string> SendResetPasswordMail(string Email)
         {
@@ -442,7 +450,6 @@ namespace GAMAX.Services.Services
                return false;
             
         }
-
         private async Task<JwtSecurityToken> CreateJwtToken(ApplicationUser user)
         {
             var userClaims = await _userManager.GetClaimsAsync(user);
@@ -454,7 +461,7 @@ namespace GAMAX.Services.Services
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim("uid", user.Id)
@@ -470,7 +477,8 @@ namespace GAMAX.Services.Services
                 audience: _jwt.Audience,
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(_jwt.DurationInMinutes),
-                signingCredentials: signingCredentials);
+                signingCredentials: signingCredentials
+                );
 
             return jwtSecurityToken;
         }

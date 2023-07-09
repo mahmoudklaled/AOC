@@ -23,12 +23,12 @@ namespace GAMAX.Services.Controllers
         }
 
         [HttpPost("GetProfileAcountData")]  //TODO: take email or username as params not token
-        public async Task<IActionResult> GetProfileAcountData([FromBody] string? accessToken)
+        public async Task<IActionResult> GetProfileAcountData()
         {
             HttpContext context = _httpContextAccessor.HttpContext;
-            string userNameId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string userNameId = context.User.FindFirst(ClaimTypes.Name)?.Value;
             string email = context.User.FindFirst(ClaimTypes.Email)?.Value;
-            var accountProfile = await _accountService.GetAccountProfileAsync(userNameId);
+            var accountProfile = await _accountService.GetAccountProfileAsync(email);
             if (accountProfile == null)
                 return BadRequest(new
                 {

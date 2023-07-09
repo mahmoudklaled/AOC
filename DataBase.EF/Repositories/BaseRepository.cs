@@ -115,30 +115,114 @@ namespace DataBase.EF.Repositories
             return await _context.Set<T>().Where(criteria).Skip(skip).Take(take).ToListAsync();
         }
 
-        public async Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>>? criteria, int? take, int? skip,
-            string[] includes = null,Expression < Func<T, object>> orderBy = null, string orderByDirection = OrderBy.Ascending)
+        public async Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> criteria, int? take, int? skip,
+            string[] includes = null, Expression<Func<T, object>> orderBy = null, string orderByDirection = OrderBy.Ascending)
         {
             IQueryable<T> query = _context.Set<T>();
-            if (criteria != null)
-                query = query.Where(criteria);
-            if (take.HasValue)
-                query = query.Take(take.Value);
 
-            if (skip.HasValue)
-                query = query.Skip(skip.Value);
+            if (includes != null)
+            {
+                query = includes.Aggregate(query, (current, include) => current.Include(include));
+            }
+
+            if (criteria != null)
+            {
+                query = query.Where(criteria);
+            }
 
             if (orderBy != null)
             {
                 if (orderByDirection == OrderBy.Ascending)
+                {
                     query = query.OrderBy(orderBy);
+                }
                 else
+                {
                     query = query.OrderByDescending(orderBy);
+                }
             }
-            if (includes != null)
-                foreach (var incluse in includes)
-                    query = query.Include(incluse);
+
+            if (skip.HasValue)
+            {
+                query = query.Skip(skip.Value);
+            }
+
+            if (take.HasValue)
+            {
+                query = query.Take(take.Value);
+            }
+
             return await query.ToListAsync();
         }
+
+
+        public async Task<IEnumerable<T>> FindAllAsync(string[] includes, int skip, int take)
+        {
+            IQueryable<T> query =  _context.Set<T>();
+
+            foreach (var include in includes)
+            {
+                query =  query.Include(include);
+            }
+
+            return  query.Skip(skip).Take(take).ToList();
+        }
+
+        public async Task<IEnumerable<T>> FindAllAsync(int skip, int take)
+        {
+            return await _context.Set<T>().Skip(skip).Take(take).ToListAsync(); 
+        }
+
+        private IQueryable<T> ApplyIncludes(IQueryable<T> query, string[] includes)
+        {
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+            return query;
+        }
+
+        private IQueryable<T> ApplyCriteria(IQueryable<T> query, Expression<Func<T, bool>> criteria)
+        {
+            if (criteria != null)
+            {
+                query = query.Where(criteria);
+            }
+            return query;
+        }
+
+        private IQueryable<T> ApplyOrderBy(IQueryable<T> query, Expression<Func<T, object>> orderBy, string orderByDirection)
+        {
+            if (orderBy != null)
+            {
+                if (orderByDirection == OrderBy.Ascending)
+                {
+                    query = query.OrderBy(orderBy);
+                }
+                else
+                {
+                    query = query.OrderByDescending(orderBy);
+                }
+            }
+            return query;
+        }
+
+        private IQueryable<T> ApplySkipTake(IQueryable<T> query, int skip, int take)
+        {
+            if (skip > 0)
+            {
+                query = query.Skip(skip);
+            }
+            if (take > 0)
+            {
+                query = query.Take(take);
+            }
+            return query;
+        }
+
 
         public T Add(T entity)
         {

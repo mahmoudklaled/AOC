@@ -37,8 +37,9 @@ namespace Business.Posts.Helper
 
             return filePaths;
         }
-        public  static AllPostsModel ConvertToPaths(AllPostsModel model, string photoFolderPath, string videoFolderPath)
+        public  static AllPostsModel ConvertToPaths(UploadPost post, string photoFolderPath, string videoFolderPath)
         {
+            var model = mappingModel(post);
             if (model.Photos != null)
             {
                 List<string> photoPaths = new List<string>();
@@ -85,6 +86,22 @@ namespace Business.Posts.Helper
                 model.VediosPath = videoPaths;
             }
 
+            return model;
+        }
+        public static AllPostsModel mappingModel(UploadPost post)
+        {
+            var model = new AllPostsModel()
+            {
+                Answer = post.Answer,
+                Description = post.Description,
+                Photos = post.Photos,
+                Question = post.Question,
+                TimeCreated = DateTime.UtcNow,
+                Title = post.Title,
+                Type = post.Type,
+                Vedios = post.Vedios,
+
+            };
             return model;
         }
         public static string ConverIformToPath(IFormFile formFile , string FileFolderPath)

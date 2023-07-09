@@ -28,7 +28,7 @@ namespace Business.Posts.Services
             if (comment.PostCommentReacts != null)
                 _unitOfWork.PostCommentReact.DeleteRange(comment.PostCommentReacts);
             _unitOfWork.PostComment.Delete(comment);
-            return _unitOfWork.Complete()>0;
+            return await _unitOfWork.Complete()>0;
         }
 
         public async Task<bool> AddPostCommentAsync(CommentRequest comment, string userEmail)
@@ -65,7 +65,7 @@ namespace Business.Posts.Services
                 };
             }
             await _unitOfWork.PostComment.AddAsync(Newcomment);
-            return _unitOfWork.Complete() > 0;
+            return await _unitOfWork.Complete() > 0;
         }
 
         public async Task<bool> UpdatePostCommentAsync(CommentRequest comment, string userEmail)
@@ -104,7 +104,7 @@ namespace Business.Posts.Services
                 };
             }
             _unitOfWork.PostComment.Update(cmnt);
-            return _unitOfWork.Complete() > 0;
+            return await _unitOfWork.Complete() > 0;
         }
 
         public async Task<bool> DeleteQuestionCommentAsync(Guid commentId, string userEmail)
@@ -122,7 +122,7 @@ namespace Business.Posts.Services
             if (comment.QuestionCommentReacts != null)
                 _unitOfWork.QuestionCommentReact.DeleteRange(comment.QuestionCommentReacts);
             _unitOfWork.QuestionComment.Delete(comment);
-            return _unitOfWork.Complete() > 0;
+            return await _unitOfWork.Complete() > 0;
         }
 
         public async Task<bool> AddQuestionCommentAsync(CommentRequest comment, string userEmail)
@@ -159,7 +159,7 @@ namespace Business.Posts.Services
                 };
             }
             await _unitOfWork.QuestionComment.AddAsync(Newcomment);
-            return _unitOfWork.Complete() > 0;
+            return  await _unitOfWork.Complete() > 0;
         }
 
         public async Task<bool> UpdateQuestionCommentAsync(CommentRequest comment, string userEmail)
@@ -197,7 +197,7 @@ namespace Business.Posts.Services
                 };
             }
             _unitOfWork.QuestionComment.Update(cmnt);
-            return _unitOfWork.Complete() > 0;
+            return await _unitOfWork.Complete() > 0;
         }
 
         public async Task<List<PostComment>> GetPostCommentsAsync(Guid postId, int cntToSkip)

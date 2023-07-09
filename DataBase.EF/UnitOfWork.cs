@@ -52,9 +52,9 @@ namespace DataBase.EF
 
         }
 
-        public int Complete()
+        public async Task<int> Complete()
         {
-            return _context.SaveChanges();
+            return await _context.SaveChangesAsync();
         }
 
         public void Dispose()

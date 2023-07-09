@@ -95,13 +95,6 @@ var configuration = builder.Configuration;
 builder.Services.AddDbContext<DataBase.EF.ApplicationDbContext>(options =>
     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-//builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//                options.UseSqlServer(
-//                    configuration.GetConnectionString("DefaultConnection"),
-//                        b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
-
-
-
 
 
 
@@ -156,12 +149,7 @@ app.UseWhen(context => !routesToSkipTokenValidation.Contains(context.Request.Pat
 {
     builder.UseMiddleware<TokenValidationMiddleware>();
 });
-//app.UseWhen(context =>
-//    !context.Request.Path.StartsWithSegments("/Photos") &&
-//    !context.Request.Path.StartsWithSegments("/StaticFiles"), builder =>
-//    {
-//        builder.UseMiddleware<TokenValidationMiddleware>();
-//    });
+
 app.UseCors(builder =>
 {
     builder.WithOrigins("*")
@@ -172,10 +160,10 @@ app.UseCors(builder =>
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
+//app.UseEndpoints(endpoints =>
+//{
+//    endpoints.MapControllers();
+//});
 app.MapControllers();
 
 app.Run();

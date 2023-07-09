@@ -11,10 +11,10 @@ namespace Business.Accounts.Services
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task<ProfileAccounts> GetAccountProfileAsync(string userId)
+        public async Task<ProfileAccounts> GetAccountProfileAsync(string email)
         {
             string[] includes = { "Posts", "QuestionPosts" };
-            var accountProfile = await _unitOfWork.ProfileAccount.FindAllAsync(p => p.UserName == userId, includes);
+            var accountProfile = await _unitOfWork.ProfileAccount.FindAllAsync(p => p.Email == email, includes);
             return accountProfile.FirstOrDefault();
         }
 
@@ -33,7 +33,7 @@ namespace Business.Accounts.Services
             };
              _unitOfWork.ProfileAccount.Update(UpdateProfileAccount);
             var UpdateResult = _unitOfWork.Complete();
-            return UpdateResult>0;
+            return await UpdateResult > 0;
         }
 
         public Task<bool> UpdateProfileCoverAsync()

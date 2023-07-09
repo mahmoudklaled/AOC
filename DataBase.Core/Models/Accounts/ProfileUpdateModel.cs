@@ -14,8 +14,6 @@ namespace DataBase.Core.Models.Accounts
         public string UserName { get; set; }
         public string Email { get; set; }
         public string City { get; set; } 
-        public string Country { get; set; } 
-        //public string CoverPhoto { get; set; }
-        //public string ProfilePohot { get; set; }
+        public string Country { get; set; }
     }
 }
