@@ -19,8 +19,8 @@ namespace GAMAX.Services.MiddleWare
         public async Task InvokeAsync(HttpContext context)
         {
             // Retrieve the access token from the request headers
-            string accessToken = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-
+            string accessToken = context.Request.Cookies["Authorization"];//.FirstOrDefault()?.Split(" ").Last();
+            //accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6Ik1haG1vdWRLaGFsZWQ1MzY3MjI2NSIsImp0aSI6IjZjNWZmMWJhLTc5ZmMtNDg5ZC04YzY5LTAxOGFjNGNlOWQ0OCIsImVtYWlsIjoiTWFobW91ZC5raGFsZWQxOTY0MEBnbWFpbC5jb20iLCJ1aWQiOiJmZjRkMmRmMS04ODU4LTQwZTctYjg5Mi01OGMwZTIxZWM3NzgiLCJyb2xlcyI6IlVzZXIiLCJleHAiOjE2ODg3NTE3NzMsImlzcyI6IlNlY3VyZUFwaSIsImF1ZCI6IlNlY3VyZUFwaVVzZXIifQ.KyRT5ylz8cHxoNMuHQiBpwdnt7Esa_PtJ5_C2BcrnD4";
             if (!string.IsNullOrEmpty(accessToken))
             {
                 try
@@ -42,7 +42,7 @@ namespace GAMAX.Services.MiddleWare
                 catch (SecurityTokenException)
                 {
                     // Token is invalid or expired
-                    var responseMessage = new { Message = "Token is invalid or Expired" };
+                    var responseMessage = new { Message = "Access Token is invalid or Expired" };
                     var responseJson = JsonSerializer.Serialize(responseMessage);
                     context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                     context.Response.ContentType = "application/json";
@@ -53,7 +53,7 @@ namespace GAMAX.Services.MiddleWare
             else
             {
                 // Access token is missing
-                var responseMessage = new { Message = "Token is Missing" };
+                var responseMessage = new { Message = "Access Token is Missing!" };
                 var responseJson = JsonSerializer.Serialize(responseMessage);
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 context.Response.ContentType = "application/json";

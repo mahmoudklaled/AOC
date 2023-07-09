@@ -32,6 +32,6 @@ namespace DataBase.Core
         IBaseRepository<QuestionCommentPhoto> QuestionCommentPhoto { get; }
         IBaseRepository<PostCommentVedio> PostCommentVedio { get; }
         IBaseRepository<PostCommentPhoto> PostCommentPhoto { get; }
-        int Complete();
+        Task<int> Complete();
     }
 }

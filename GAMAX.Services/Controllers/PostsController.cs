@@ -12,7 +12,7 @@ namespace GAMAX.Services.Controllers
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IPostService _postService;
-        public PostsController(IHttpContextAccessor httpContextAccessor ,IPostService postService )
+        public PostsController(IHttpContextAccessor httpContextAccessor, IPostService postService )
         {
             _httpContextAccessor = httpContextAccessor;
             _postService = postService;
@@ -20,18 +20,19 @@ namespace GAMAX.Services.Controllers
         [HttpPost("GetAllPosts")]  
         public async Task<IActionResult> GetAllPosts(int take , int skip)
         {
-            return Ok(_postService.GetPostAsync(take,skip));
+            return Ok( await _postService.GetPostAsync(take,skip));
         }
         [HttpPost("GetAllQuestionPosts")]
         public async Task<IActionResult> GetAllQuestionPosts(int take, int skip)
         {
-            return Ok(_postService.GetQuestionPostAsync(take, skip));
+            //var result = ;
+            return Ok(await _postService.GetQuestionPostAsync(take, skip));
         }
 
         [HttpPost("GetAllPostTypes")]
         public async Task<IActionResult> GetAllPostTypes(int take, int skip)
         {
-            return Ok(_postService.GetPostTypesAsync(take, skip));
+            return Ok(await _postService.GetPostTypesAsync(take, skip));
         }
 
         [HttpPost("DeletePost")]
@@ -39,17 +40,17 @@ namespace GAMAX.Services.Controllers
         {
             HttpContext context = _httpContextAccessor.HttpContext;
             string email = context.User.FindFirst(ClaimTypes.Email)?.Value;
-            return Ok(_postService.DeletePostAsync(id , email));
+            return Ok(await _postService.DeletePostAsync(id, email));
         }
         [HttpPost("DeleteQuestionPost")]
         public async Task<IActionResult> DeleteQuestionPost(Guid id)
         {
             HttpContext context = _httpContextAccessor.HttpContext;
             string email = context.User.FindFirst(ClaimTypes.Email)?.Value;
-            return Ok(_postService.DeletePostAsync(id , email));
+            return Ok(await _postService.DeleteQuestionPostAsync(id, email));
         }
         [HttpPost("AddPost")]
-        public async Task<IActionResult> AddPost(AllPostsModel postmodel)
+        public async Task<IActionResult> AddPost([FromBody] UploadPost postmodel)
         {
             HttpContext context = _httpContextAccessor.HttpContext;
             string email = context.User.FindFirst(ClaimTypes.Email)?.Value;
@@ -66,11 +67,11 @@ namespace GAMAX.Services.Controllers
                     result = false;
                     break;
             }
-            return Ok(_postService);
+            return Ok(result);
         }
         
         [HttpPost("UpdatePostOrQuestion")]
-        public async Task<IActionResult> UpdatePostOrQuestion(AllPostsModel postmodel)
+        public async Task<IActionResult> UpdatePostOrQuestion([FromBody] AllPostsModel postmodel)
         {
             HttpContext context = _httpContextAccessor.HttpContext;
             string email = context.User.FindFirst(ClaimTypes.Email)?.Value;

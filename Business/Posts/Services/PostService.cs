@@ -22,14 +22,14 @@ namespace Business.Posts.Services
         public async Task<List<Post>> GetPostAsync(int ? take,int ? skip)
         {
             string[] includes = { "Photos", "Vedios" , "Reacts" };
-            var result = await _unitOfWork.Post.FindAllAsync(null,take ,skip, includes);
+            var result = await _unitOfWork.Post.FindAllAsync(null,take ??0, skip ?? 0, includes);
             return result.ToList();
         }
         public async Task<List<QuestionPost>> GetQuestionPostAsync(int? take, int? skip)
         {
             string[] includes = { "Photos", "Vedios" , "Reacts" };
-            var result = await _unitOfWork.QuestionPost.FindAllAsync(null, take, skip, includes);
-            return result.ToList();
+            var result = await _unitOfWork.QuestionPost.FindAllAsync(null, take ?? 0, skip ?? 0,  includes);
+            return  result.ToList();
         }
         public async Task<List<AllPostsModel>> GetPostTypesAsync(int? take, int? skip)
         {
@@ -79,25 +79,25 @@ namespace Business.Posts.Services
 
             return allPostsModel;
         }
-        public async Task<bool> AddPostAsync(AllPostsModel postmodel, string userEmail)
+        public async Task<bool> AddPostAsync(UploadPost postmodel, string userEmail)
         {
             var user = await _unitOfWork.ProfileAccount.FindAsync(p=>p.Email ==userEmail);
             if (user == null) return false;
-            postmodel = PostHelper.ConvertToPaths(postmodel, "PostPhoto", "PostVedios");
-            var post = PreparePostModel(postmodel, user);
+            var newpostmodel = PostHelper.ConvertToPaths(postmodel, "PostPhoto", "PostVedios");
+            var post = PreparePostModel(newpostmodel, user);
             await _unitOfWork.Post.AddAsync(post);
             var saveresult = _unitOfWork.Complete();
-            return saveresult > 0;
+            return await saveresult > 0;
         }
-        public async Task<bool> AddQuestionPostAsync(AllPostsModel postmodel, string userEmail)
+        public async Task<bool> AddQuestionPostAsync(UploadPost postmodel, string userEmail)
         {
             var user = await _unitOfWork.ProfileAccount.FindAsync(p=>p.Email==userEmail);
             if (user == null) return false;
-            postmodel = PostHelper.ConvertToPaths(postmodel, "PostPhoto", "PostVedios");
-            var post = PrepareQuestonPostModel(postmodel, user);
+            var newpostmodel = PostHelper.ConvertToPaths(postmodel, "PostPhoto", "PostVedios");
+            var post = PrepareQuestonPostModel(newpostmodel, user);
             await _unitOfWork.QuestionPost.AddAsync(post);
             var saveresult =  _unitOfWork.Complete();
-            return saveresult > 0;
+            return await saveresult > 0;
         }
         public async Task<bool> UpdatePostAsync(AllPostsModel postmodel, string userEmail)
         {
@@ -116,7 +116,7 @@ namespace Business.Posts.Services
             post = PreparePostModel(postmodel, user, post);
             _unitOfWork.Post.Update(post);
             var update = _unitOfWork.Complete();
-            return update > 0;
+            return await update > 0;
         }
         public async Task<bool> UpdateQuestionPostAsync(AllPostsModel postmodel, string userEmail)
         {
@@ -135,7 +135,7 @@ namespace Business.Posts.Services
             questionpost = PrepareQuestonPostModel(postmodel, user, questionpost);
             _unitOfWork.QuestionPost.Update(questionpost);
             var update =  _unitOfWork.Complete();
-            return update > 0;
+            return await update > 0;
         }
         public async Task<bool> DeletePostAsync(Guid id, string userEmail)
         {
@@ -149,7 +149,7 @@ namespace Business.Posts.Services
                 return false;
             _unitOfWork.Post.Delete(post);
             var result =  _unitOfWork.Complete();
-            if (result > 0)
+            if (await result > 0)
                 return true;
             return false;
 
@@ -166,7 +166,7 @@ namespace Business.Posts.Services
                 return false;
             _unitOfWork.QuestionPost.Delete(questionpost);
             var result =  _unitOfWork.Complete();
-            if (result > 0)
+            if (await result > 0)
                 return true;
             return false;
         }
