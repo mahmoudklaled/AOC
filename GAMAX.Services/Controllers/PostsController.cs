@@ -71,7 +71,7 @@ namespace GAMAX.Services.Controllers
         }
         
         [HttpPost("UpdatePostOrQuestion")]
-        public async Task<IActionResult> UpdatePostOrQuestion([FromBody] AllPostsModel postmodel)
+        public async Task<IActionResult> UpdatePostOrQuestion([FromBody] UpdataPost postmodel)
         {
             HttpContext context = _httpContextAccessor.HttpContext;
             string email = context.User.FindFirst(ClaimTypes.Email)?.Value;

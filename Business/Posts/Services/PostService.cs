@@ -99,29 +99,28 @@ namespace Business.Posts.Services
             var saveresult =  _unitOfWork.Complete();
             return await saveresult > 0;
         }
-        public async Task<bool> UpdatePostAsync(AllPostsModel postmodel, string userEmail)
+        public async Task<bool> UpdatePostAsync(UpdataPost postmodel, string userEmail)
         {
-            string[] includes = { "Photos", "Vedios" };
-            var post = await _unitOfWork.Post.FindAsync(p => p.Id == postmodel.Id, includes);
-
+            
+            var post = await _unitOfWork.Post.FindAsync(p => p.Id == postmodel.Id);
             if (post == null)
                 return false;
-
             var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
             if (user == null)
                 return false;
             if (post.ProfileAccountId != user.Id)
                 return false;
-            UpdateOldPhotoAndVedio(postmodel, post);
-            post = PreparePostModel(postmodel, user, post);
+            DeletePostPhotoAndVedio(postmodel);
+            AddNewPostPhotoAndVedio(postmodel);
+            post.Description= postmodel.Description;
+            post.Title=postmodel.Title;
             _unitOfWork.Post.Update(post);
             var update = _unitOfWork.Complete();
             return await update > 0;
         }
-        public async Task<bool> UpdateQuestionPostAsync(AllPostsModel postmodel, string userEmail)
+        public async Task<bool> UpdateQuestionPostAsync(UpdataPost postmodel, string userEmail)
         {
-            string[] includes = { "Photos", "Vedios" };
-            var questionpost = await _unitOfWork.QuestionPost.FindAsync(p => p.Id == postmodel.Id, includes);
+            var questionpost = await _unitOfWork.QuestionPost.FindAsync(p => p.Id == postmodel.Id);
                                         
             if (questionpost == null)
                 return false;
@@ -131,8 +130,12 @@ namespace Business.Posts.Services
                 return false;
             if (questionpost.ProfileAccountId != user.Id)
                 return false;
-            UpdateOldPhotoAndVedio(postmodel, questionpost);
-            questionpost = PrepareQuestonPostModel(postmodel, user, questionpost);
+            DeletePostPhotoAndVedio(postmodel);
+            AddNewPostPhotoAndVedio(postmodel);
+            questionpost.Description= postmodel.Description;
+            questionpost.Title= postmodel.Title;
+            questionpost.Question = postmodel.Question;
+            questionpost.Answer= postmodel.Answer;
             _unitOfWork.QuestionPost.Update(questionpost);
             var update =  _unitOfWork.Complete();
             return await update > 0;
@@ -170,8 +173,6 @@ namespace Business.Posts.Services
                 return true;
             return false;
         }
-
-
         private QuestionPost PrepareQuestonPostModel(AllPostsModel postmodel, ProfileAccounts user, QuestionPost post = null)
         {
             if (post == null)
@@ -254,54 +255,101 @@ namespace Business.Posts.Services
             post.Description = postmodel.Description;
             return post;
         }
-        private void UpdateOldPhotoAndVedio(AllPostsModel postmodel, object post)
+        private async void AddNewPostPhotoAndVedio(UpdataPost postmodel)
         {
-            if (post is Post)
+            switch (postmodel.Type)
             {
-                var actualPost = post as Post;
-
-                if (postmodel.Photo.Count != actualPost.Photos.Count)
-                {
-                    var photosToRemove = new List<PostPhoto>();
-                    foreach (var photo in actualPost.Photos)
+                case PostsTypes.Post:
+                    foreach (var item in postmodel.NewPhotos)
                     {
-                        var result = postmodel.Photo.FirstOrDefault(p => p.Id == photo.Id);
-                        if (result == null)
+                        var path = PostHelper.ConverIformToPath(item, "PostPhoto");
+                        var photo = new PostPhoto
                         {
-                            photosToRemove.Add(photo);
-                        }
+                            Id = Guid.NewGuid(),
+                            PhotoPath = path,
+                            PostId = postmodel.Id
+                        };
+                        await _unitOfWork.PostPhoto.AddAsync(photo);
                     }
-
-                    foreach (var photoToRemove in photosToRemove)
+                    foreach (var item in postmodel.NewVedios)
                     {
-                        actualPost.Photos.Remove(photoToRemove);
-                        _unitOfWork.PostPhoto.Delete(photoToRemove);
+                        var path = PostHelper.ConverIformToPath(item, "PostVedios");
+                        var vedio = new PostVedio
+                        {
+                            Id = Guid.NewGuid(),
+                            VedioPath = path,
+                            PostId = postmodel.Id
+                        };
+                        await _unitOfWork.PostVedio.AddAsync(vedio);
                     }
-                }
+                    break;
+                case PostsTypes.Question:
+                    foreach (var item in postmodel.NewPhotos)
+                    {
+                        var path = PostHelper.ConverIformToPath(item, "PostPhoto");
+                        var photo = new QuestionPhoto
+                        {
+                            Id = Guid.NewGuid(),
+                            PhotoPath = path,
+                            QuestionId = postmodel.Id
+                        };
+                        await _unitOfWork.QuestionPhoto.AddAsync(photo);
+                    }
+                    foreach (var item in postmodel.NewVedios)
+                    {
+                        var path = PostHelper.ConverIformToPath(item, "PostVedios");
+                        var vedio = new QuestionVedio
+                        {
+                            Id = Guid.NewGuid(),
+                            VedioPath = path,
+                            QuestionPostId = postmodel.Id
+                        };
+                        await _unitOfWork.QuestionVedio.AddAsync(vedio);
+                    }
+                    break;
+                default: break;
+
+
             }
-            else if (post is QuestionPost)
+            _unitOfWork.Complete();
+        }
+        private async void DeletePostPhotoAndVedio(UpdataPost postmodel)
+        {
+            switch (postmodel.Type)
             {
-                var actualQuestionPost = post as QuestionPost;
-
-                if (postmodel.Photo.Count != actualQuestionPost.Photos.Count)
-                {
-                    var photosToRemove = new List<QuestionPhoto>();
-                    foreach (var photo in actualQuestionPost.Photos)
+                case PostsTypes.Post:
+                    foreach (var item in postmodel.DeletedPhotoIds)
                     {
-                        var result = postmodel.Photo.FirstOrDefault(p => p.Id == photo.Id);
-                        if (result == null)
-                        {
-                            photosToRemove.Add(photo);
-                        }
+                        var photo = await _unitOfWork.PostPhoto.FindAsync(p => p.Id == item);
+                        if (photo != null)
+                            _unitOfWork.PostPhoto.Delete(photo);
                     }
-
-                    foreach (var photoToRemove in photosToRemove)
+                    foreach (var item in postmodel.DeletedVedioIds)
                     {
-                        actualQuestionPost.Photos.Remove(photoToRemove);
-                        _unitOfWork.QuestionPhoto.Delete(photoToRemove);
+                        var vedio = await _unitOfWork.PostVedio.FindAsync(p => p.Id == item);
+                        if (vedio != null)
+                            _unitOfWork.PostVedio.Delete(vedio);
                     }
-                }
+                    break;
+                case PostsTypes.Question:
+                    foreach (var item in postmodel.DeletedPhotoIds)
+                    {
+                        var photo = await _unitOfWork.QuestionPhoto.FindAsync(p => p.Id == item);
+                        if (photo != null)
+                            _unitOfWork.QuestionPhoto.Delete(photo);
+                    }
+                    foreach (var item in postmodel.DeletedVedioIds)
+                    {
+                        var vedio = await _unitOfWork.QuestionVedio.FindAsync(p => p.Id == item);
+                        if (vedio != null)
+                            _unitOfWork.QuestionVedio.Delete(vedio);
+                    }
+                    break;
+                default: break;
+
+
             }
+            _unitOfWork.Complete();
         }
 
     }
