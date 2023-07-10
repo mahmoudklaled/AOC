@@ -44,6 +44,20 @@ namespace DataBase.Core.Models.Posts
         public string Answer { get; set; } // Additional property for QuestionPost
 
     }
+    public class UpdataPost
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public List<Guid> DeletedPhotoIds { get; set; }
+        public List<Guid> DeletedVedioIds { get; set; }
+        public List<IFormFile> NewPhotos { get; set; }
+        public List<IFormFile> NewVedios { get; set; }
+        public PostsTypes Type { get; set; }
+        public string Question { get; set; } // Additional property for QuestionPost
+        public string Answer { get; set; } // Additional property for QuestionPost
+
+    }
 
 
 }

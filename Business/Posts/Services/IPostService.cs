@@ -14,8 +14,8 @@ namespace Business.Posts.Services
         Task<List<AllPostsModel>> GetPostTypesAsync(int? take, int? skip);
         Task<bool> AddQuestionPostAsync(UploadPost postmodel, string userEmail);
         Task<bool> AddPostAsync(UploadPost postmodel, string userEmail);
-        Task<bool> UpdatePostAsync(AllPostsModel postmodel, string userEmail);
-        Task<bool> UpdateQuestionPostAsync(AllPostsModel postmodel, string userEmail);
+        Task<bool> UpdatePostAsync(UpdataPost postmodel, string userEmail);
+        Task<bool> UpdateQuestionPostAsync(UpdataPost postmodel, string userEmail);
         Task<bool> DeletePostAsync(Guid id, string userEmail);
         Task<bool> DeleteQuestionPostAsync(Guid id, string userEmail);
         
