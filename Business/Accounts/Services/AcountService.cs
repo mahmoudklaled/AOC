@@ -1,6 +1,8 @@
 ﻿using BDataBase.Core.Models.Accounts;
 using DataBase.Core.Models.Accounts;
 using DataBase.Core;
+using Microsoft.AspNetCore.Http;
+using Utilites;
 
 namespace Business.Accounts.Services
 {
@@ -36,14 +38,41 @@ namespace Business.Accounts.Services
             return await UpdateResult > 0;
         }
 
-        public Task<bool> UpdateProfileCoverAsync()
+        public async Task<bool> UpdateProfileCoverAsync(IFormFile formFile , string email)
         {
-            throw new NotImplementedException();
+            var photoPath = MediaUtilites.ConverIformToPath(formFile, "ProfilePhoto");
+            string[] includes = { "ProfilePohot" };
+            var profileAccount = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == email, includes);
+            if (profileAccount== null) return false;
+            if (profileAccount.ProfilePohot != null)
+                 _unitOfWork.ProfilePhoto.Delete(profileAccount.ProfilePohot);
+            profileAccount.ProfilePohot = new DataBase.Core.Models.PhotoModels.ProfilePhoto
+            {
+                Id = Guid.NewGuid(),
+                PhotoPath = photoPath,
+                ProfileId = profileAccount.Id
+            };
+            var result = await _unitOfWork.Complete();
+            return result > 0;
+             
         }
 
-        public Task<bool> UpdateProfilePhotoAsync()
+        public async Task<bool> UpdateProfilePhotoAsync(IFormFile formFile, string email)
         {
-            throw new NotImplementedException();
+            var photoPath = MediaUtilites.ConverIformToPath(formFile, "ProfilePhoto");
+            string[] includes = { "ProfilePohot" };
+            var profileAccount = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == email, includes);
+            if (profileAccount == null) return false;
+            if (profileAccount.CoverPhoto != null)
+                _unitOfWork.CoverPhoto.Delete(profileAccount.CoverPhoto);
+            profileAccount.CoverPhoto = new DataBase.Core.Models.PhotoModels.CoverPhoto
+            {
+                Id = Guid.NewGuid(),
+                PhotoPath = photoPath,
+                ProfileId = profileAccount.Id
+            };
+            var result = await _unitOfWork.Complete();
+            return result > 0;
         }
     }
 }

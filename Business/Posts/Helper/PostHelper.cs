@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utilites;
 
 namespace Business.Posts.Helper
 {
@@ -37,7 +38,7 @@ namespace Business.Posts.Helper
 
             return filePaths;
         }
-        public  static AllPostsModel ConvertToPaths(UploadPost post, string photoFolderPath, string videoFolderPath)
+        public static AllPostsModel ConvertToPaths(UploadPost post, string photoFolderPath, string videoFolderPath)
         {
             var model = mappingModel(post);
             if (model.Photos != null)
@@ -45,21 +46,11 @@ namespace Business.Posts.Helper
                 List<string> photoPaths = new List<string>();
                 foreach (var photo in model.Photos)
                 {
-                    if (photo != null && photo.Length > 0)
-                    {
-                        string photoExtension = Path.GetExtension(photo.FileName);
-                        string newPhotoFileName = $"{Guid.NewGuid()}{photoExtension}";
-                        string photoPath = Path.Combine(FolderPath, photoFolderPath, newPhotoFileName);
-
-                        using (var fileStream = new FileStream(photoPath, FileMode.Create))
-                        {
-                            photo.CopyTo(fileStream);
-                        }
-
-                        photoPaths.Add(Path.Combine("StaticFiles", photoFolderPath, newPhotoFileName));
-                    }
+                    var path = MediaUtilites.ConverIformToPath(photo, photoFolderPath);
+                    if(path != null)
+                        photoPaths.Add(path);
+                    
                 }
-
                 model.PhotosPath = photoPaths;
             }
 
@@ -68,25 +59,14 @@ namespace Business.Posts.Helper
                 List<string> videoPaths = new List<string>();
                 foreach (var video in model.Vedios)
                 {
-                    if (video != null && video.Length > 0)
-                    {
-                        string videoExtension = Path.GetExtension(video.FileName);
-                        string newVideoFileName = $"{Guid.NewGuid()}{videoExtension}";
-                        string videoPath = Path.Combine(FolderPath, videoFolderPath, newVideoFileName);
-
-                        using (var fileStream = new FileStream(videoPath, FileMode.Create))
-                        {
-                            video.CopyTo(fileStream);
-                        }
-
-                        videoPaths.Add(Path.Combine("StaticFiles", videoFolderPath, newVideoFileName));
-                    }
+                    var path =  MediaUtilites.ConverIformToPath(video, videoFolderPath);
+                    if (path != null)
+                        videoPaths.Add(path);
                 }
-
                 model.VediosPath = videoPaths;
             }
 
-            return model;
+             return model;
         }
         public static AllPostsModel mappingModel(UploadPost post)
         {
@@ -100,29 +80,29 @@ namespace Business.Posts.Helper
                 Title = post.Title,
                 Type = post.Type,
                 Vedios = post.Vedios,
-
             };
             return model;
         }
-        public static string ConverIformToPath(IFormFile formFile , string FileFolderPath)
-        {
+
+        //public static string ConverIformToPath(IFormFile formFile , string FileFolderPath)
+        //{
             
-            if (formFile != null && formFile.Length > 0)
-            {
-                string fileExtension = Path.GetExtension(formFile.FileName);
-                string newFileName = $"{Guid.NewGuid()}{fileExtension}";
-                string newFilePath = Path.Combine(FolderPath, FileFolderPath, newFileName);
+        //    if (formFile != null && formFile.Length > 0)
+        //    {
+        //        string fileExtension = Path.GetExtension(formFile.FileName);
+        //        string newFileName = $"{Guid.NewGuid()}{fileExtension}";
+        //        string newFilePath = Path.Combine(FolderPath, FileFolderPath, newFileName);
 
-                using (var fileStream = new FileStream(newFilePath, FileMode.Create))
-                {
-                    formFile.CopyTo(fileStream);
-                }
+        //        using (var fileStream = new FileStream(newFilePath, FileMode.Create))
+        //        {
+        //            formFile.CopyTo(fileStream);
+        //        }
 
-                return (Path.Combine("StaticFiles", FileFolderPath, newFileName));
-            }
-            return null;
+        //        return (Path.Combine("StaticFiles", FileFolderPath, newFileName));
+        //    }
+        //    return null;
                 
-        }
+        //}
 
 
     }

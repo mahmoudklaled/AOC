@@ -23,8 +23,8 @@ namespace DataBase.Core.Models.Posts
         public List<BasePhoto> Photo { get; set; }
         public List<BaseVedio> Vedio { get; set; }
         public PostsTypes Type { get; set; }
-        public string Question { get; set; } // Additional property for QuestionPost
-        public string Answer { get; set; } // Additional property for QuestionPost
+        public string Question { get; set; } 
+        public string Answer { get; set; } 
 
         
         [BindNever]
@@ -40,8 +40,8 @@ namespace DataBase.Core.Models.Posts
         public List<IFormFile> Photos { get; set; }
         public List<IFormFile> Vedios { get; set; }
         public PostsTypes Type { get; set; }
-        public string Question { get; set; } // Additional property for QuestionPost
-        public string Answer { get; set; } // Additional property for QuestionPost
+        public string Question { get; set; } 
+        public string Answer { get; set; } 
 
     }
     public class UpdataPost

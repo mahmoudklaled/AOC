@@ -50,7 +50,7 @@ namespace GAMAX.Services.Controllers
             return Ok(await _postService.DeleteQuestionPostAsync(id, email));
         }
         [HttpPost("AddPost")]
-        public async Task<IActionResult> AddPost([FromBody] UploadPost postmodel)
+        public async Task<IActionResult> AddPost([FromBody] UploadPost postmodel )
         {
             HttpContext context = _httpContextAccessor.HttpContext;
             string email = context.User.FindFirst(ClaimTypes.Email)?.Value;

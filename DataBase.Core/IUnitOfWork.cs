@@ -18,6 +18,8 @@ namespace DataBase.Core
         IBaseRepository<ProfileAccounts> ProfileAccount { get; }
         IBaseRepository<QuestionPost> QuestionPost { get; }
         IBaseRepository<Post> Post { get; }
+        IBaseRepository<ProfilePhoto> ProfilePhoto { get; }
+        IBaseRepository<CoverPhoto> CoverPhoto { get; }
         IBaseRepository<PostPhoto> PostPhoto { get; }
         IBaseRepository<PostVedio> PostVedio { get; }
         IBaseRepository<QuestionPhoto> QuestionPhoto { get; }
