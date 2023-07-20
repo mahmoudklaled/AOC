@@ -6,6 +6,7 @@ using DataBase.Core.Models.PhotoModels;
 using DataBase.Core.Models.Posts;
 using DataBase.Core.Models.VedioModels;
 using System.Collections.ObjectModel;
+using Utilites;
 
 namespace Business.Posts.Services
 {
@@ -262,7 +263,7 @@ namespace Business.Posts.Services
                 case PostsTypes.Post:
                     foreach (var item in postmodel.NewPhotos)
                     {
-                        var path = PostHelper.ConverIformToPath(item, "PostPhoto");
+                        var path = MediaUtilites.ConverIformToPath(item, "PostPhoto");
                         var photo = new PostPhoto
                         {
                             Id = Guid.NewGuid(),
@@ -273,7 +274,7 @@ namespace Business.Posts.Services
                     }
                     foreach (var item in postmodel.NewVedios)
                     {
-                        var path = PostHelper.ConverIformToPath(item, "PostVedios");
+                        var path = MediaUtilites.ConverIformToPath(item, "PostVedios");
                         var vedio = new PostVedio
                         {
                             Id = Guid.NewGuid(),
@@ -286,7 +287,7 @@ namespace Business.Posts.Services
                 case PostsTypes.Question:
                     foreach (var item in postmodel.NewPhotos)
                     {
-                        var path = PostHelper.ConverIformToPath(item, "PostPhoto");
+                        var path = MediaUtilites.ConverIformToPath(item, "PostPhoto");
                         var photo = new QuestionPhoto
                         {
                             Id = Guid.NewGuid(),
@@ -297,7 +298,7 @@ namespace Business.Posts.Services
                     }
                     foreach (var item in postmodel.NewVedios)
                     {
-                        var path = PostHelper.ConverIformToPath(item, "PostVedios");
+                        var path = MediaUtilites.ConverIformToPath(item, "PostVedios");
                         var vedio = new QuestionVedio
                         {
                             Id = Guid.NewGuid(),

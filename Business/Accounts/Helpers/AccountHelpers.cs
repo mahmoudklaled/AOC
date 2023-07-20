@@ -13,11 +13,11 @@ namespace Business.Accounts.LogicBusiness
 
         public static string GetDefaultProfilePohot()
         {
-            return Path.Combine(PhotoPath, "ProfilePhoto", "Default.png");
+            return Path.Combine(PhotoPath, "ProfilePhoto", "DefaultProfile.png");
         }
         public static string GetDefaultCoverPohot()
         {
-            return Path.Combine(PhotoPath, "CoverPhoto", "Default.png");
+            return Path.Combine(PhotoPath, "CoverPhoto", "DefaultCover.png");
         }
     }
 }

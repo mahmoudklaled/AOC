@@ -3,6 +3,7 @@ using DataBase.Core;
 using DataBase.Core.Models.CommentModels;
 using DataBase.Core.Models.PhotoModels;
 using DataBase.Core.Models.VedioModels;
+using Utilites;
 
 namespace Business.Posts.Services
 {
@@ -51,7 +52,7 @@ namespace Business.Posts.Services
                 Newcomment.PostCommentPhoto = new PostCommentPhoto()
                 {
                     Id = new Guid(),
-                    PhotoPath = PostHelper.ConverIformToPath(comment.Photo, "CommentsPhoto"),
+                    PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, "CommentsPhoto"),
                     PostCommentId = Newcomment.Id
                 };
             }
@@ -60,7 +61,7 @@ namespace Business.Posts.Services
                 Newcomment.PostCommentVedio = new PostCommentVedio()
                 {
                     Id = new Guid(),
-                    VedioPath = PostHelper.ConverIformToPath(comment.Vedio, "CommentsVedio"),
+                    VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, "CommentsVedio"),
                     PostCommentId = Newcomment.Id
                 };
             }
@@ -86,7 +87,7 @@ namespace Business.Posts.Services
                 cmnt.PostCommentPhoto = new PostCommentPhoto()
                 {
                     Id = new Guid(),
-                    PhotoPath = PostHelper.ConverIformToPath(comment.Photo, "CommentsPhoto"),
+                    PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, "CommentsPhoto"),
                     PostCommentId = cmnt.Id
                 };
             }
@@ -99,7 +100,7 @@ namespace Business.Posts.Services
                 cmnt.PostCommentVedio = new PostCommentVedio()
                 {
                     Id = new Guid(),
-                    VedioPath = PostHelper.ConverIformToPath(comment.Vedio, "CommentsVedio"),
+                    VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, "CommentsVedio"),
                     PostCommentId = cmnt.Id
                 };
             }
@@ -145,7 +146,7 @@ namespace Business.Posts.Services
                 Newcomment.QuestionCommentPhoto = new QuestionCommentPhoto()
                 {
                     Id = new Guid(),
-                    PhotoPath = PostHelper.ConverIformToPath(comment.Photo, "CommentsPhoto"),
+                    PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, "CommentsPhoto"),
                     QuestionCommentId = Newcomment.Id
                 };
             }
@@ -154,7 +155,7 @@ namespace Business.Posts.Services
                 Newcomment.QuestionCommentVedio = new QuestionCommentVedio()
                 {
                     Id = new Guid(),
-                    VedioPath = PostHelper.ConverIformToPath(comment.Vedio, "CommentsVedio"),
+                    VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, "CommentsVedio"),
                     QuestionCommentId = Newcomment.Id
                 };
             }
@@ -179,7 +180,7 @@ namespace Business.Posts.Services
                 cmnt.QuestionCommentPhoto = new QuestionCommentPhoto()
                 {
                     Id = new Guid(),
-                    PhotoPath = PostHelper.ConverIformToPath(comment.Photo, "CommentsPhoto"),
+                    PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, "CommentsPhoto"),
                     QuestionCommentId = cmnt.Id
                 };
             }
@@ -192,7 +193,7 @@ namespace Business.Posts.Services
                 cmnt.QuestionCommentVedio = new QuestionCommentVedio()
                 {
                     Id = new Guid(),
-                    VedioPath = PostHelper.ConverIformToPath(comment.Vedio, "CommentsVedio"),
+                    VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, "CommentsVedio"),
                     QuestionCommentId = cmnt.Id
                 };
             }

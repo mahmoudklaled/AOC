@@ -1,11 +1,6 @@
-﻿
-using Business.Accounts.Services;
+﻿using Business.Accounts.Services;
 using DataBase.Core.Models.Accounts;
-using GAMAX.Services.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.DotNet.Scaffolding.Shared.Messaging;
-using Microsoft.Identity.Client;
 using System.Security.Claims;
 
 namespace GAMAX.Services.Controllers
@@ -48,6 +43,26 @@ namespace GAMAX.Services.Controllers
                     message = "something Went wrong!"
                 });
             return Ok(accountProfileUpdate);
+        }
+        [HttpPost("AddProfilePhoto")]
+        public async Task<IActionResult> UpdateProfilePhoto(IFormFile formFile)
+        {
+            HttpContext context = _httpContextAccessor.HttpContext;
+            string email = context.User.FindFirst(ClaimTypes.Email)?.Value;
+            var result = await _accountService.UpdateProfilePhotoAsync(formFile,email);
+            if(result)
+                return Ok(result);
+            return BadRequest(new { message = "something wend wrong" });
+        }
+        [HttpPost("AddProfileCover")]
+        public async Task<IActionResult> UpdateProfileCover(IFormFile formFile)
+        {
+            HttpContext context = _httpContextAccessor.HttpContext;
+            string email = context.User.FindFirst(ClaimTypes.Email)?.Value;
+            var result = await _accountService.UpdateProfileCoverAsync(formFile, email);
+            if (result)
+                return Ok(result);
+            return BadRequest(new { message = "something wend wrong" });
         }
     }
 

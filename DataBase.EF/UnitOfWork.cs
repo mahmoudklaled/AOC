@@ -21,6 +21,8 @@ namespace DataBase.EF
         public IBaseRepository<ProfileAccounts> ProfileAccount { get; private set; }
         public IBaseRepository<QuestionPost> QuestionPost { get; private set; }
         public IBaseRepository<Post> Post { get; private set; }
+        public IBaseRepository<ProfilePhoto> ProfilePhoto { get; private set; }
+        public IBaseRepository<CoverPhoto> CoverPhoto { get; private set; }
         public IBaseRepository<PostPhoto> PostPhoto { get; private set; }
         public IBaseRepository<PostVedio> PostVedio { get; private set; }
         public IBaseRepository<QuestionPhoto> QuestionPhoto { get; private set; }
