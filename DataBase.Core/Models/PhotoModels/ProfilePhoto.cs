@@ -9,6 +9,6 @@ namespace DataBase.Core.Models.PhotoModels
 {
     public class ProfilePhoto:BasePhoto
     {
-        public string UserAccountsId { get; set; }
+        public Guid UserAccountsId { get; set; }
     }
 }

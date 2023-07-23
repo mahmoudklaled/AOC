@@ -16,9 +16,9 @@ namespace Business.Accounts.Services
         Task<bool> UpdateProfilePhotoAsync(IFormFile formFile, string email);
         Task<bool> UpdateProfileCoverAsync(IFormFile formFile, string email);
         Task<List<SearchAccount>> SearchAccountsAsync(string searchValue);
-        Task<bool> SendFriendRequest(string senderId , string recevierId);
+        Task<bool> SendFriendRequest(Guid senderId , Guid recevierId);
         Task<bool> AproveFriendRequest(Guid friendRequestId);
         Task<bool> DeneyFriendRequest(Guid friendRequestId);
-        Task<bool> DeleteFriend(string userId , string friendId);
+        Task<bool> DeleteFriend(Guid userId , Guid friendId);
     }
 }

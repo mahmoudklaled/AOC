@@ -23,7 +23,7 @@ namespace GAMAX.Services.Controllers
                 return BadRequest(ModelState);
 
             var result = await _authService.RegisterAsync(model);
-            if (result != "verification  send yo your mail")
+            if (result != "verification  send To your mail")
                 return BadRequest(new { Message = result });
             return Ok(new { Message = result });
         }

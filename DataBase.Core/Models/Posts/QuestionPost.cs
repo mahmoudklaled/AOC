@@ -28,6 +28,6 @@ namespace DataBase.Core.Models.Posts
 
         //Forign-key
         public UserAccounts UserAccounts { get; set; }
-        public string UserAccountsId { get; set; }
+        public Guid UserAccountsId { get; set; }
     }
 }
