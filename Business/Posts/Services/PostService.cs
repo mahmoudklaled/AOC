@@ -82,7 +82,7 @@ namespace Business.Posts.Services
         }
         public async Task<bool> AddPostAsync(UploadPost postmodel, string userEmail)
         {
-            var user = await _unitOfWork.ProfileAccount.FindAsync(p=>p.Email ==userEmail);
+            var user = await _unitOfWork.UserAccounts.FindAsync(p=>p.Email ==userEmail);
             if (user == null) return false;
             var newpostmodel = PostHelper.ConvertToPaths(postmodel, "PostPhoto", "PostVedios");
             var post = PreparePostModel(newpostmodel, user);
@@ -92,7 +92,7 @@ namespace Business.Posts.Services
         }
         public async Task<bool> AddQuestionPostAsync(UploadPost postmodel, string userEmail)
         {
-            var user = await _unitOfWork.ProfileAccount.FindAsync(p=>p.Email==userEmail);
+            var user = await _unitOfWork.UserAccounts.FindAsync(p=>p.Email==userEmail);
             if (user == null) return false;
             var newpostmodel = PostHelper.ConvertToPaths(postmodel, "PostPhoto", "PostVedios");
             var post = PrepareQuestonPostModel(newpostmodel, user);
@@ -106,10 +106,10 @@ namespace Business.Posts.Services
             var post = await _unitOfWork.Post.FindAsync(p => p.Id == postmodel.Id);
             if (post == null)
                 return false;
-            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
             if (user == null)
                 return false;
-            if (post.ProfileAccountId != user.Id)
+            if (post.UserAccountsId != user.Id)
                 return false;
             DeletePostPhotoAndVedio(postmodel);
             AddNewPostPhotoAndVedio(postmodel);
@@ -126,10 +126,10 @@ namespace Business.Posts.Services
             if (questionpost == null)
                 return false;
 
-            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
             if (user == null)
                 return false;
-            if (questionpost.ProfileAccountId != user.Id)
+            if (questionpost.UserAccountsId != user.Id)
                 return false;
             DeletePostPhotoAndVedio(postmodel);
             AddNewPostPhotoAndVedio(postmodel);
@@ -146,10 +146,10 @@ namespace Business.Posts.Services
             var post = await _unitOfWork.Post.FindAsync(p=>p.Id==id);
             if (post == null)
                 return false;
-            var user = await _unitOfWork.ProfileAccount.FindAsync(p=>p.Email==userEmail);
+            var user = await _unitOfWork.UserAccounts.FindAsync(p=>p.Email==userEmail);
             if (user == null)
                 return false;
-            if (post.ProfileAccountId != user.Id)
+            if (post.UserAccountsId != user.Id)
                 return false;
             _unitOfWork.Post.Delete(post);
             var result =  _unitOfWork.Complete();
@@ -163,10 +163,10 @@ namespace Business.Posts.Services
             var questionpost = await _unitOfWork.QuestionPost.FindAsync(q=>q.Id==id);
             if (questionpost == null)
                 return false;
-            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
             if (user == null)
                 return false;
-            if (questionpost.ProfileAccountId != user.Id)
+            if (questionpost.UserAccountsId != user.Id)
                 return false;
             _unitOfWork.QuestionPost.Delete(questionpost);
             var result =  _unitOfWork.Complete();
@@ -174,14 +174,14 @@ namespace Business.Posts.Services
                 return true;
             return false;
         }
-        private QuestionPost PrepareQuestonPostModel(AllPostsModel postmodel, ProfileAccounts user, QuestionPost post = null)
+        private QuestionPost PrepareQuestonPostModel(AllPostsModel postmodel, UserAccounts user, QuestionPost post = null)
         {
             if (post == null)
             {
                 post = new QuestionPost();
                 post.Id = Guid.NewGuid();
-                post.ProfileAccount = user;
-                post.ProfileAccountId = user.Id;
+                post.UserAccounts = user;
+                post.UserAccountsId = user.Id;
             }
 
             if (post.Photos == null)
@@ -216,15 +216,15 @@ namespace Business.Posts.Services
             post.Question = postmodel.Question;
             return post;
         }
-        private Post PreparePostModel(AllPostsModel postmodel, ProfileAccounts user, Post post = null)
+        private Post PreparePostModel(AllPostsModel postmodel, UserAccounts user, Post post = null)
         {
 
             if (post == null)
             {
                 post = new Post();
                 post.Id = Guid.NewGuid();
-                post.ProfileAccount = user;
-                post.ProfileAccountId = user.Id;
+                post.UserAccounts = user;
+                post.UserAccountsId = user.Id;
             }
             if (post.Photos == null)
                 post.Photos = new Collection<PostPhoto>();

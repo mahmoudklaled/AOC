@@ -11,9 +11,14 @@ namespace Business.Accounts.Services
 {
     public interface IAcountService
     {
-        Task<ProfileAccounts> GetAccountProfileAsync(string email);
+        Task<UserAccounts> GetAccountProfileAsync(string email);
         Task<bool> UpdateAccountProfileAsync(ProfileUpdateModel profileUpdateModel);
         Task<bool> UpdateProfilePhotoAsync(IFormFile formFile, string email);
         Task<bool> UpdateProfileCoverAsync(IFormFile formFile, string email);
+        Task<List<SearchAccount>> SearchAccountsAsync(string searchValue);
+        Task<bool> SendFriendRequest(string senderId , string recevierId);
+        Task<bool> AproveFriendRequest(Guid friendRequestId);
+        Task<bool> DeneyFriendRequest(Guid friendRequestId);
+        Task<bool> DeleteFriend(string userId , string friendId);
     }
 }

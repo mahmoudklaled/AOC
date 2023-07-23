@@ -1,6 +1,8 @@
 ﻿using Business.Posts.Services;
 using DataBase.Core.Models.CommentModels;
+using GAMAX.Services.Dto;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.Design;
 using System.Security.Claims;
 
 namespace GAMAX.Services.Controllers
@@ -27,111 +29,81 @@ namespace GAMAX.Services.Controllers
            return Ok(_commentServices.GetQuestionCommentsAsync(postId,requestcount));
         }
         [HttpPost("AddPostComment")]
-        public async Task<IActionResult> AddPostComment([FromBody]CommentRequest comment ,string ? userEmail)
+        public async Task<IActionResult> AddPostComment([FromBody]CommentRequest comment)
         {
-            HttpContext context = _httpContextAccessor.HttpContext;
-            string email = context.User.FindFirst(ClaimTypes.Email)?.Value;
-            if (email == null && userEmail==null)
-                return BadRequest(new
-                {
-                    message = "Email Needed !"
-                });
-            if (email != null)
-                return Ok(_commentServices.AddPostCommentAsync(comment, email));
-            else if(userEmail!=null) return Ok(_commentServices.AddPostCommentAsync(comment, userEmail));
-            return BadRequest(new
-            {
-                message = "Fail"
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var result = await _commentServices.AddPostCommentAsync(comment, userInfo.Email);
+            if (result)
+                return Ok();
+
+            return BadRequest(new {
+                Message = "Fail"
             });
         }
         [HttpPost("AddQuestionComment")]
-        public async Task<IActionResult> AddQuestionComment([FromBody] CommentRequest comment, string? userEmail)
+        public async Task<IActionResult> AddQuestionComment([FromBody] CommentRequest comment)
         {
-            HttpContext context = _httpContextAccessor.HttpContext;
-            string email = context.User.FindFirst(ClaimTypes.Email)?.Value;
-            if (email == null && userEmail == null)
-                return BadRequest(new
-                {
-                    message = "Email Needed !"
-                });
-            if (email != null)
-                return Ok(_commentServices.AddQuestionCommentAsync(comment, email));
-            else if (userEmail != null) return Ok(_commentServices.AddQuestionCommentAsync(comment, userEmail));
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var result = await _commentServices.AddQuestionCommentAsync(comment, userInfo.Email);
+            if (result)
+                return Ok();
+
             return BadRequest(new
             {
-                message = "Fail"
+                Message = "Fail"
             });
         }
         [HttpPost("DeletePostComment")]
-        public async Task<IActionResult> DeletePostComment([FromBody] Guid commentId, string? userEmail)
+        public async Task<IActionResult> DeletePostComment([FromBody] Guid commentId)
         {
-            HttpContext context = _httpContextAccessor.HttpContext;
-            string email = context.User.FindFirst(ClaimTypes.Email)?.Value;
-            if (email == null && userEmail == null)
-                return BadRequest(new
-                {
-                    message = "Email Needed !"
-                });
-            if (email != null)
-                return Ok(_commentServices.DeletePostCommentAsync(commentId, email));
-            else if (userEmail != null) return Ok(_commentServices.DeletePostCommentAsync(commentId, userEmail));
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var result = await _commentServices.DeletePostCommentAsync(commentId, userInfo.Email);
+            if (result)
+                return Ok();
+
             return BadRequest(new
             {
-                message = "Fail!"
+                Message = "Fail"
             });
         }
         [HttpPost("DeleteQuestionComment")]
-        public async Task<IActionResult> DeleteQuestionComment([FromBody] Guid commentId, string? userEmail)
+        public async Task<IActionResult> DeleteQuestionComment([FromBody] Guid commentId)
         {
-            HttpContext context = _httpContextAccessor.HttpContext;
-            string email = context.User.FindFirst(ClaimTypes.Email)?.Value;
-            if (email == null && userEmail == null)
-                return BadRequest(new
-                {
-                    message = "Email Needed !"
-                });
-            if (email != null)
-                return Ok(_commentServices.DeleteQuestionCommentAsync(commentId, email));
-            else if (userEmail != null) return Ok(_commentServices.DeleteQuestionCommentAsync(commentId, userEmail));
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var result = await _commentServices.DeleteQuestionCommentAsync(commentId, userInfo.Email);
+            if (result)
+                return Ok();
+
             return BadRequest(new
             {
-                message = "Fail!"
+                Message = "Fail"
             });
         }
         [HttpPost("UpdatePostComment")]
-        public async Task<IActionResult> UpdatePostComment([FromBody] CommentRequest comment, string? userEmail)
+        public async Task<IActionResult> UpdatePostComment([FromBody] CommentRequest comment)
         {
-            HttpContext context = _httpContextAccessor.HttpContext;
-            string email = context.User.FindFirst(ClaimTypes.Email)?.Value;
-            if (email == null && userEmail == null)
-                return BadRequest(new
-                {
-                    message = "Email Needed !"
-                });
-            if (email != null)
-                return Ok(_commentServices.UpdatePostCommentAsync(comment, email));
-            else if (userEmail != null) return Ok(_commentServices.UpdatePostCommentAsync(comment, userEmail));
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var result = await _commentServices.UpdatePostCommentAsync(comment, userInfo.Email);
+            if (result)
+                return Ok();
+
             return BadRequest(new
             {
-                message = "Fail"
+                Message = "Fail"
             });
+
         }
         [HttpPost("UpdateQuestionComment")]
-        public async Task<IActionResult> UpdateQuestionComment([FromBody] CommentRequest comment, string? userEmail)
+        public async Task<IActionResult> UpdateQuestionComment([FromBody] CommentRequest comment)
         {
-            HttpContext context = _httpContextAccessor.HttpContext;
-            string email = context.User.FindFirst(ClaimTypes.Email)?.Value;
-            if (email == null && userEmail == null)
-                return BadRequest(new
-                {
-                    message = "Email Needed !"
-                });
-            if (email != null)
-                return Ok(_commentServices.UpdateQuestionCommentAsync(comment, email));
-            else if (userEmail != null) return Ok(_commentServices.UpdateQuestionCommentAsync(comment, userEmail));
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var result = await _commentServices.UpdateQuestionCommentAsync(comment, userInfo.Email);
+            if (result)
+                return Ok();
+
             return BadRequest(new
             {
-                message = "Fail"
+                Message = "Fail"
             });
         }
     }

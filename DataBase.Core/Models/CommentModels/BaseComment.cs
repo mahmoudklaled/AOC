@@ -9,7 +9,7 @@ namespace DataBase.Core.Models.CommentModels
         public Guid Id { get; set; }
         public string comment { get; set; }
         public DateTime Date { get; set; } = DateTime.UtcNow;
-        public ProfileAccounts ProfileAccount { get; set; }
-        public string ProfileAccountId { get; set; }
+        public UserAccounts UserAccounts { get; set; }
+        public string UserAccountsId { get; set; }
     }
 }
