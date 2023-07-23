@@ -10,7 +10,7 @@ namespace BDataBase.Core.Models.Accounts
     public class UserAccounts
     {
         [Key]
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         [Key]
         public string Email { get; set; }
         //[Key]

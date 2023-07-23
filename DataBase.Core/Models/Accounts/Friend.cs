@@ -10,9 +10,9 @@ namespace DataBase.Core.Models.Accounts
     public class Friend
     {
         public Guid Id { get; set; }
-        public string FirstUserId { get; set; }
+        public Guid FirstUserId { get; set; }
         public UserAccounts FirstUser { get; set; }
-        public string SecondUserId { get; set; }
+        public Guid SecondUserId { get; set; }
         public UserAccounts SecondUser { get; set; }
         public DateTime ApprovedTime { get; set; } = DateTime.UtcNow;
     }

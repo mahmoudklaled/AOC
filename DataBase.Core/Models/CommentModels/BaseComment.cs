@@ -10,6 +10,6 @@ namespace DataBase.Core.Models.CommentModels
         public string comment { get; set; }
         public DateTime Date { get; set; } = DateTime.UtcNow;
         public UserAccounts UserAccounts { get; set; }
-        public string UserAccountsId { get; set; }
+        public Guid UserAccountsId { get; set; }
     }
 }

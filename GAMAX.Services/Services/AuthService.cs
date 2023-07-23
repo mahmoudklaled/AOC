@@ -118,12 +118,12 @@ namespace GAMAX.Services.Services
 
         private async Task AddProfileAccount(ApplicationUser user)
         {
-            var isAlreadyUser = _unitOfWork.UserAccounts.Find(i => i.Id == user.Id);
+            var isAlreadyUser = _unitOfWork.UserAccounts.Find(i => i.Id.ToString() == user.Id);
             if (isAlreadyUser != null)
                 return;
             var profile = new UserAccounts
             {
-                Id = user.Id,
+                Id = Guid.Parse(user.Id),
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,

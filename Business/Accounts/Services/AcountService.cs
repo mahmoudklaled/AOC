@@ -31,7 +31,7 @@ namespace Business.Accounts.Services
             await _unitOfWork.Complete();
             return true;
         }
-        public async Task<bool> SendFriendRequest(string senderId, string recevierId)
+        public async Task<bool> SendFriendRequest(Guid senderId, Guid recevierId)
         {
             var sender = await _unitOfWork.UserAccounts.FindAsync(u=>u.Id == senderId);
             var recevier = await _unitOfWork.UserAccounts.FindAsync(u => u.Id == recevierId);
@@ -58,7 +58,7 @@ namespace Business.Accounts.Services
             await _unitOfWork.Complete();
             return true;
         }
-        public async Task<bool> DeleteFriend(string userId, string friendId)
+        public async Task<bool> DeleteFriend(Guid userId, Guid friendId)
         {
             var friendEntity = await _unitOfWork.Friends.FindAsync(f => 
                                 (f.FirstUserId == userId && f.SecondUserId == friendId) ||

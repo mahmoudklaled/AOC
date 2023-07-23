@@ -14,7 +14,7 @@ namespace DataBase.Core.Models.Reacts
         [Key]
         public Guid Id { get; set; }
         public ReactsType reacts { get; set; }
-        public string UserAccountsId { get; set; }
+        public Guid UserAccountsId { get; set; }
         public UserAccounts UserAccounts { get; set; }
     }
 }
