@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataBase.EF.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230701180613_UpdateRelations")]
-    partial class UpdateRelations
+    [Migration("20230722155704_freindRequest")]
+    partial class freindRequest
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -59,6 +59,58 @@ namespace DataBase.EF.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ProfileAccounts");
+                });
+
+            modelBuilder.Entity("DataBase.Core.Models.Accounts.Friend", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ApprovedTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FirstUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SecondUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FirstUserId");
+
+                    b.HasIndex("SecondUserId");
+
+                    b.ToTable("Friend");
+                });
+
+            modelBuilder.Entity("DataBase.Core.Models.Accounts.FriendRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ReceiverId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("RequestTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RequestorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("RequestorId");
+
+                    b.ToTable("FriendRequest");
                 });
 
             modelBuilder.Entity("DataBase.Core.Models.Authentication.ApplicationUser", b =>
@@ -717,6 +769,44 @@ namespace DataBase.EF.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("DataBase.Core.Models.Accounts.Friend", b =>
+                {
+                    b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", "FirstUser")
+                        .WithMany("Friends")
+                        .HasForeignKey("FirstUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", "SecondUser")
+                        .WithMany()
+                        .HasForeignKey("SecondUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FirstUser");
+
+                    b.Navigation("SecondUser");
+                });
+
+            modelBuilder.Entity("DataBase.Core.Models.Accounts.FriendRequest", b =>
+                {
+                    b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", "Requestor")
+                        .WithMany("FriendRequests")
+                        .HasForeignKey("RequestorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Requestor");
+                });
+
             modelBuilder.Entity("DataBase.Core.Models.Authentication.ApplicationUser", b =>
                 {
                     b.OwnsMany("DataBase.Core.Models.Authentication.RefreshToken", "RefreshTokens", b1 =>
@@ -826,7 +916,7 @@ namespace DataBase.EF.Migrations
             modelBuilder.Entity("DataBase.Core.Models.PhotoModels.ProfilePhoto", b =>
                 {
                     b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", null)
-                        .WithOne("ProfilePohot")
+                        .WithOne("ProfilePhoto")
                         .HasForeignKey("DataBase.Core.Models.PhotoModels.ProfilePhoto", "ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1052,9 +1142,13 @@ namespace DataBase.EF.Migrations
                     b.Navigation("CoverPhoto")
                         .IsRequired();
 
+                    b.Navigation("FriendRequests");
+
+                    b.Navigation("Friends");
+
                     b.Navigation("Posts");
 
-                    b.Navigation("ProfilePohot")
+                    b.Navigation("ProfilePhoto")
                         .IsRequired();
 
                     b.Navigation("QuestionPosts");

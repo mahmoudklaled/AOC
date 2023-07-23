@@ -1,6 +1,7 @@
 ﻿using BDataBase.Core.Models.Accounts;
 using DataBase.Core;
 using DataBase.Core.Interfaces;
+using DataBase.Core.Models.Accounts;
 using DataBase.Core.Models.CommentModels;
 using DataBase.Core.Models.PhotoModels;
 using DataBase.Core.Models.Posts;
@@ -18,7 +19,9 @@ namespace DataBase.EF
     public class UnitOfWork : IUnitOfWork
     {
         private readonly ApplicationDbContext _context;
-        public IBaseRepository<ProfileAccounts> ProfileAccount { get; private set; }
+        public IBaseRepository<UserAccounts> UserAccounts { get; private set; }
+        public IBaseRepository<Friend> Friends { get; private set; }
+        public IBaseRepository<FriendRequest> FriendRequests { get; private set; }
         public IBaseRepository<QuestionPost> QuestionPost { get; private set; }
         public IBaseRepository<Post> Post { get; private set; }
         public IBaseRepository<ProfilePhoto> ProfilePhoto { get; private set; }
@@ -42,7 +45,7 @@ namespace DataBase.EF
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;
-            ProfileAccount= new BaseRepository<ProfileAccounts>(_context);
+            UserAccounts = new BaseRepository<UserAccounts>(_context);
             QuestionPost= new BaseRepository<QuestionPost>(_context);
             Post = new BaseRepository<Post>(_context);
             PostComment= new BaseRepository<PostComment>(_context);

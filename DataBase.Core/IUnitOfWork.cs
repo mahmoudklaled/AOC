@@ -1,5 +1,6 @@
 ﻿using BDataBase.Core.Models.Accounts;
 using DataBase.Core.Interfaces;
+using DataBase.Core.Models.Accounts;
 using DataBase.Core.Models.CommentModels;
 using DataBase.Core.Models.PhotoModels;
 using DataBase.Core.Models.Posts;
@@ -15,7 +16,9 @@ namespace DataBase.Core
 {
     public interface IUnitOfWork : IDisposable
     {
-        IBaseRepository<ProfileAccounts> ProfileAccount { get; }
+        IBaseRepository<UserAccounts> UserAccounts { get; }
+        IBaseRepository<Friend> Friends { get; }
+        IBaseRepository<FriendRequest> FriendRequests { get; }
         IBaseRepository<QuestionPost> QuestionPost { get; }
         IBaseRepository<Post> Post { get; }
         IBaseRepository<ProfilePhoto> ProfilePhoto { get; }

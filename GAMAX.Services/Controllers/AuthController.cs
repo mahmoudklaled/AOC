@@ -1,4 +1,5 @@
 ﻿using DataBase.Core.Models.Authentication;
+using GAMAX.Services.Dto;
 using GAMAX.Services.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -43,29 +44,36 @@ namespace GAMAX.Services.Controllers
 
             SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
             string redirectUrl = "http://localhost:3000/login?verfiy=true";
-            return Ok(result);
+            //return Ok();
             return Redirect(redirectUrl);
 
         }
 
         [HttpPost("token")]
-        public async Task<IActionResult> GetTokenAsync([FromBody] string? refreshToken)
+        public async Task<IActionResult> GetTokenAsync()
         {
             var refreshTokenFromCookies = Request.Cookies["RefreshToken"];
-            if (refreshTokenFromCookies == null && refreshToken == null)
+            if (refreshTokenFromCookies == null)
             {
-                return BadRequest(new { Message = "Refresh Token Requird" });
+                return BadRequest(new AuthResponse
+                {
+                    Message = "Refresh Token Required",
+                    IsAuthenticated = false,
+                    IsInvaliedAccessToken = true,
+                    IsInvalidRefreshToken = true
+                });
             }
-            string NeededRefreshToken;
-            if (refreshTokenFromCookies != null)
-                NeededRefreshToken = refreshTokenFromCookies;
-            else
-                NeededRefreshToken = refreshToken;
 
-            var result = await _authService.GetTokenAsync(NeededRefreshToken);
+            var result = await _authService.GetTokenAsync(refreshTokenFromCookies);
 
             if (!result.IsAuthenticated)
-                return Unauthorized(new { Message = result.Message });
+                return Unauthorized(new AuthResponse
+                {
+                    Message = result.Message,
+                    IsAuthenticated = false,
+                    IsInvaliedAccessToken = true,
+                    IsInvalidRefreshToken = true
+                });
 
             if (!string.IsNullOrEmpty(result.RefreshToken))
             {
@@ -73,8 +81,9 @@ namespace GAMAX.Services.Controllers
                 SetAccessToken(result.Token,result.ExpiresOn);
             }
 
-            return Ok(result);
+            return Ok();
         }
+        
         [HttpPost("login")]
         public async Task<IActionResult> LoginAsync([FromBody] TokenRequestModel model)
         {
@@ -85,14 +94,21 @@ namespace GAMAX.Services.Controllers
             var result = await _authService.LoginAndGetTokenAsync(model);
 
             if (!result.IsAuthenticated)
-                return BadRequest(new { Message = "Wrong Email Or Password" });
+                return Unauthorized(new AuthResponse
+                {
+                    Message = result.Message,
+                    IsAuthenticated = false,
+                    IsInvaliedAccessToken = true,
+                    IsInvalidRefreshToken = true
+                });
 
             if (!string.IsNullOrEmpty(result.RefreshToken))
             {
                 SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+                SetAccessToken(result.Token, result.ExpiresOn);
             }
 
-            return Ok(result);
+            return Ok();
         }
 
         [HttpPost("addRole")]
@@ -116,9 +132,9 @@ namespace GAMAX.Services.Controllers
         }
 
         [HttpPost("revokeTokens")]
-        public async Task<IActionResult> RevokeToken([FromBody] RevokeToken ? model)
+        public async Task<IActionResult> RevokeToken()
         {
-            var Refreshtoken = Request.Cookies["RefreshToken"] ?? model.Token;
+            var Refreshtoken = Request.Cookies["RefreshToken"] ;
 
             if (string.IsNullOrEmpty(Refreshtoken))
                 return BadRequest(new { Message = "Refresh Token is required!" });
@@ -131,7 +147,6 @@ namespace GAMAX.Services.Controllers
             var accessToken = Request.Cookies["Authorization"];
             if (accessToken != null)
             {
-                await _authService.RevokeTokenAsync(accessToken);
                 RemoveTokenFromCookie("Authorization");
             }
 
@@ -155,7 +170,7 @@ namespace GAMAX.Services.Controllers
         public async Task<IActionResult> ResetPasswordCode(string Email)
         {
             var result = await _authService.SendResetPasswordMail(Email);
-            if (result != "reset Password Code Semd to your mail")
+            if (result != "reset Password Code Send to your mail")
                 return BadRequest(new
                 {
                     Message = result
@@ -166,10 +181,9 @@ namespace GAMAX.Services.Controllers
         [HttpPost("UpdatePassword")]
         public async Task<IActionResult> UpdatePassword([FromBody] RessetPassword model)
         {
-            var encrypt = new Secuirty.AES_Security();
-            var Email = encrypt.Decrypt(model.Email);
+            var security = new Secuirty.AES_Security();
+            var Email = security.Decrypt(model.Email);
             model.Email = Email;
-            //model.Token = decodedToken;
             var result = await _authService.ResetPassword(model);
             if (result)
                 return Ok(result);

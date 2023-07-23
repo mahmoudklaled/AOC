@@ -25,7 +25,7 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnC
 builder.Services.AddHttpContextAccessor();
 builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-     .AddEntityFrameworkStores<DataBase.EF.ApplicationDbContext>()
+     .AddEntityFrameworkStores<ApplicationDbContext>()
      .AddDefaultTokenProviders();
 
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
@@ -92,7 +92,7 @@ builder.Services.AddCors(options =>
 // Retrieve the configuration from the builder
 var configuration = builder.Configuration;
 
-builder.Services.AddDbContext<DataBase.EF.ApplicationDbContext>(options =>
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
 

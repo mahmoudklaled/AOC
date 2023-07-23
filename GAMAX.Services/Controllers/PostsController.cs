@@ -1,6 +1,7 @@
 ﻿using Business.Posts.Services;
 using DataBase.Core.Enums;
 using DataBase.Core.Models.Posts;
+using GAMAX.Services.Dto;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -38,30 +39,27 @@ namespace GAMAX.Services.Controllers
         [HttpPost("DeletePost")]
         public async Task<IActionResult> DeletePost(Guid id)
         {
-            HttpContext context = _httpContextAccessor.HttpContext;
-            string email = context.User.FindFirst(ClaimTypes.Email)?.Value;
-            return Ok(await _postService.DeletePostAsync(id, email));
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            return Ok(await _postService.DeletePostAsync(id, userInfo.Email));
         }
         [HttpPost("DeleteQuestionPost")]
         public async Task<IActionResult> DeleteQuestionPost(Guid id)
         {
-            HttpContext context = _httpContextAccessor.HttpContext;
-            string email = context.User.FindFirst(ClaimTypes.Email)?.Value;
-            return Ok(await _postService.DeleteQuestionPostAsync(id, email));
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            return Ok(await _postService.DeleteQuestionPostAsync(id, userInfo.Email));
         }
         [HttpPost("AddPost")]
         public async Task<IActionResult> AddPost([FromBody] UploadPost postmodel )
         {
-            HttpContext context = _httpContextAccessor.HttpContext;
-            string email = context.User.FindFirst(ClaimTypes.Email)?.Value;
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             bool result;
             switch (postmodel.Type)
             {
                 case PostsTypes.Post:
-                    result = await _postService.AddPostAsync(postmodel, email);
+                    result = await _postService.AddPostAsync(postmodel, userInfo.Email);
                     break;
                 case PostsTypes.Question:
-                    result = await _postService.AddQuestionPostAsync(postmodel, email);
+                    result = await _postService.AddQuestionPostAsync(postmodel, userInfo.Email);
                     break;
                 default:
                     result = false;
@@ -73,16 +71,15 @@ namespace GAMAX.Services.Controllers
         [HttpPost("UpdatePostOrQuestion")]
         public async Task<IActionResult> UpdatePostOrQuestion([FromBody] UpdataPost postmodel)
         {
-            HttpContext context = _httpContextAccessor.HttpContext;
-            string email = context.User.FindFirst(ClaimTypes.Email)?.Value;
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             bool result;
             switch(postmodel.Type)
             {
                 case PostsTypes.Post:
-                    result =await  _postService.UpdatePostAsync(postmodel, email);
+                    result =await  _postService.UpdatePostAsync(postmodel, userInfo.Email);
                     break;
                 case PostsTypes.Question:
-                    result = await _postService.UpdateQuestionPostAsync(postmodel, email);
+                    result = await _postService.UpdateQuestionPostAsync(postmodel, userInfo.Email);
                     break;
                 default:
                     result = false;  

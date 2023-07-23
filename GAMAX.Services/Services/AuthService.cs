@@ -118,10 +118,10 @@ namespace GAMAX.Services.Services
 
         private async Task AddProfileAccount(ApplicationUser user)
         {
-            var isAlreadyUser = _unitOfWork.ProfileAccount.Find(i => i.Id == user.Id);
+            var isAlreadyUser = _unitOfWork.UserAccounts.Find(i => i.Id == user.Id);
             if (isAlreadyUser != null)
                 return;
-            var profile = new ProfileAccounts
+            var profile = new UserAccounts
             {
                 Id = user.Id,
                 FirstName = user.FirstName,
@@ -144,7 +144,7 @@ namespace GAMAX.Services.Services
             }
 
             // Step 4: Add the new profile to the DbContext and save changes
-            await _unitOfWork.ProfileAccount.AddAsync(profile);
+            await _unitOfWork.UserAccounts.AddAsync(profile);
             _unitOfWork.Complete();
         }
 
@@ -161,7 +161,7 @@ namespace GAMAX.Services.Services
             }
             var confirmed = await _userManager.IsEmailConfirmedAsync(user);
             if (!confirmed)
-                return new AuthModel { Message = "Please Confirm your Email " };
+                return new AuthModel { Message = "Please Confirm your Email " , IsAuthenticated=false};
 
             var jwtSecurityToken = await CreateJwtToken(user);
             var rolesList = await _userManager.GetRolesAsync(user);
@@ -324,34 +324,8 @@ namespace GAMAX.Services.Services
             //TODO wrong logic // to fix search token in token tables then match with user id ;
             var user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshToken));
             return user;
-            //var users = await _userManager.Users.ToListAsync();
-
-            //foreach (var user in users)
-            //{
-            //    if (user.RefreshTokens.Any(t => t.Token == refreshToken))
-            //    {
-            //        return user;
-            //    }
-            //}
-
-            //return null;
         }
 
-        //public async Task<JwtSecurityToken> Login(Models.LoginModel model)
-        //{
-        //    // Perform the login operation using _signInManager
-        //    var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
-
-        //    if (!result.Succeeded)
-        //    {
-        //        return null;
-        //    }
-        //    var user = await _userManager.FindByEmailAsync(model.Email);
-
-        //    var jwtToken = await CreateJwtToken(user);
-        //    return jwtToken;
-
-        //}
         private string GenerateRandomVerificationCode(int length)
         {
             var random = new Random();
@@ -360,21 +334,16 @@ namespace GAMAX.Services.Services
         }
         private string GenerateUserName(string firstName, string lastName)
         {
-            // Remove any leading or trailing spaces from the first name and last name
             firstName = firstName.Trim();
             lastName = lastName.Trim();
 
-            // Concatenate the first name and last name
             var baseName = $"{firstName}{lastName}";
 
-            // Remove any non-alphanumeric characters from the base name
             var cleanBaseName = new string(baseName.Where(char.IsLetterOrDigit).ToArray());
 
-            // Generate a random number with 8 digits
             var random = new Random();
             var randomNumber = random.Next(10000000, 99999999);
 
-            // Combine the clean base name with the random number
             var userName = $"{cleanBaseName}{randomNumber}";
 
             return userName;
@@ -462,7 +431,7 @@ namespace GAMAX.Services.Services
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti,user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim("uid", user.Id)
             }

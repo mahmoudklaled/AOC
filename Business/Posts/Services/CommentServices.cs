@@ -17,11 +17,11 @@ namespace Business.Posts.Services
         public async Task<bool> DeletePostCommentAsync(Guid commentId, string userEmail)
         {
             string[] includes = { "PostCommentPhoto", "PostCommentVedio", "PostCommentReacts" };
-            var user = await _unitOfWork.ProfileAccount.FindAsync(p=>p.Email==userEmail);
+            var user = await _unitOfWork.UserAccounts.FindAsync(p=>p.Email==userEmail);
             var comment = await _unitOfWork.PostComment.FindAsync(p=>p.Id ==commentId, includes);
             if (comment == null || user == null)
                 return false;
-            if (comment.ProfileAccountId != user.Id) return false;
+            if (comment.UserAccountsId != user.Id) return false;
             if (comment.PostCommentPhoto != null)
                 _unitOfWork.PostCommentPhoto.Delete(comment.PostCommentPhoto);
             if (comment.PostCommentVedio != null)
@@ -34,15 +34,15 @@ namespace Business.Posts.Services
 
         public async Task<bool> AddPostCommentAsync(CommentRequest comment, string userEmail)
         {
-            var user = await _unitOfWork.ProfileAccount.FindAsync(p=>p.Email== userEmail);
+            var user = await _unitOfWork.UserAccounts.FindAsync(p=>p.Email== userEmail);
             if (user == null) return false;
             var post = await _unitOfWork.Post.FindAsync(p=>p.Id==comment.PostId);
             if (post == null) return false;
             var Newcomment = new PostComment()
             {
                 Id = new Guid(),
-                ProfileAccount = user,
-                ProfileAccountId = user.Id,
+                UserAccounts = user,
+                UserAccountsId = user.Id,
                 PostId = comment.PostId,
                 Post = post,
                 comment = comment.comment
@@ -72,11 +72,11 @@ namespace Business.Posts.Services
         public async Task<bool> UpdatePostCommentAsync(CommentRequest comment, string userEmail)
         {
             string[] includes = { "PostCommentPhoto", "PostCommentVedio"};
-            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
             var cmnt = await _unitOfWork.PostComment.FindAsync(p => p.Id == comment.Id, includes);
             if (cmnt == null || user == null)
                 return false;
-            if (cmnt.ProfileAccountId != user.Id) return false;
+            if (cmnt.UserAccountsId != user.Id) return false;
             cmnt.comment = comment.comment;
             if (comment.Photo != null)
             {
@@ -111,11 +111,11 @@ namespace Business.Posts.Services
         public async Task<bool> DeleteQuestionCommentAsync(Guid commentId, string userEmail)
         {
             string[] includes = { "QuestionCommentPhoto", "QuestionCommentVedio", "QuestionCommentReacts" };
-            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
             var comment = await _unitOfWork.QuestionComment.FindAsync(p => p.Id == commentId , includes);
             if (comment == null || user == null)
                 return false;
-            if (comment.ProfileAccountId != user.Id) return false;
+            if (comment.UserAccountsId != user.Id) return false;
             if (comment.QuestionCommentPhoto != null)
                _unitOfWork.QuestionCommentPhoto.Delete(comment.QuestionCommentPhoto);
             if (comment.QuestionCommentVedio != null)
@@ -128,15 +128,15 @@ namespace Business.Posts.Services
 
         public async Task<bool> AddQuestionCommentAsync(CommentRequest comment, string userEmail)
         {
-            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
             if (user == null) return false;
             var post = await _unitOfWork.QuestionPost.FindAsync(p => p.Id == comment.PostId);
             if (post == null) return false;
             var Newcomment = new QuestionComment()
             {
                 Id = new Guid(),
-                ProfileAccount = user,
-                ProfileAccountId = user.Id,
+                UserAccounts = user,
+                UserAccountsId = user.Id,
                 QuestionPostId = comment.PostId,
                 QuestionPost = post,
                 comment = comment.comment
@@ -166,11 +166,11 @@ namespace Business.Posts.Services
         public async Task<bool> UpdateQuestionCommentAsync(CommentRequest comment, string userEmail)
         {
             string[] includes = { "QuestionCommentPhoto", "QuestionCommentVedio" };
-            var user = await _unitOfWork.ProfileAccount.FindAsync(p => p.Email == userEmail);
+            var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
             var cmnt = await _unitOfWork.QuestionComment.FindAsync(p => p.Id == comment.Id, includes);
             if (cmnt == null || user == null)
                 return false;
-            if (cmnt.ProfileAccountId != user.Id) return false;
+            if (cmnt.UserAccountsId != user.Id) return false;
             cmnt.comment = comment.comment;
             if (comment.Photo != null)
             {

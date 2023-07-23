@@ -1,4 +1,5 @@
 ﻿using BDataBase.Core.Models.Accounts;
+using DataBase.Core.Models.Accounts;
 using DataBase.Core.Models.Authentication;
 using DataBase.Core.Models.CommentModels;
 using DataBase.Core.Models.PhotoModels;
@@ -20,7 +21,7 @@ namespace DataBase.EF
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<TokenCode> TokenCodes { get; set; }
-        public DbSet<ProfileAccounts> ProfileAccounts { get; set; }
+        public DbSet<UserAccounts> UserAccounts { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<QuestionPost> QuestionPosts { get; set; }
         public DbSet<CoverPhoto> CoverPhotos { get; set; }
@@ -53,40 +54,64 @@ namespace DataBase.EF
             modelBuilder.ApplyConfiguration(new QuestionConfiguration());
             modelBuilder.ApplyConfiguration(new CommentPostConfiguration());
 
+            // Friend entity configuration
+            modelBuilder.Entity<Friend>()
+                .HasOne(f => f.FirstUser)
+                .WithMany(u => u.Friends)
+                .HasForeignKey(f => f.FirstUserId)
+                .OnDelete(DeleteBehavior.Restrict); // Or use DeleteBehavior.Cascade if you want to delete friends when a profile is deleted.
 
-            modelBuilder.Entity<PostCommentReact>()
-                .HasOne(qc => qc.ProfileAccount)
+            modelBuilder.Entity<Friend>()
+                .HasOne(f => f.SecondUser)
                 .WithMany()
-                .HasForeignKey(qc => qc.ProfileAccountId)
+                .HasForeignKey(f => f.SecondUserId)
+                .OnDelete(DeleteBehavior.Restrict); // Or use DeleteBehavior.Cascade if you want to delete friends when a profile is deleted.
+
+            // FriendRequest entity configuration
+            modelBuilder.Entity<FriendRequest>()
+                .HasOne(fr => fr.Requestor)
+                .WithMany(u => u.FriendRequests)
+                .HasForeignKey(fr => fr.RequestorId)
+                .OnDelete(DeleteBehavior.Restrict); // Or use DeleteBehavior.Cascade if you want to delete friend requests when a profile is deleted.
+
+            modelBuilder.Entity<FriendRequest>()
+                .HasOne(fr => fr.Receiver)
+                .WithMany()
+                .HasForeignKey(fr => fr.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict); // Or use DeleteBehavior.Cascade if you want to delete friend requests when a profile is deleted.
+            modelBuilder.Entity<PostCommentReact>()
+                .HasOne(qc => qc.UserAccounts)
+                .WithMany()
+                .HasForeignKey(qc => qc.UserAccountsId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<QuestionCommentReact>()
-                .HasOne(pc => pc.ProfileAccount)
+                .HasOne(pc => pc.UserAccounts)
                 .WithMany()
-                .HasForeignKey(pc => pc.ProfileAccountId)
+                .HasForeignKey(pc => pc.UserAccountsId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<PostComment>()
-                .HasOne(pc => pc.ProfileAccount)
+                .HasOne(pc => pc.UserAccounts)
                 .WithMany()
-                .HasForeignKey(pc => pc.ProfileAccountId)
+                .HasForeignKey(pc => pc.UserAccountsId)
                 .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<PostReact>()
-                .HasOne(pr => pr.ProfileAccount)
+                .HasOne(pr => pr.UserAccounts)
                 .WithMany()
-                .HasForeignKey(pr => pr.ProfileAccountId)
+                .HasForeignKey(pr => pr.UserAccountsId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<QuestionComment>()
-                .HasOne(qc => qc.ProfileAccount)
+                .HasOne(qc => qc.UserAccounts)
                 .WithMany()
-                .HasForeignKey(qc => qc.ProfileAccountId)
+                .HasForeignKey(qc => qc.UserAccountsId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<QuestionReact>()
-                .HasOne(qr => qr.ProfileAccount)
+                .HasOne(qr => qr.UserAccounts)
                 .WithMany()
-                .HasForeignKey(qr => qr.ProfileAccountId)
+                .HasForeignKey(qr => qr.UserAccountsId)
                 .OnDelete(DeleteBehavior.Restrict);
 
 

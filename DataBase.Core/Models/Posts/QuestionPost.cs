@@ -27,7 +27,7 @@ namespace DataBase.Core.Models.Posts
         public ICollection<QuestionReact> Reacts { get; set; }
 
         //Forign-key
-        public ProfileAccounts ProfileAccount { get; set; }
-        public string ProfileAccountId { get; set; }
+        public UserAccounts UserAccounts { get; set; }
+        public string UserAccountsId { get; set; }
     }
 }
