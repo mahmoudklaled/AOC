@@ -108,7 +108,6 @@ app.UseStaticFiles(new StaticFileOptions
 // Define the routes that should skip token validation
 var routesToSkipTokenValidation = new List<string>
 {
-    "/api/Posts/GetAllPostTypes",
     "/api/Auth/register",
     "/api/Auth/verify",
     "/api/Auth/token",
@@ -130,13 +129,13 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
+app.UseCors("AllowAnyOrigin");
 app.UseWhen(context => !routesToSkipTokenValidation.Contains(context.Request.Path.Value), builder =>
 {
     builder.UseMiddleware<TokenValidationMiddleware>();
 });
 
-app.UseCors("AllowAnyOrigin");
+
 app.UseAuthentication();
 app.UseAuthorization();
 //app.UseEndpoints(endpoints =>
