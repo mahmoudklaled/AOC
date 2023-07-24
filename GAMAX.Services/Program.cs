@@ -14,10 +14,9 @@ using Business.Posts.Services;
 using DataBase.Core;
 using DataBase.EF;
 using DataBase.Core.Models.Authentication;
+using Utilites;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
 
@@ -65,16 +64,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddControllers();
 
-
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSwaggerUI",
-        builder =>
-        {
-            builder.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
-        });
     options.AddPolicy("AllowAnyOrigin",
         builder =>
         {
@@ -84,12 +75,6 @@ builder.Services.AddCors(options =>
         });
 });
 
-
-
-
-
-
-// Retrieve the configuration from the builder
 var configuration = builder.Configuration;
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -122,7 +107,8 @@ app.UseStaticFiles(new StaticFileOptions
 
 // Define the routes that should skip token validation
 var routesToSkipTokenValidation = new List<string>
-{ 
+{
+    "/api/Posts/GetAllPostTypes",
     "/api/Auth/register",
     "/api/Auth/verify",
     "/api/Auth/token",
@@ -150,14 +136,7 @@ app.UseWhen(context => !routesToSkipTokenValidation.Contains(context.Request.Pat
     builder.UseMiddleware<TokenValidationMiddleware>();
 });
 
-app.UseCors(builder =>
-{
-    builder.WithOrigins("*")
-        .AllowAnyOrigin()
-        .AllowAnyMethod()
-        .AllowAnyHeader();
-});
-
+app.UseCors("AllowAnyOrigin");
 app.UseAuthentication();
 app.UseAuthorization();
 //app.UseEndpoints(endpoints =>
