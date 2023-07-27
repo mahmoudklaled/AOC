@@ -1,5 +1,7 @@
 ﻿using DataBase.Core.Enums;
+using DataBase.Core.Models.CommentModels;
 using DataBase.Core.Models.PhotoModels;
+using DataBase.Core.Models.Reacts;
 using DataBase.Core.Models.VedioModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -22,11 +24,14 @@ namespace DataBase.Core.Models.Posts
         public List<IFormFile> Vedios { get; set; }
         public List<BasePhoto> Photo { get; set; }
         public List<BaseVedio> Vedio { get; set; }
+        public List<BaseComment> comments { get; set; }
+        public List<BaseReact> reacts { get; set; }
         public PostsTypes Type { get; set; }
         public string Question { get; set; } 
         public string Answer { get; set; } 
+        public Guid UserAccountsId { get; set; }
 
-        
+
         [BindNever]
         public List<string> PhotosPath { get; set; }
 

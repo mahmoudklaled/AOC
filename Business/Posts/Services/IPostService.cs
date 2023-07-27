@@ -9,9 +9,9 @@ namespace Business.Posts.Services
 {
     public interface IPostService
     {
-        Task<List<Post>> GetPostAsync(int? take, int? skip);
-        Task<List<QuestionPost>> GetQuestionPostAsync(int? take, int? skip);
-        Task<List<AllPostsModel>> GetPostTypesAsync(int? take, int? skip);
+        Task<List<Post>> GetPostAsync(int pageNumber);
+        Task<List<QuestionPost>> GetQuestionPostAsync(int pageNumber);
+        Task<List<AllPostsModel>> GetPostTypesAsync(int pageNumber);
         Task<bool> AddQuestionPostAsync(UploadPost postmodel, string userEmail);
         Task<bool> AddPostAsync(UploadPost postmodel, string userEmail);
         Task<bool> UpdatePostAsync(UpdataPost postmodel, string userEmail);

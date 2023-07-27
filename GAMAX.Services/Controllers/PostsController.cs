@@ -1,6 +1,10 @@
 ﻿using Business.Posts.Services;
 using DataBase.Core.Enums;
+using DataBase.Core.Models.CommentModels;
+using DataBase.Core.Models.PhotoModels;
 using DataBase.Core.Models.Posts;
+using DataBase.Core.Models.Reacts;
+using DataBase.Core.Models.VedioModels;
 using GAMAX.Services.Dto;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -19,21 +23,95 @@ namespace GAMAX.Services.Controllers
             _postService = postService;
         }
         [HttpPost("GetAllPosts")]  
-        public async Task<IActionResult> GetAllPosts(int take , int skip)
+        public async Task<IActionResult> GetAllPosts(int pageNumber)
         {
-            return Ok( await _postService.GetPostAsync(take,skip));
+            var result = await _postService.GetPostAsync(pageNumber);
+            List<Dto.Post> posts = new List<Dto.Post>();
+            foreach (var post in result)
+            {
+                posts.Add(new Dto.Post
+                {
+                    Id = post.Id,
+                    Description = post.Description,
+                    TimeCreated = post.TimeCreated,
+                    UserAccountsId = post.UserAccountsId,
+                    Photos=post.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList().ToList(),
+                    Vedios=post.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
+                    Comments=post.Comments.Select(pp => new BaseComment { Id = pp.Id, comment = pp.comment, Date = pp.Date, UserAccountsId = pp.UserAccountsId }).ToList(),
+                    Reacts=post.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList(),
+                });
+            }
+            return Ok(posts);
         }
         [HttpPost("GetAllQuestionPosts")]
-        public async Task<IActionResult> GetAllQuestionPosts(int take, int skip)
+        public async Task<IActionResult> GetAllQuestionPosts(int pageNumber)
         {
-            //var result = ;
-            return Ok(await _postService.GetQuestionPostAsync(take, skip));
+            var result = await _postService.GetQuestionPostAsync(pageNumber);
+            List<Dto.QuestionPost> posts = new List<Dto.QuestionPost>();
+            foreach (var post in result)
+            {
+                posts.Add(new Dto.QuestionPost
+                {
+                    Id = post.Id,
+                    Answer=post.Answer,
+                    Question=post.Question,
+                    TimeCreated = post.TimeCreated,
+                    UserAccountsId = post.UserAccountsId,
+                    Photos = post.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList(),
+                    Vedios = post.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
+                    Comments = post.Comments.Select(pp => new BaseComment { Id = pp.Id, comment = pp.comment, Date = pp.Date, UserAccountsId = pp.UserAccountsId }).ToList(),
+                    Reacts = post.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList(),
+
+                });
+            }
+            return Ok(posts);
         }
 
         [HttpPost("GetAllPostTypes")]
-        public async Task<IActionResult> GetAllPostTypes(int take, int skip)
+        public async Task<IActionResult> GetAllPostTypes(int pageNumber)
         {
-            return Ok(await _postService.GetPostTypesAsync(take, skip));
+            var result = await _postService.GetPostTypesAsync(pageNumber);
+            List<Dto.AllPost> posts = new List<Dto.AllPost>();
+            foreach (var post in result)
+            {
+                switch(post.Type)
+                {
+                    case PostsTypes.Post:
+                        posts.Add(new Dto.AllPost
+                        {
+                            Type = post.Type,
+                            Id = post.Id,
+                            Description = post.Description,
+                            TimeCreated = post.TimeCreated,
+                            UserAccountsId = post.UserAccountsId,
+                            Photos = post.Photo,
+                            Vedios = post.Vedio,
+                            Comments = post.comments,
+                            Reacts = post.reacts,
+                        });
+                        break;
+                    case PostsTypes.Question:
+                        posts.Add(new Dto.AllPost
+                        {
+                            Type= post.Type,
+                            Id = post.Id,
+                            Answer = post.Answer,
+                            Question = post.Question,
+                            TimeCreated = post.TimeCreated,
+                            UserAccountsId = post.UserAccountsId,
+                            Photos = post.Photo,
+                            Vedios = post.Vedio,
+                            Comments = post.comments,
+                            Reacts = post.reacts,
+
+                        });
+                        break;
+                    default:break;
+
+                }
+                
+            }
+            return Ok();
         }
 
         [HttpPost("DeletePost")]
@@ -49,42 +127,71 @@ namespace GAMAX.Services.Controllers
             return Ok(await _postService.DeleteQuestionPostAsync(id, userInfo.Email));
         }
         [HttpPost("AddPost")]
-        public async Task<IActionResult> AddPost([FromBody] UploadPost postmodel )
+        public async Task<IActionResult> AddPost([FromForm] Dto.UploadPost postModel )
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
-            bool result;
-            switch (postmodel.Type)
+            var uploadPost = new DataBase.Core.Models.Posts.UploadPost
             {
-                case PostsTypes.Post:
-                    result = await _postService.AddPostAsync(postmodel, userInfo.Email);
-                    break;
-                case PostsTypes.Question:
-                    result = await _postService.AddQuestionPostAsync(postmodel, userInfo.Email);
-                    break;
-                default:
-                    result = false;
-                    break;
-            }
+                Type = postModel.Type,
+                Photos = postModel.Photos,
+                Vedios = postModel.Vedios,
+                Description = postModel.Description
+            };
+            bool result = await _postService.AddPostAsync(uploadPost, userInfo.Email); 
             return Ok(result);
         }
-        
-        [HttpPost("UpdatePostOrQuestion")]
-        public async Task<IActionResult> UpdatePostOrQuestion([FromBody] UpdataPost postmodel)
+        [HttpPost("AddQuestionPost")]
+        public async Task<IActionResult> AddQuestionPost([FromForm] Dto.UploadQuestionPost questionPostModel)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
-            bool result;
-            switch(postmodel.Type)
+            var uploadPost = new DataBase.Core.Models.Posts.UploadPost
             {
-                case PostsTypes.Post:
-                    result =await  _postService.UpdatePostAsync(postmodel, userInfo.Email);
-                    break;
-                case PostsTypes.Question:
-                    result = await _postService.UpdateQuestionPostAsync(postmodel, userInfo.Email);
-                    break;
-                default:
-                    result = false;  
-                    break;
-            }
+                Answer = questionPostModel.Answer,
+                Question = questionPostModel.Question,
+                Photos = questionPostModel.Photos,
+                Vedios = questionPostModel.Vedios,
+                Type = questionPostModel.Type,
+
+            };
+            bool result = await _postService.AddQuestionPostAsync(uploadPost, userInfo.Email); 
+            return Ok(result);
+        }
+
+        [HttpPost("UpdateQuestion")]
+        public async Task<IActionResult> UpdateQuestion([FromForm] UpdateQuestion questionPostModel)
+        {
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var uploadPost = new DataBase.Core.Models.Posts.UpdataPost
+            {
+                Id = questionPostModel.Id,
+                Question = questionPostModel.Question,
+                Answer=questionPostModel.Answer,
+                DeletedPhotoIds=questionPostModel.DeletedPhotoIds,
+                DeletedVedioIds=questionPostModel.DeletedVedioIds,
+                NewPhotos=questionPostModel.Photos,
+                NewVedios=questionPostModel.Vedios,
+                Type = questionPostModel.Type,
+                
+            };
+            bool result = await _postService.UpdateQuestionPostAsync(uploadPost, userInfo.Email);
+            return Ok(result);
+        }
+        [HttpPost("UpdatePost")]
+        public async Task<IActionResult> UpdatePost([FromForm] Dto.UpdatePost postModel)
+        {
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var uploadPost = new DataBase.Core.Models.Posts.UpdataPost
+            {
+                Id = postModel.Id,
+                DeletedPhotoIds = postModel.DeletedPhotoIds,
+                DeletedVedioIds = postModel.DeletedVedioIds,
+                NewPhotos = postModel.Photos,
+                NewVedios = postModel.Vedios,
+                Type = postModel.Type,
+                Description=postModel.Description,
+
+            };
+            bool result = await _postService.UpdatePostAsync(uploadPost, userInfo.Email); 
             return Ok(result);
         }
     }

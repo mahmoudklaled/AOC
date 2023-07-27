@@ -40,7 +40,7 @@ namespace Business.Posts.Services
             if (post == null) return false;
             var Newcomment = new PostComment()
             {
-                Id = new Guid(),
+                Id = Guid.NewGuid(),
                 UserAccounts = user,
                 UserAccountsId = user.Id,
                 PostId = comment.PostId,
@@ -51,7 +51,7 @@ namespace Business.Posts.Services
             {
                 Newcomment.PostCommentPhoto = new PostCommentPhoto()
                 {
-                    Id = new Guid(),
+                    Id = Guid.NewGuid(),
                     PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, "CommentsPhoto"),
                     PostCommentId = Newcomment.Id
                 };
@@ -60,7 +60,7 @@ namespace Business.Posts.Services
             {
                 Newcomment.PostCommentVedio = new PostCommentVedio()
                 {
-                    Id = new Guid(),
+                    Id = Guid.NewGuid(),
                     VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, "CommentsVedio"),
                     PostCommentId = Newcomment.Id
                 };
@@ -86,7 +86,7 @@ namespace Business.Posts.Services
                 }
                 cmnt.PostCommentPhoto = new PostCommentPhoto()
                 {
-                    Id = new Guid(),
+                    Id = Guid.NewGuid(),
                     PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, "CommentsPhoto"),
                     PostCommentId = cmnt.Id
                 };
@@ -99,7 +99,7 @@ namespace Business.Posts.Services
                 }
                 cmnt.PostCommentVedio = new PostCommentVedio()
                 {
-                    Id = new Guid(),
+                    Id = Guid.NewGuid(),
                     VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, "CommentsVedio"),
                     PostCommentId = cmnt.Id
                 };
@@ -134,7 +134,7 @@ namespace Business.Posts.Services
             if (post == null) return false;
             var Newcomment = new QuestionComment()
             {
-                Id = new Guid(),
+                Id = Guid.NewGuid(),
                 UserAccounts = user,
                 UserAccountsId = user.Id,
                 QuestionPostId = comment.PostId,
@@ -145,7 +145,7 @@ namespace Business.Posts.Services
             {
                 Newcomment.QuestionCommentPhoto = new QuestionCommentPhoto()
                 {
-                    Id = new Guid(),
+                    Id = Guid.NewGuid(),
                     PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, "CommentsPhoto"),
                     QuestionCommentId = Newcomment.Id
                 };
@@ -154,7 +154,7 @@ namespace Business.Posts.Services
             {
                 Newcomment.QuestionCommentVedio = new QuestionCommentVedio()
                 {
-                    Id = new Guid(),
+                    Id = Guid.NewGuid(),
                     VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, "CommentsVedio"),
                     QuestionCommentId = Newcomment.Id
                 };
@@ -179,7 +179,7 @@ namespace Business.Posts.Services
                 }
                 cmnt.QuestionCommentPhoto = new QuestionCommentPhoto()
                 {
-                    Id = new Guid(),
+                    Id = Guid.NewGuid(),
                     PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, "CommentsPhoto"),
                     QuestionCommentId = cmnt.Id
                 };
@@ -192,7 +192,7 @@ namespace Business.Posts.Services
                 }
                 cmnt.QuestionCommentVedio = new QuestionCommentVedio()
                 {
-                    Id = new Guid(),
+                    Id = Guid.NewGuid(),
                     VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, "CommentsVedio"),
                     QuestionCommentId = cmnt.Id
                 };

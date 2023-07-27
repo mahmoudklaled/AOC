@@ -2,9 +2,12 @@
 using Business.Posts.Helper;
 using DataBase.Core;
 using DataBase.Core.Enums;
+using DataBase.Core.Models.CommentModels;
 using DataBase.Core.Models.PhotoModels;
 using DataBase.Core.Models.Posts;
+using DataBase.Core.Models.Reacts;
 using DataBase.Core.Models.VedioModels;
+using Microsoft.Extensions.Hosting;
 using System.Collections.ObjectModel;
 using Utilites;
 
@@ -12,7 +15,7 @@ namespace Business.Posts.Services
 {
     public class PostService : IPostService
     {
-
+        private readonly int _pageSize = 10;
         private readonly IUnitOfWork _unitOfWork;
         public PostService(IUnitOfWork unitOfWork)
         {
@@ -20,22 +23,27 @@ namespace Business.Posts.Services
         }
 
 
-        public async Task<List<Post>> GetPostAsync(int ? take,int ? skip)
+        public async Task<List<Post>> GetPostAsync(int pageNumber)
         {
-            string[] includes = { "Photos", "Vedios" , "Reacts" };
-            var result = await _unitOfWork.Post.FindAllAsync(null,take ??0, skip ?? 0, includes);
+            int take, skip;
+            (take,skip) = GetTakeSkipValues(pageNumber);
+            string[] includes = { "Photos", "Vedios" , "Reacts" , "Comments" };
+            var result = await _unitOfWork.Post.FindAllAsync(null,take, skip, includes);
             return result.ToList();
         }
-        public async Task<List<QuestionPost>> GetQuestionPostAsync(int? take, int? skip)
+        public async Task<List<QuestionPost>> GetQuestionPostAsync(int pageNumber)
         {
-            string[] includes = { "Photos", "Vedios" , "Reacts" };
-            var result = await _unitOfWork.QuestionPost.FindAllAsync(null, take ?? 0, skip ?? 0,  includes);
+            int take, skip;
+            (take, skip) = GetTakeSkipValues(pageNumber);
+            string[] includes = { "Photos", "Vedios" , "Reacts" , "Comments" };
+            var result = await _unitOfWork.QuestionPost.FindAllAsync(null, take, skip,  includes);
             return  result.ToList();
         }
-        public async Task<List<AllPostsModel>> GetPostTypesAsync(int? take, int? skip)
+        public async Task<List<AllPostsModel>> GetPostTypesAsync(int pageNumber)
         {
-            var posts = await GetPostAsync(take,skip);
-            var questions = await GetQuestionPostAsync(take, skip);
+            
+            var posts = await GetPostAsync(pageNumber+1/2);
+            var questions = await GetQuestionPostAsync(pageNumber+1/2);
 
             var allPostsModel = new List<AllPostsModel>();
 
@@ -51,28 +59,35 @@ namespace Business.Posts.Services
             allPostsModel.AddRange(posts.Select(post => new AllPostsModel
             {
                 Id = post.Id,
-                Title = post.Title,
+                //Title = post.Title,
                 Description = post.Description,
                 TimeCreated = post.TimeCreated,
                 Photo = post.Photos.Select(pp => new BasePhoto{Id = pp.Id,PhotoPath = pp.PhotoPath}).ToList(),
                 Vedio = post.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
+                comments=post.Comments.Select(pp=> new BaseComment { Id = pp.Id ,comment = pp.comment ,Date=pp.Date,UserAccountsId=pp.UserAccountsId}).ToList(),
+                reacts=post.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts,  UserAccountsId = pp.UserAccountsId  }).ToList(),
                 Type = PostsTypes.Post,
-                Question = null, // Set to null for posts
-                Answer = null // Set to null for posts
+                Question = string.Empty, 
+                Answer = string.Empty ,
+                UserAccountsId=post.UserAccountsId
             }));
 
             // Add questions with type 'Question' and populate Question and Answer properties
             allPostsModel.AddRange(questions.Select(question => new AllPostsModel
             {
                 Id = question.Id,
-                Title = question.Title,
+                //Title = question.Title,
                 Description = question.Description,
                 TimeCreated = question.TimeCreated,
                 Photo = question.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList().ToList(),
                 Vedio = question.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
+                comments = question.Comments.Select(pp => new BaseComment { Id = pp.Id, comment = pp.comment, Date = pp.Date, UserAccountsId = pp.UserAccountsId }).ToList(),
+                reacts = question.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList(),
                 Type = PostsTypes.Question,
                 Question = question.Question, // Set the Question property for questions
-                Answer = question.Answer // Set the Answer property for questions
+                Answer = question.Answer, // Set the Answer property for questions
+                UserAccountsId = question.UserAccountsId
+
             }));
 
             // Sort the combined list by TimeCreated in descending order
@@ -114,7 +129,7 @@ namespace Business.Posts.Services
             DeletePostPhotoAndVedio(postmodel);
             AddNewPostPhotoAndVedio(postmodel);
             post.Description= postmodel.Description;
-            post.Title=postmodel.Title;
+            //post.Title=postmodel.Title;
             _unitOfWork.Post.Update(post);
             var update = _unitOfWork.Complete();
             return await update > 0;
@@ -133,8 +148,8 @@ namespace Business.Posts.Services
                 return false;
             DeletePostPhotoAndVedio(postmodel);
             AddNewPostPhotoAndVedio(postmodel);
-            questionpost.Description= postmodel.Description;
-            questionpost.Title= postmodel.Title;
+            //questionpost.Description= postmodel.Description;
+            //questionpost.Title= postmodel.Title;
             questionpost.Question = postmodel.Question;
             questionpost.Answer= postmodel.Answer;
             _unitOfWork.QuestionPost.Update(questionpost);
@@ -190,7 +205,7 @@ namespace Business.Posts.Services
             {
                 var photoModel = new QuestionPhoto()
                 {
-                    Id = new Guid(),
+                    Id = Guid.NewGuid(),
                     PhotoPath = photo,
                     QuestionPost = post,
                     QuestionId = post.Id
@@ -203,15 +218,15 @@ namespace Business.Posts.Services
             {
                 var vedioModel = new QuestionVedio()
                 {
-                    Id = new Guid(),
+                    Id = Guid.NewGuid(),
                     VedioPath = vedio,
                     QuestionPost = post,
                     QuestionPostId = post.Id
                 };
                 post.Vedios.Add(vedioModel);
             }
-            post.Title = postmodel.Title;
-            post.Description = postmodel.Description;
+            //post.Title = postmodel.Title;
+            //post.Description = postmodel.Description;
             post.Answer = postmodel.Answer;
             post.Question = postmodel.Question;
             return post;
@@ -232,7 +247,7 @@ namespace Business.Posts.Services
             {
                 var photoModel = new PostPhoto()
                 {
-                    Id = new Guid(),
+                    Id = Guid.NewGuid(),
                     PhotoPath = photo,
                     Post = post,
                     PostId = post.Id
@@ -245,14 +260,14 @@ namespace Business.Posts.Services
             {
                 var vedioModel = new PostVedio()
                 {
-                    Id = new Guid(),
+                    Id = Guid.NewGuid(),
                     VedioPath = vedio,
                     Post = post,
                     PostId = post.Id
                 };
                 post.Vedios.Add(vedioModel);
             }
-            post.Title = postmodel.Title;
+            //post.Title = postmodel.Title;
             post.Description = postmodel.Description;
             return post;
         }
@@ -351,6 +366,10 @@ namespace Business.Posts.Services
 
             }
             _unitOfWork.Complete();
+        }
+        private (int take , int skip) GetTakeSkipValues(int pageNumber)
+        {
+            return (_pageSize,pageNumber*_pageSize);
         }
 
     }
