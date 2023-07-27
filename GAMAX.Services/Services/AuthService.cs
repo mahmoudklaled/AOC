@@ -128,8 +128,8 @@ namespace GAMAX.Services.Services
                 LastName = user.LastName,
                 Email = user.Email,
                 UserName =user.UserName,
-                //CoverPhoto= new DataBase.Core.Models.PhotoModels.CoverPhoto {Id = new Guid(),PhotoPath= AccountHelpers.GetDefaultCoverPohot() ,ProfileId= user.Id },  
-                //ProfilePohot= new DataBase.Core.Models.PhotoModels.ProfilePhoto { Id = new Guid(), PhotoPath = AccountHelpers.GetDefaultProfilePohot(), ProfileId = user.Id } ,
+                //CoverPhoto= new DataBase.Core.Models.PhotoModels.CoverPhoto {Id = Guid.NewGuid(),PhotoPath= AccountHelpers.GetDefaultCoverPohot() ,ProfileId= user.Id },  
+                //ProfilePohot= new DataBase.Core.Models.PhotoModels.ProfilePhoto { Id = Guid.NewGuid(), PhotoPath = AccountHelpers.GetDefaultProfilePohot(), ProfileId = user.Id } ,
                 City="",
                 Country=""
 

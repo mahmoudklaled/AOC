@@ -19,14 +19,14 @@ namespace GAMAX.Services.Controllers
             _commentServices = commentServices;
         }
         [HttpPost("GetPostComments")]
-        public async Task<IActionResult> GetPostComments(Guid postId, int requestcount)
+        public async Task<IActionResult> GetPostComments(Guid postId, int PageNumber)
         {
-            return Ok(_commentServices.GetPostCommentsAsync(postId ,requestcount));
+            return Ok(_commentServices.GetPostCommentsAsync(postId , PageNumber));
         }
         [HttpPost("GetQuestionComments")]
-        public async Task<IActionResult> GetQuestionComments(Guid postId, int requestcount)
+        public async Task<IActionResult> GetQuestionComments(Guid postId, int PageNumber)
         {
-           return Ok(_commentServices.GetQuestionCommentsAsync(postId,requestcount));
+           return Ok(_commentServices.GetQuestionCommentsAsync(postId, PageNumber));
         }
         [HttpPost("AddPostComment")]
         public async Task<IActionResult> AddPostComment([FromBody]CommentRequest comment)
@@ -54,7 +54,7 @@ namespace GAMAX.Services.Controllers
             });
         }
         [HttpPost("DeletePostComment")]
-        public async Task<IActionResult> DeletePostComment([FromBody] Guid commentId)
+        public async Task<IActionResult> DeletePostComment( Guid commentId)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _commentServices.DeletePostCommentAsync(commentId, userInfo.Email);
@@ -67,7 +67,7 @@ namespace GAMAX.Services.Controllers
             });
         }
         [HttpPost("DeleteQuestionComment")]
-        public async Task<IActionResult> DeleteQuestionComment([FromBody] Guid commentId)
+        public async Task<IActionResult> DeleteQuestionComment( Guid commentId)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _commentServices.DeleteQuestionCommentAsync(commentId, userInfo.Email);

@@ -23,7 +23,7 @@ namespace Business.Posts.Services
             if(user == null || post==null) return false;
             var react = new PostReact
             {
-                Id = new Guid(),
+                Id = Guid.NewGuid(),
                 PostId = post.Id,
                 reacts = reactRequest.ReactType
             };
@@ -38,7 +38,7 @@ namespace Business.Posts.Services
             if (user == null || Comment == null) return false;
             var react = new PostCommentReact
             {
-                Id = new Guid(),
+                Id = Guid.NewGuid(),
                 PostCommentId = Comment.Id,
                 reacts = reactRequest.ReactType
             };
@@ -53,7 +53,7 @@ namespace Business.Posts.Services
             if (user == null || post == null) return false;
             var react = new QuestionReact
             {
-                Id = new Guid(),
+                Id = Guid.NewGuid(),
                 QuestionPostId = post.Id,
                 reacts = reactRequest.ReactType
             };
@@ -68,7 +68,7 @@ namespace Business.Posts.Services
             if (user == null || Comment == null) return false;
             var react = new QuestionCommentReact
             {
-                Id = new Guid(),
+                Id = Guid.NewGuid(),
                 QuestionCommentId = Comment.Id,
                 reacts = reactRequest.ReactType
             };
