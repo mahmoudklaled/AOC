@@ -12,6 +12,7 @@ using DataBase.Core.Models.Authentication;
 using DataBase.Core.Enums;
 using BDataBase.Core.Models.Accounts;
 using DataBase.Core;
+using Business.Accounts.LogicBusiness;
 
 namespace GAMAX.Services.Services
 {
@@ -128,8 +129,8 @@ namespace GAMAX.Services.Services
                 LastName = user.LastName,
                 Email = user.Email,
                 UserName =user.UserName,
-                //CoverPhoto= new DataBase.Core.Models.PhotoModels.CoverPhoto {Id = Guid.NewGuid(),PhotoPath= AccountHelpers.GetDefaultCoverPohot() ,ProfileId= user.Id },  
-                //ProfilePohot= new DataBase.Core.Models.PhotoModels.ProfilePhoto { Id = Guid.NewGuid(), PhotoPath = AccountHelpers.GetDefaultProfilePohot(), ProfileId = user.Id } ,
+                CoverPhoto= new DataBase.Core.Models.PhotoModels.CoverPhoto {Id = Guid.NewGuid(),PhotoPath= AccountHelpers.GetDefaultCoverPohot(Guid.Parse(user.Id)) , UserAccountsId = Guid.Parse(user.Id) },
+                ProfilePhoto = new DataBase.Core.Models.PhotoModels.ProfilePhoto { Id = Guid.NewGuid(), PhotoPath = AccountHelpers.GetDefaultProfilePohot(Guid.Parse(user.Id)), UserAccountsId = Guid.Parse(user.Id) } ,
                 City="",
                 Country=""
 
