@@ -34,12 +34,12 @@ namespace Utilites
 
                 using (var fileStream = new FileStream(newFilePath, FileMode.Create))
                 {
-                     formFile.CopyTo(fileStream);
+                    formFile.CopyTo(fileStream);
                 }
 
                 return (Path.Combine("StaticFiles", FileFolderPath, newFileName));
             }
-            return null;
+            return string.Empty;
 
         }
     }

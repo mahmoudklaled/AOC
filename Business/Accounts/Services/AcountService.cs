@@ -3,6 +3,7 @@ using DataBase.Core.Models.Accounts;
 using DataBase.Core;
 using Microsoft.AspNetCore.Http;
 using Utilites;
+using Business.Accounts.LogicBusiness;
 
 namespace Business.Accounts.Services
 {
@@ -111,10 +112,10 @@ namespace Business.Accounts.Services
         }
         public async Task<bool> UpdateProfileCoverAsync(IFormFile formFile , string email)
         {
-            var photoPath = MediaUtilites.ConverIformToPath(formFile, "ProfilePhoto");
             string[] includes = { "ProfilePhoto" };
             var profileAccount = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == email, includes);
             if (profileAccount== null) return false;
+            var photoPath = AccountHelpers.IformToProfilePath(formFile, profileAccount.Id);
             if (profileAccount.ProfilePhoto != null)
                  _unitOfWork.ProfilePhoto.Delete(profileAccount.ProfilePhoto);
             profileAccount.ProfilePhoto = new DataBase.Core.Models.PhotoModels.ProfilePhoto
@@ -129,10 +130,11 @@ namespace Business.Accounts.Services
         }
         public async Task<bool> UpdateProfilePhotoAsync(IFormFile formFile, string email)
         {
-            var photoPath = MediaUtilites.ConverIformToPath(formFile, "ProfilePhoto");
+            
             string[] includes = { "ProfilePhoto" };
             var profileAccount = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == email, includes);
             if (profileAccount == null) return false;
+            var photoPath = AccountHelpers.IformToProfilePath(formFile, profileAccount.Id);
             if (profileAccount.CoverPhoto != null)
                 _unitOfWork.CoverPhoto.Delete(profileAccount.CoverPhoto);
             profileAccount.CoverPhoto = new DataBase.Core.Models.PhotoModels.CoverPhoto
