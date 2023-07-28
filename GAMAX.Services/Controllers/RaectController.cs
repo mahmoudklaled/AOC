@@ -66,7 +66,7 @@ namespace GAMAX.Services.Controllers
             });
         }
         [HttpPost(" AddReactOnPost")]
-        public async Task<IActionResult> AddReactOnPost(ReactRequest reactRequest)
+        public async Task<IActionResult> AddReactOnPost(AddReactRequest reactRequest)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _reactServices.AddReactOnPostAsync(reactRequest, userInfo.Email);
@@ -78,7 +78,7 @@ namespace GAMAX.Services.Controllers
             });
         }
         [HttpPost(" AddReactOnQuestionPost")]
-        public async Task<IActionResult> AddReactOnQuestionPost(ReactRequest reactRequest)
+        public async Task<IActionResult> AddReactOnQuestionPost(AddReactRequest reactRequest)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _reactServices.AddReactOnQuestionPostAsync(reactRequest, userInfo.Email);
@@ -90,7 +90,7 @@ namespace GAMAX.Services.Controllers
             });
         }
         [HttpPost(" AddReactOnPostComment")]
-        public async Task<IActionResult> AddReactOnPostComment(ReactRequest reactRequest)
+        public async Task<IActionResult> AddReactOnPostComment(AddReactRequest reactRequest)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _reactServices.AddReactOnPostCommentAsync(reactRequest, userInfo.Email);
@@ -102,7 +102,7 @@ namespace GAMAX.Services.Controllers
             });
         }
         [HttpPost(" AddReactOnQuestionPostComment")]
-        public async Task<IActionResult> AddReactOnQuestionPostComment(ReactRequest reactRequest)
+        public async Task<IActionResult> AddReactOnQuestionPostComment(AddReactRequest reactRequest)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _reactServices.AddReactOnQuestionPostCommentAsync(reactRequest, userInfo.Email);
@@ -114,7 +114,7 @@ namespace GAMAX.Services.Controllers
             });
         }
         [HttpPost(" UpdatePostReact")]
-        public async Task<IActionResult> UpdatePostReact(ReactRequest reactRequest)
+        public async Task<IActionResult> UpdatePostReact(ReactUpdateRequest reactRequest)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _reactServices.UpdatePostReact(reactRequest, userInfo.Email);
@@ -126,7 +126,7 @@ namespace GAMAX.Services.Controllers
             });
         }
         [HttpPost(" UpdateQuestionReact")]
-        public async Task<IActionResult> UpdateQuestionReact(ReactRequest reactRequest)
+        public async Task<IActionResult> UpdateQuestionReact(ReactUpdateRequest reactRequest)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _reactServices.UpdateQuestionReact(reactRequest, userInfo.Email);
@@ -138,7 +138,7 @@ namespace GAMAX.Services.Controllers
             });
         }
         [HttpPost(" UpdatePostCommentReact")]
-        public async Task<IActionResult> UpdatePostCommentReact(ReactRequest reactRequest)
+        public async Task<IActionResult> UpdatePostCommentReact(ReactUpdateRequest reactRequest)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _reactServices.UpdatePostCommentReact(reactRequest, userInfo.Email);
@@ -150,7 +150,7 @@ namespace GAMAX.Services.Controllers
             });
         }
         [HttpPost(" UpdateQuestionCommentReact")]
-        public async Task<IActionResult> UpdateQuestionCommentReact(ReactRequest reactRequest)
+        public async Task<IActionResult> UpdateQuestionCommentReact(ReactUpdateRequest reactRequest)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _reactServices.UpdateQuestionCommentReact(reactRequest, userInfo.Email);

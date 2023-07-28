@@ -6,6 +6,7 @@ using DataBase.Core.Models.VedioModels;
 
 namespace GAMAX.Services.Dto
 {
+    #region Posts
     public record UpdateQuestion
     {
         public Guid Id { get; set; } 
@@ -102,4 +103,25 @@ namespace GAMAX.Services.Dto
         public Vedio Vedio { get; set; }
         public List<React> PostCommentReacts { get; set; }
     }
+    #endregion
+
+
+    #region comments
+
+    public record CommentUpdate
+    {
+        public Guid Id { get; set; }
+        public string comment { get; set; }
+        public Guid PostId { get; set; }
+        public PostsTypes PostsType { get; set; }
+        public IFormFile? Photo { get; set; }
+        public IFormFile? Vedio { get; set; }
+    }
+
+    #endregion
+
+
+    #region React
+        #endregion
+
 }
