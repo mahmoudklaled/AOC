@@ -243,30 +243,32 @@ namespace Business.Posts.Services
             }
             if (post.Photos == null)
                 post.Photos = new Collection<PostPhoto>();
-            foreach (var photo in postmodel.PhotosPath)
-            {
-                var photoModel = new PostPhoto()
+            if(postmodel.PhotosPath!=null)
+                foreach (var photo in postmodel.PhotosPath)
                 {
-                    Id = Guid.NewGuid(),
-                    PhotoPath = photo,
-                    Post = post,
-                    PostId = post.Id
-                };
-                post.Photos.Add(photoModel);
-            }
+                    var photoModel = new PostPhoto()
+                    {
+                        Id = Guid.NewGuid(),
+                        PhotoPath = photo,
+                        Post = post,
+                        PostId = post.Id
+                    };
+                    post.Photos.Add(photoModel);
+                }
             if (post.Vedios == null)
                 post.Vedios = new Collection<PostVedio>();
-            foreach (var vedio in postmodel.VediosPath)
-            {
-                var vedioModel = new PostVedio()
+            if( postmodel.VediosPath!=null)
+                foreach (var vedio in postmodel.VediosPath)
                 {
-                    Id = Guid.NewGuid(),
-                    VedioPath = vedio,
-                    Post = post,
-                    PostId = post.Id
-                };
-                post.Vedios.Add(vedioModel);
-            }
+                    var vedioModel = new PostVedio()
+                    {
+                        Id = Guid.NewGuid(),
+                        VedioPath = vedio,
+                        Post = post,
+                        PostId = post.Id
+                    };
+                    post.Vedios.Add(vedioModel);
+                }
             //post.Title = postmodel.Title;
             post.Description = postmodel.Description;
             return post;
