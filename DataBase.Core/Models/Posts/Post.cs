@@ -14,8 +14,8 @@ namespace DataBase.Core.Models.Posts
     {
         [Key]
         public Guid Id { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
+        public string ? Title { get; set; }
+        public string? Description { get; set; }
         public DateTime TimeCreated { get; set; }  = DateTime.UtcNow;
         public ICollection<PostPhoto> Photos { get; set; }
         public ICollection<PostVedio> Vedios { get; set; }

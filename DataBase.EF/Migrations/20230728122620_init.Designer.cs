@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataBase.EF.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230722155704_freindRequest")]
-    partial class freindRequest
+    [Migration("20230728122620_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,10 +25,11 @@ namespace DataBase.EF.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BDataBase.Core.Models.Accounts.ProfileAccounts", b =>
+            modelBuilder.Entity("BDataBase.Core.Models.Accounts.UserAccounts", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("City")
                         .IsRequired()
@@ -58,7 +59,7 @@ namespace DataBase.EF.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProfileAccounts");
+                    b.ToTable("UserAccounts");
                 });
 
             modelBuilder.Entity("DataBase.Core.Models.Accounts.Friend", b =>
@@ -70,13 +71,11 @@ namespace DataBase.EF.Migrations
                     b.Property<DateTime>("ApprovedTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("FirstUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("FirstUserId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("SecondUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("SecondUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -93,16 +92,14 @@ namespace DataBase.EF.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ReceiverId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("ReceiverId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("RequestTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("RequestorId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("RequestorId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -218,9 +215,8 @@ namespace DataBase.EF.Migrations
                     b.Property<Guid>("PostId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ProfileAccountId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserAccountsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("comment")
                         .IsRequired()
@@ -230,7 +226,7 @@ namespace DataBase.EF.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.HasIndex("ProfileAccountId");
+                    b.HasIndex("UserAccountsId");
 
                     b.ToTable("PostComments");
                 });
@@ -244,11 +240,10 @@ namespace DataBase.EF.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ProfileAccountId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<Guid>("QuestionPostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserAccountsId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("comment")
@@ -257,9 +252,9 @@ namespace DataBase.EF.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProfileAccountId");
-
                     b.HasIndex("QuestionPostId");
+
+                    b.HasIndex("UserAccountsId");
 
                     b.ToTable("QuestionComments");
                 });
@@ -274,13 +269,12 @@ namespace DataBase.EF.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ProfileId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserAccountsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProfileId")
+                    b.HasIndex("UserAccountsId")
                         .IsUnique();
 
                     b.ToTable("CoverPhotos");
@@ -337,13 +331,12 @@ namespace DataBase.EF.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ProfileId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserAccountsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProfileId")
+                    b.HasIndex("UserAccountsId")
                         .IsUnique();
 
                     b.ToTable("ProfilePhotos");
@@ -400,10 +393,6 @@ namespace DataBase.EF.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ProfileAccountId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<DateTime>("TimeCreated")
                         .HasColumnType("datetime2");
 
@@ -411,9 +400,12 @@ namespace DataBase.EF.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("UserAccountsId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("ProfileAccountId");
+                    b.HasIndex("UserAccountsId");
 
                     b.ToTable("Posts");
                 });
@@ -432,10 +424,6 @@ namespace DataBase.EF.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ProfileAccountId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Question")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -447,9 +435,12 @@ namespace DataBase.EF.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("UserAccountsId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("ProfileAccountId");
+                    b.HasIndex("UserAccountsId");
 
                     b.ToTable("QuestionPosts");
                 });
@@ -463,9 +454,8 @@ namespace DataBase.EF.Migrations
                     b.Property<Guid>("PostCommentId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ProfileAccountId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserAccountsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("reacts")
                         .HasColumnType("int");
@@ -474,7 +464,7 @@ namespace DataBase.EF.Migrations
 
                     b.HasIndex("PostCommentId");
 
-                    b.HasIndex("ProfileAccountId");
+                    b.HasIndex("UserAccountsId");
 
                     b.ToTable("PostCommentReacts");
                 });
@@ -488,9 +478,8 @@ namespace DataBase.EF.Migrations
                     b.Property<Guid>("PostId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ProfileAccountId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserAccountsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("reacts")
                         .HasColumnType("int");
@@ -499,7 +488,7 @@ namespace DataBase.EF.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.HasIndex("ProfileAccountId");
+                    b.HasIndex("UserAccountsId");
 
                     b.ToTable("PostReacts");
                 });
@@ -510,11 +499,10 @@ namespace DataBase.EF.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ProfileAccountId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<Guid>("QuestionCommentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserAccountsId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("reacts")
@@ -522,9 +510,9 @@ namespace DataBase.EF.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProfileAccountId");
-
                     b.HasIndex("QuestionCommentId");
+
+                    b.HasIndex("UserAccountsId");
 
                     b.ToTable("QuestionCommentReacts");
                 });
@@ -535,11 +523,10 @@ namespace DataBase.EF.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ProfileAccountId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<Guid>("QuestionPostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserAccountsId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("reacts")
@@ -547,9 +534,9 @@ namespace DataBase.EF.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProfileAccountId");
-
                     b.HasIndex("QuestionPostId");
+
+                    b.HasIndex("UserAccountsId");
 
                     b.ToTable("QuestionReacts");
                 });
@@ -771,13 +758,13 @@ namespace DataBase.EF.Migrations
 
             modelBuilder.Entity("DataBase.Core.Models.Accounts.Friend", b =>
                 {
-                    b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", "FirstUser")
+                    b.HasOne("BDataBase.Core.Models.Accounts.UserAccounts", "FirstUser")
                         .WithMany("Friends")
                         .HasForeignKey("FirstUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", "SecondUser")
+                    b.HasOne("BDataBase.Core.Models.Accounts.UserAccounts", "SecondUser")
                         .WithMany()
                         .HasForeignKey("SecondUserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -790,13 +777,13 @@ namespace DataBase.EF.Migrations
 
             modelBuilder.Entity("DataBase.Core.Models.Accounts.FriendRequest", b =>
                 {
-                    b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", "Receiver")
+                    b.HasOne("BDataBase.Core.Models.Accounts.UserAccounts", "Receiver")
                         .WithMany()
                         .HasForeignKey("ReceiverId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", "Requestor")
+                    b.HasOne("BDataBase.Core.Models.Accounts.UserAccounts", "Requestor")
                         .WithMany("FriendRequests")
                         .HasForeignKey("RequestorId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -852,41 +839,41 @@ namespace DataBase.EF.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", "ProfileAccount")
+                    b.HasOne("BDataBase.Core.Models.Accounts.UserAccounts", "UserAccounts")
                         .WithMany()
-                        .HasForeignKey("ProfileAccountId")
+                        .HasForeignKey("UserAccountsId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Post");
 
-                    b.Navigation("ProfileAccount");
+                    b.Navigation("UserAccounts");
                 });
 
             modelBuilder.Entity("DataBase.Core.Models.CommentModels.QuestionComment", b =>
                 {
-                    b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", "ProfileAccount")
-                        .WithMany()
-                        .HasForeignKey("ProfileAccountId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("DataBase.Core.Models.Posts.QuestionPost", "QuestionPost")
                         .WithMany("Comments")
                         .HasForeignKey("QuestionPostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ProfileAccount");
+                    b.HasOne("BDataBase.Core.Models.Accounts.UserAccounts", "UserAccounts")
+                        .WithMany()
+                        .HasForeignKey("UserAccountsId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("QuestionPost");
+
+                    b.Navigation("UserAccounts");
                 });
 
             modelBuilder.Entity("DataBase.Core.Models.PhotoModels.CoverPhoto", b =>
                 {
-                    b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", null)
+                    b.HasOne("BDataBase.Core.Models.Accounts.UserAccounts", null)
                         .WithOne("CoverPhoto")
-                        .HasForeignKey("DataBase.Core.Models.PhotoModels.CoverPhoto", "ProfileId")
+                        .HasForeignKey("DataBase.Core.Models.PhotoModels.CoverPhoto", "UserAccountsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -915,9 +902,9 @@ namespace DataBase.EF.Migrations
 
             modelBuilder.Entity("DataBase.Core.Models.PhotoModels.ProfilePhoto", b =>
                 {
-                    b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", null)
+                    b.HasOne("BDataBase.Core.Models.Accounts.UserAccounts", null)
                         .WithOne("ProfilePhoto")
-                        .HasForeignKey("DataBase.Core.Models.PhotoModels.ProfilePhoto", "ProfileId")
+                        .HasForeignKey("DataBase.Core.Models.PhotoModels.ProfilePhoto", "UserAccountsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -946,24 +933,24 @@ namespace DataBase.EF.Migrations
 
             modelBuilder.Entity("DataBase.Core.Models.Posts.Post", b =>
                 {
-                    b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", "ProfileAccount")
+                    b.HasOne("BDataBase.Core.Models.Accounts.UserAccounts", "UserAccounts")
                         .WithMany("Posts")
-                        .HasForeignKey("ProfileAccountId")
+                        .HasForeignKey("UserAccountsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ProfileAccount");
+                    b.Navigation("UserAccounts");
                 });
 
             modelBuilder.Entity("DataBase.Core.Models.Posts.QuestionPost", b =>
                 {
-                    b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", "ProfileAccount")
+                    b.HasOne("BDataBase.Core.Models.Accounts.UserAccounts", "UserAccounts")
                         .WithMany("QuestionPosts")
-                        .HasForeignKey("ProfileAccountId")
+                        .HasForeignKey("UserAccountsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ProfileAccount");
+                    b.Navigation("UserAccounts");
                 });
 
             modelBuilder.Entity("DataBase.Core.Models.Reacts.PostCommentReact", b =>
@@ -974,15 +961,15 @@ namespace DataBase.EF.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", "ProfileAccount")
+                    b.HasOne("BDataBase.Core.Models.Accounts.UserAccounts", "UserAccounts")
                         .WithMany()
-                        .HasForeignKey("ProfileAccountId")
+                        .HasForeignKey("UserAccountsId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("PostComment");
 
-                    b.Navigation("ProfileAccount");
+                    b.Navigation("UserAccounts");
                 });
 
             modelBuilder.Entity("DataBase.Core.Models.Reacts.PostReact", b =>
@@ -993,53 +980,53 @@ namespace DataBase.EF.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", "ProfileAccount")
+                    b.HasOne("BDataBase.Core.Models.Accounts.UserAccounts", "UserAccounts")
                         .WithMany()
-                        .HasForeignKey("ProfileAccountId")
+                        .HasForeignKey("UserAccountsId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Post");
 
-                    b.Navigation("ProfileAccount");
+                    b.Navigation("UserAccounts");
                 });
 
             modelBuilder.Entity("DataBase.Core.Models.Reacts.QuestionCommentReact", b =>
                 {
-                    b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", "ProfileAccount")
-                        .WithMany()
-                        .HasForeignKey("ProfileAccountId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("DataBase.Core.Models.CommentModels.QuestionComment", "QuestionComment")
                         .WithMany("QuestionCommentReacts")
                         .HasForeignKey("QuestionCommentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ProfileAccount");
+                    b.HasOne("BDataBase.Core.Models.Accounts.UserAccounts", "UserAccounts")
+                        .WithMany()
+                        .HasForeignKey("UserAccountsId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("QuestionComment");
+
+                    b.Navigation("UserAccounts");
                 });
 
             modelBuilder.Entity("DataBase.Core.Models.Reacts.QuestionReact", b =>
                 {
-                    b.HasOne("BDataBase.Core.Models.Accounts.ProfileAccounts", "ProfileAccount")
-                        .WithMany()
-                        .HasForeignKey("ProfileAccountId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("DataBase.Core.Models.Posts.QuestionPost", "QuestionPost")
                         .WithMany("Reacts")
                         .HasForeignKey("QuestionPostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ProfileAccount");
+                    b.HasOne("BDataBase.Core.Models.Accounts.UserAccounts", "UserAccounts")
+                        .WithMany()
+                        .HasForeignKey("UserAccountsId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("QuestionPost");
+
+                    b.Navigation("UserAccounts");
                 });
 
             modelBuilder.Entity("DataBase.Core.Models.VedioModels.PostCommentVedio", b =>
@@ -1137,7 +1124,7 @@ namespace DataBase.EF.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BDataBase.Core.Models.Accounts.ProfileAccounts", b =>
+            modelBuilder.Entity("BDataBase.Core.Models.Accounts.UserAccounts", b =>
                 {
                     b.Navigation("CoverPhoto")
                         .IsRequired();

@@ -16,10 +16,10 @@ namespace DataBase.Core.Models.Posts
     {
         [Key]
         public Guid Id { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public string Question { get; set; }
-        public string Answer { get; set; }
+        public string? Title { get; set; }
+        public string? Description { get; set; }
+        public string? Question { get; set; }
+        public string? Answer { get; set; }
         public DateTime TimeCreated { get; set; } = DateTime.UtcNow;
         public ICollection<QuestionPhoto> Photos { get; set; }
         public ICollection<QuestionVedio> Vedios { get; set; }

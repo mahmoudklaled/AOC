@@ -7,7 +7,7 @@ namespace DataBase.Core.Models.CommentModels
     {
         [Key]
         public Guid Id { get; set; }
-        public string comment { get; set; }
+        public string? comment { get; set; }
         public DateTime Date { get; set; } = DateTime.UtcNow;
         public UserAccounts UserAccounts { get; set; }
         public Guid UserAccountsId { get; set; }

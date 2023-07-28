@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataBase.EF.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230722162233_editsNames")]
-    partial class editsNames
+    [Migration("20230728122702_roles")]
+    partial class roles
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,8 +27,9 @@ namespace DataBase.EF.Migrations
 
             modelBuilder.Entity("BDataBase.Core.Models.Accounts.UserAccounts", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("City")
                         .IsRequired()
@@ -70,13 +71,11 @@ namespace DataBase.EF.Migrations
                     b.Property<DateTime>("ApprovedTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("FirstUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("FirstUserId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("SecondUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("SecondUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -93,16 +92,14 @@ namespace DataBase.EF.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ReceiverId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("ReceiverId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("RequestTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("RequestorId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("RequestorId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -218,9 +215,8 @@ namespace DataBase.EF.Migrations
                     b.Property<Guid>("PostId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("UserAccountsId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserAccountsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("comment")
                         .IsRequired()
@@ -247,9 +243,8 @@ namespace DataBase.EF.Migrations
                     b.Property<Guid>("QuestionPostId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("UserAccountsId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserAccountsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("comment")
                         .IsRequired()
@@ -274,9 +269,8 @@ namespace DataBase.EF.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserAccountsId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserAccountsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -337,9 +331,8 @@ namespace DataBase.EF.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserAccountsId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserAccountsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -407,9 +400,8 @@ namespace DataBase.EF.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserAccountsId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserAccountsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -443,9 +435,8 @@ namespace DataBase.EF.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserAccountsId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserAccountsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -463,9 +454,8 @@ namespace DataBase.EF.Migrations
                     b.Property<Guid>("PostCommentId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("UserAccountsId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserAccountsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("reacts")
                         .HasColumnType("int");
@@ -488,9 +478,8 @@ namespace DataBase.EF.Migrations
                     b.Property<Guid>("PostId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("UserAccountsId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserAccountsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("reacts")
                         .HasColumnType("int");
@@ -513,9 +502,8 @@ namespace DataBase.EF.Migrations
                     b.Property<Guid>("QuestionCommentId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("UserAccountsId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserAccountsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("reacts")
                         .HasColumnType("int");
@@ -538,9 +526,8 @@ namespace DataBase.EF.Migrations
                     b.Property<Guid>("QuestionPostId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("UserAccountsId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("UserAccountsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("reacts")
                         .HasColumnType("int");
