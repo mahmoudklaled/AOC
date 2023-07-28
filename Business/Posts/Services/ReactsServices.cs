@@ -16,7 +16,7 @@ namespace Business.Posts.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<bool> AddReactOnPostAsync(ReactRequest reactRequest, string userEmail)
+        public async Task<bool> AddReactOnPostAsync(AddReactRequest reactRequest, string userEmail)
         {
             var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
             var post = await _unitOfWork.Post.FindAsync(p => p.Id == reactRequest.ObjectId);
@@ -31,7 +31,7 @@ namespace Business.Posts.Services
             return await _unitOfWork.Complete() > 0;
         }
 
-        public async Task<bool> AddReactOnPostCommentAsync(ReactRequest reactRequest, string userEmail)
+        public async Task<bool> AddReactOnPostCommentAsync(AddReactRequest reactRequest, string userEmail)
         {
             var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
             var Comment = await _unitOfWork.PostComment.FindAsync(p => p.Id == reactRequest.ObjectId);
@@ -46,7 +46,7 @@ namespace Business.Posts.Services
             return await _unitOfWork.Complete() > 0;
         }
 
-        public async Task<bool> AddReactOnQuestionPostAsync(ReactRequest reactRequest, string userEmail)
+        public async Task<bool> AddReactOnQuestionPostAsync(AddReactRequest reactRequest, string userEmail)
         {
             var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
             var post = await _unitOfWork.QuestionPost.FindAsync(p => p.Id == reactRequest.ObjectId);
@@ -61,7 +61,7 @@ namespace Business.Posts.Services
             return await _unitOfWork.Complete() > 0;
         }
 
-        public async Task<bool> AddReactOnQuestionPostCommentAsync(ReactRequest reactRequest, string userEmail)
+        public async Task<bool> AddReactOnQuestionPostCommentAsync(AddReactRequest reactRequest, string userEmail)
         {
             var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
             var Comment = await _unitOfWork.QuestionComment.FindAsync(p => p.Id == reactRequest.ObjectId);
@@ -116,7 +116,7 @@ namespace Business.Posts.Services
             return await _unitOfWork.Complete() > 0;
         }
 
-        public async Task<bool> UpdatePostCommentReact(ReactRequest reactRequest, string userEmail)
+        public async Task<bool> UpdatePostCommentReact(ReactUpdateRequest reactRequest, string userEmail)
         {
             var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
             var react = await _unitOfWork.PostCommentReact.FindAsync(r => r.Id == reactRequest.ReactId);
@@ -127,7 +127,7 @@ namespace Business.Posts.Services
             return await _unitOfWork.Complete() > 0;
         }
 
-        public async Task<bool> UpdatePostReact(ReactRequest reactRequest, string userEmail)
+        public async Task<bool> UpdatePostReact(ReactUpdateRequest reactRequest, string userEmail)
         {
             var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
             var react = await _unitOfWork.PostReact.FindAsync(r => r.Id == reactRequest.ReactId);
@@ -138,7 +138,7 @@ namespace Business.Posts.Services
             return await _unitOfWork.Complete() > 0;
         }
 
-        public async Task<bool> UpdateQuestionCommentReact(ReactRequest reactRequest, string userEmail)
+        public async Task<bool> UpdateQuestionCommentReact(ReactUpdateRequest reactRequest, string userEmail)
         {
             var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
             var react = await _unitOfWork.QuestionCommentReact.FindAsync(r => r.Id == reactRequest.ReactId);
@@ -149,7 +149,7 @@ namespace Business.Posts.Services
             return await _unitOfWork.Complete() > 0;
         }
 
-        public async Task<bool> UpdateQuestionReact(ReactRequest reactRequest, string userEmail)
+        public async Task<bool> UpdateQuestionReact(ReactUpdateRequest reactRequest, string userEmail)
         {
             var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
             var react = await _unitOfWork.QuestionReact.FindAsync(r => r.Id == reactRequest.ReactId);

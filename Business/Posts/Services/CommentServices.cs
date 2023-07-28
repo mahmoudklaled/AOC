@@ -32,7 +32,7 @@ namespace Business.Posts.Services
             return await _unitOfWork.Complete()>0;
         }
 
-        public async Task<bool> AddPostCommentAsync(CommentRequest comment, string userEmail)
+        public async Task<bool> AddPostCommentAsync(AddCommentRequest comment, string userEmail)
         {
             var user = await _unitOfWork.UserAccounts.FindAsync(p=>p.Email== userEmail);
             if (user == null) return false;
@@ -69,7 +69,7 @@ namespace Business.Posts.Services
             return await _unitOfWork.Complete() > 0;
         }
 
-        public async Task<bool> UpdatePostCommentAsync(CommentRequest comment, string userEmail)
+        public async Task<bool> UpdatePostCommentAsync(CommentUpdateRequest comment, string userEmail)
         {
             string[] includes = { "PostCommentPhoto", "PostCommentVedio"};
             var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
@@ -126,7 +126,7 @@ namespace Business.Posts.Services
             return await _unitOfWork.Complete() > 0;
         }
 
-        public async Task<bool> AddQuestionCommentAsync(CommentRequest comment, string userEmail)
+        public async Task<bool> AddQuestionCommentAsync(AddCommentRequest comment, string userEmail)
         {
             var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
             if (user == null) return false;
@@ -163,7 +163,7 @@ namespace Business.Posts.Services
             return  await _unitOfWork.Complete() > 0;
         }
 
-        public async Task<bool> UpdateQuestionCommentAsync(CommentRequest comment, string userEmail)
+        public async Task<bool> UpdateQuestionCommentAsync(CommentUpdateRequest comment, string userEmail)
         {
             string[] includes = { "QuestionCommentPhoto", "QuestionCommentVedio" };
             var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);

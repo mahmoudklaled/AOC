@@ -29,7 +29,7 @@ namespace GAMAX.Services.Controllers
            return Ok(_commentServices.GetQuestionCommentsAsync(postId, PageNumber));
         }
         [HttpPost("AddPostComment")]
-        public async Task<IActionResult> AddPostComment([FromBody]CommentRequest comment)
+        public async Task<IActionResult> AddPostComment([FromBody] AddCommentRequest comment)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _commentServices.AddPostCommentAsync(comment, userInfo.Email);
@@ -41,7 +41,7 @@ namespace GAMAX.Services.Controllers
             });
         }
         [HttpPost("AddQuestionComment")]
-        public async Task<IActionResult> AddQuestionComment([FromBody] CommentRequest comment)
+        public async Task<IActionResult> AddQuestionComment([FromBody] AddCommentRequest comment)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _commentServices.AddQuestionCommentAsync(comment, userInfo.Email);
@@ -80,7 +80,7 @@ namespace GAMAX.Services.Controllers
             });
         }
         [HttpPost("UpdatePostComment")]
-        public async Task<IActionResult> UpdatePostComment([FromBody] CommentRequest comment)
+        public async Task<IActionResult> UpdatePostComment([FromBody] CommentUpdateRequest comment)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _commentServices.UpdatePostCommentAsync(comment, userInfo.Email);
@@ -94,7 +94,7 @@ namespace GAMAX.Services.Controllers
 
         }
         [HttpPost("UpdateQuestionComment")]
-        public async Task<IActionResult> UpdateQuestionComment([FromBody] CommentRequest comment)
+        public async Task<IActionResult> UpdateQuestionComment([FromBody] CommentUpdateRequest comment)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _commentServices.UpdateQuestionCommentAsync(comment, userInfo.Email);
