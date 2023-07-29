@@ -10,10 +10,10 @@ namespace GAMAX.Services.Dto
     public record UpdateQuestion
     {
         public Guid Id { get; set; } 
-        public List<Guid> DeletedPhotoIds { get; set; }
-        public List<Guid> DeletedVedioIds { get; set; }
-        public List<IFormFile> Photos { get; set; }
-        public List<IFormFile> Vedios { get; set; }
+        public List<Guid>? DeletedPhotoIds { get; set; }
+        public List<Guid>? DeletedVedioIds { get; set; }
+        public List<IFormFile>? Photos { get; set; }
+        public List<IFormFile>? Vedios { get; set; }
         public PostsTypes Type { get; set; } = PostsTypes.Question;
         public string Question { get; set; }
         public string Answer { get; set; }
@@ -22,8 +22,8 @@ namespace GAMAX.Services.Dto
     {
         public Guid Id { get; set; }
         public string Description { get; set; }
-        public List<Guid> DeletedPhotoIds { get; set; }
-        public List<Guid> DeletedVedioIds { get; set; }
+        public List<Guid>? DeletedPhotoIds { get; set; }
+        public List<Guid>? DeletedVedioIds { get; set; }
         public List<IFormFile>? Photos { get; set; }
         public List<IFormFile>? Vedios { get; set; }
         public PostsTypes Type { get; set; } = PostsTypes.Post;

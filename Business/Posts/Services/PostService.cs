@@ -287,52 +287,56 @@ namespace Business.Posts.Services
             switch (postmodel.Type)
             {
                 case PostsTypes.Post:
-                    foreach (var item in postmodel.NewPhotos)
-                    {
-                        var path = MediaUtilites.ConverIformToPath(item, "PostPhoto");
-                        var photo = new PostPhoto
+                    if(postmodel.NewPhotos!=null)
+                        foreach (var item in postmodel.NewPhotos)
                         {
-                            Id = Guid.NewGuid(),
-                            PhotoPath = path,
-                            PostId = postmodel.Id
-                        };
-                        await _unitOfWork.PostPhoto.AddAsync(photo);
-                    }
-                    foreach (var item in postmodel.NewVedios)
-                    {
-                        var path = MediaUtilites.ConverIformToPath(item, "PostVedios");
-                        var vedio = new PostVedio
+                            var path = MediaUtilites.ConverIformToPath(item, "PostPhoto");
+                            var photo = new PostPhoto
+                            {
+                                Id = Guid.NewGuid(),
+                                PhotoPath = path,
+                                PostId = postmodel.Id
+                            };
+                            await _unitOfWork.PostPhoto.AddAsync(photo);
+                        }
+                    if(postmodel.NewVedios!=null)
+                        foreach (var item in postmodel.NewVedios)
                         {
-                            Id = Guid.NewGuid(),
-                            VedioPath = path,
-                            PostId = postmodel.Id
-                        };
-                        await _unitOfWork.PostVedio.AddAsync(vedio);
-                    }
+                            var path = MediaUtilites.ConverIformToPath(item, "PostVedios");
+                            var vedio = new PostVedio
+                            {
+                                Id = Guid.NewGuid(),
+                                VedioPath = path,
+                                PostId = postmodel.Id
+                            };
+                            await _unitOfWork.PostVedio.AddAsync(vedio);
+                        }
                     break;
                 case PostsTypes.Question:
-                    foreach (var item in postmodel.NewPhotos)
-                    {
-                        var path = MediaUtilites.ConverIformToPath(item, "PostPhoto");
-                        var photo = new QuestionPhoto
+                    if(postmodel.NewPhotos != null)
+                        foreach (var item in postmodel.NewPhotos)
                         {
-                            Id = Guid.NewGuid(),
-                            PhotoPath = path,
-                            QuestionId = postmodel.Id
-                        };
-                        await _unitOfWork.QuestionPhoto.AddAsync(photo);
-                    }
-                    foreach (var item in postmodel.NewVedios)
-                    {
-                        var path = MediaUtilites.ConverIformToPath(item, "PostVedios");
-                        var vedio = new QuestionVedio
+                            var path = MediaUtilites.ConverIformToPath(item, "PostPhoto");
+                            var photo = new QuestionPhoto
+                            {
+                                Id = Guid.NewGuid(),
+                                PhotoPath = path,
+                                QuestionId = postmodel.Id
+                            };
+                            await _unitOfWork.QuestionPhoto.AddAsync(photo);
+                        }
+                    if(postmodel.NewVedios != null)
+                        foreach (var item in postmodel.NewVedios)
                         {
-                            Id = Guid.NewGuid(),
-                            VedioPath = path,
-                            QuestionPostId = postmodel.Id
-                        };
-                        await _unitOfWork.QuestionVedio.AddAsync(vedio);
-                    }
+                            var path = MediaUtilites.ConverIformToPath(item, "PostVedios");
+                            var vedio = new QuestionVedio
+                            {
+                                Id = Guid.NewGuid(),
+                                VedioPath = path,
+                                QuestionPostId = postmodel.Id
+                            };
+                            await _unitOfWork.QuestionVedio.AddAsync(vedio);
+                        }
                     break;
                 default: break;
 
@@ -345,32 +349,36 @@ namespace Business.Posts.Services
             switch (postmodel.Type)
             {
                 case PostsTypes.Post:
-                    foreach (var item in postmodel.DeletedPhotoIds)
-                    {
-                        var photo = await _unitOfWork.PostPhoto.FindAsync(p => p.Id == item);
-                        if (photo != null)
-                            _unitOfWork.PostPhoto.Delete(photo);
-                    }
-                    foreach (var item in postmodel.DeletedVedioIds)
-                    {
-                        var vedio = await _unitOfWork.PostVedio.FindAsync(p => p.Id == item);
-                        if (vedio != null)
-                            _unitOfWork.PostVedio.Delete(vedio);
-                    }
+                    if(postmodel.DeletedPhotoIds!=null)
+                        foreach (var item in postmodel.DeletedPhotoIds)
+                        {
+                            var photo = await _unitOfWork.PostPhoto.FindAsync(p => p.Id == item);
+                            if (photo != null)
+                                _unitOfWork.PostPhoto.Delete(photo);
+                        }
+                    if(postmodel.DeletedVedioIds!=null)
+                        foreach (var item in postmodel.DeletedVedioIds)
+                        {
+                            var vedio = await _unitOfWork.PostVedio.FindAsync(p => p.Id == item);
+                            if (vedio != null)
+                                _unitOfWork.PostVedio.Delete(vedio);
+                        }
                     break;
                 case PostsTypes.Question:
-                    foreach (var item in postmodel.DeletedPhotoIds)
-                    {
-                        var photo = await _unitOfWork.QuestionPhoto.FindAsync(p => p.Id == item);
-                        if (photo != null)
-                            _unitOfWork.QuestionPhoto.Delete(photo);
-                    }
-                    foreach (var item in postmodel.DeletedVedioIds)
-                    {
-                        var vedio = await _unitOfWork.QuestionVedio.FindAsync(p => p.Id == item);
-                        if (vedio != null)
-                            _unitOfWork.QuestionVedio.Delete(vedio);
-                    }
+                    if (postmodel.DeletedPhotoIds != null)
+                        foreach (var item in postmodel.DeletedPhotoIds)
+                        {
+                            var photo = await _unitOfWork.QuestionPhoto.FindAsync(p => p.Id == item);
+                            if (photo != null)
+                                _unitOfWork.QuestionPhoto.Delete(photo);
+                        }
+                    if (postmodel.DeletedVedioIds != null)
+                        foreach (var item in postmodel.DeletedVedioIds)
+                        {
+                            var vedio = await _unitOfWork.QuestionVedio.FindAsync(p => p.Id == item);
+                            if (vedio != null)
+                                _unitOfWork.QuestionVedio.Delete(vedio);
+                        }
                     break;
                 default: break;
 
