@@ -31,8 +31,8 @@ namespace GAMAX.Services.Dto
     public record UploadPost
     {
         public string Description { get; set; }
-        public List<IFormFile> Photos { get; set; }
-        public List<IFormFile> Vedios { get; set; }
+        public List<IFormFile>? Photos { get; set; }
+        public List<IFormFile>? Vedios { get; set; }
         public PostsTypes Type { get; set; } = PostsTypes.Post;
     }
     public record UploadQuestionPost

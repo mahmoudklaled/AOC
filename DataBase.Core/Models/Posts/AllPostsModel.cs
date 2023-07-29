@@ -44,8 +44,8 @@ namespace DataBase.Core.Models.Posts
     {
         public string Title { get; set; }
         public string Description { get; set; }
-        public List<IFormFile> Photos { get; set; }
-        public List<IFormFile> Vedios { get; set; }
+        public List<IFormFile>? Photos { get; set; }
+        public List<IFormFile>? Vedios { get; set; }
         public PostsTypes Type { get; set; }
         public string Question { get; set; } 
         public string? Answer { get; set; } 
