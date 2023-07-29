@@ -135,7 +135,7 @@ namespace GAMAX.Services.Controllers
             return Ok(await _postService.DeleteQuestionPostAsync(id, userInfo.Email));
         }
         [HttpPost("AddPost")]
-        public async Task<IActionResult> AddPost( Dto.UploadPost postModel )
+        public async Task<IActionResult> AddPost([FromForm] Dto.UploadPost postModel )
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var uploadPost = new DataBase.Core.Models.Posts.UploadPost
@@ -149,7 +149,7 @@ namespace GAMAX.Services.Controllers
             return Ok(result);
         }
         [HttpPost("AddQuestionPost")]
-        public async Task<IActionResult> AddQuestionPost( Dto.UploadQuestionPost questionPostModel)
+        public async Task<IActionResult> AddQuestionPost([FromForm] Dto.UploadQuestionPost questionPostModel)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var uploadPost = new DataBase.Core.Models.Posts.UploadPost
@@ -185,7 +185,7 @@ namespace GAMAX.Services.Controllers
             return Ok(result);
         }
         [HttpPost("UpdatePost")]
-        public async Task<IActionResult> UpdatePost( Dto.UpdatePost postModel)
+        public async Task<IActionResult> UpdatePost( [FromForm] Dto.UpdatePost postModel)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var uploadPost = new DataBase.Core.Models.Posts.UpdataPost
