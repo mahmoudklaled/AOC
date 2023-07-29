@@ -39,7 +39,7 @@ namespace Business.Posts.Services
             int take, skip;
             (take, skip) = GetTakeSkipValues(pageNumber);
             string[] includes = { "Photos", "Vedios" , "Reacts" , "Comments" , "UserAccounts" };
-            var result = await _unitOfWork.QuestionPost.FindAllAsync(null, take, skip,  includes);
+            var result = await _unitOfWork.QuestionPost.FindAllAsync(null, take, skip,  includes , p => p.TimeCreated);
             //foreach (var item in result)
             //    item.TimeCreated = DateTime.MinValue + ((DateTime.UtcNow) - (item.TimeCreated));
             return  result.ToList();
