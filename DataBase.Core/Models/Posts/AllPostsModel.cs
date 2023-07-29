@@ -30,6 +30,8 @@ namespace DataBase.Core.Models.Posts
         public string Question { get; set; } 
         public string Answer { get; set; } 
         public Guid UserAccountsId { get; set; }
+        public string PostUserFirstName { get; set; }
+        public string PostUserLastName { get; set; }
 
 
         [BindNever]
@@ -46,7 +48,7 @@ namespace DataBase.Core.Models.Posts
         public List<IFormFile>? Vedios { get; set; }
         public PostsTypes Type { get; set; }
         public string Question { get; set; } 
-        public string Answer { get; set; } 
+        public string? Answer { get; set; } 
 
     }
     public class UpdataPost

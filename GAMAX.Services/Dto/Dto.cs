@@ -39,9 +39,9 @@ namespace GAMAX.Services.Dto
     {
         public List<IFormFile> Photos { get; set; }
         public List<IFormFile> Vedios { get; set; }
-        public PostsTypes Type { get; set; } = PostsTypes.Post;
+        public PostsTypes Type { get; set; } = PostsTypes.Question;
         public string Question { get; set; }
-        public string Answer { get; set; }
+        public string? Answer { get; set; }
     }
     public record QuestionPost
     {
@@ -54,6 +54,8 @@ namespace GAMAX.Services.Dto
         public ICollection<BaseComment> Comments { get; set; }
         public ICollection<BaseReact> Reacts { get; set; }
         public Guid UserAccountsId { get; set; }
+        public string PostUserFirstName { get; set; }
+        public string PostUserLastName { get; set; }
     }
     public record Post
     {
@@ -65,6 +67,8 @@ namespace GAMAX.Services.Dto
         public ICollection<BaseComment> Comments { get; set; }
         public ICollection<BaseReact> Reacts { get; set; }
         public Guid UserAccountsId { get; set; }
+        public string PostUserFirstName { get; set; }
+        public string PostUserLastName { get; set; }
     }
     public record AllPost
     {
@@ -79,6 +83,8 @@ namespace GAMAX.Services.Dto
         public ICollection<BaseComment> Comments { get; set; }
         public ICollection<BaseReact> Reacts { get; set; }
         public Guid UserAccountsId { get; set; }
+        public string PostUserFirstName { get; set; }
+        public string PostUserLastName { get; set; }
     }
     public record Photo { 
         public Guid Id { get; set; } public string Path { get; set; }
