@@ -3,8 +3,10 @@ using DataBase.Core.Models.CommentModels;
 using DataBase.Core.Models.PhotoModels;
 using DataBase.Core.Models.Reacts;
 using DataBase.Core.Models.VedioModels;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
