@@ -122,7 +122,7 @@ namespace GAMAX.Services.Controllers
                 }
                 
             }
-            return Ok();
+            return Ok(posts);
         }
 
         [HttpPost("DeletePost")]

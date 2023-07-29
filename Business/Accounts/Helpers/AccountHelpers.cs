@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,16 +10,20 @@ namespace Business.Accounts.LogicBusiness
 {
     public static class AccountHelpers
     {
-        //Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
+        private static string parentFolder = Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
         private static string PhotoPath = Path.Combine("StaticFiles", "Photos");
 
         public static string GetDefaultProfilePohot(Guid id)
         {
-            return Path.Combine(PhotoPath, "ProfilePhoto", id.ToString()+"Profile.png");
+            var sourceFile = Path.Combine(parentFolder, PhotoPath); 
+            CopyAndRenamePhoto(sourceFile, Path.Combine(sourceFile, "ProfilePhoto"), "Profile.jpg", id.ToString() + "Profile.jpg");
+            return Path.Combine(PhotoPath, "ProfilePhoto", id.ToString()+"Profile.jpg");
         }
         public static string GetDefaultCoverPohot(Guid id)
         {
-            return Path.Combine(PhotoPath, "CoverPhoto", id.ToString()+"Cover.png");
+            var sourceFile = Path.Combine(parentFolder, PhotoPath);
+            CopyAndRenamePhoto(sourceFile, Path.Combine(sourceFile, "CoverPhoto"), "Cover.jpg", id.ToString() + "Cover.jpg");
+            return Path.Combine(PhotoPath, "CoverPhoto", id.ToString()+"Cover.jpg");
         }
         public static string IformToProfilePath(IFormFile formFile,  Guid userId)
         {
@@ -56,5 +61,24 @@ namespace Business.Accounts.LogicBusiness
             return string.Empty;
 
         }
+        public static void CopyAndRenamePhoto(string sourceFolderPath, string destinationFolderPath, string photoName, string newPhotoName)
+        {
+            try
+            {
+                string sourceFilePath = Path.Combine(sourceFolderPath, photoName);
+                string destinationDirectoryPath = Path.Combine(destinationFolderPath);
+                string destinationFilePath = Path.Combine(destinationDirectoryPath, newPhotoName);
+
+                if (File.Exists(sourceFilePath))
+                {
+                    File.Copy(sourceFilePath, destinationFilePath,true);
+
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
     }
 }

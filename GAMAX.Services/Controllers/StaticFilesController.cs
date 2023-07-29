@@ -12,7 +12,83 @@ namespace GAMAX.Services.Controllers
         [HttpGet("download")]
         public IActionResult DownloadFile(string filePath)
         {
-            filePath =Path.Combine(directoryPath, filePath);
+            filePath =Path.Combine(directoryPath, "StaticFiles", filePath);
+            if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
+            {
+                return NotFound(); // Return 404 Not Found if the file doesn't exist
+            }
+
+            // Get the file extension from the file path
+            string fileExtension = Path.GetExtension(filePath).ToLower();
+
+            // Set the content type based on the file extension
+            string contentType;
+            if (IsImageExtension(fileExtension))
+            {
+                contentType = "image/" + fileExtension.Substring(1);
+            }
+            else if (IsVideoExtension(fileExtension))
+            {
+                contentType = "video/" + fileExtension.Substring(1);
+            }
+            else
+            {
+                return BadRequest("Invalid file extension."); // Return a bad request if the file extension is not supported
+            }
+
+            // Read the file bytes
+            byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+
+            // Create a file content result
+            var fileContentResult = new FileContentResult(fileBytes, contentType)
+            {
+                FileDownloadName = Path.GetFileName(filePath) // Set the file name for downloading
+            };
+
+            return fileContentResult;
+        }
+        [HttpGet("downloadProfilePhoto")]
+        public IActionResult downloadProfilePhoto(string UserID)
+        {
+            var filePath = Path.Combine(directoryPath, "StaticFiles", "Photos", "ProfilePhoto",UserID+ "Profile.jpg");
+            if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
+            {
+                return NotFound(); // Return 404 Not Found if the file doesn't exist
+            }
+
+            // Get the file extension from the file path
+            string fileExtension = Path.GetExtension(filePath).ToLower();
+
+            // Set the content type based on the file extension
+            string contentType;
+            if (IsImageExtension(fileExtension))
+            {
+                contentType = "image/" + fileExtension.Substring(1);
+            }
+            else if (IsVideoExtension(fileExtension))
+            {
+                contentType = "video/" + fileExtension.Substring(1);
+            }
+            else
+            {
+                return BadRequest("Invalid file extension."); // Return a bad request if the file extension is not supported
+            }
+
+            // Read the file bytes
+            byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+
+            // Create a file content result
+            var fileContentResult = new FileContentResult(fileBytes, contentType)
+            {
+                FileDownloadName = Path.GetFileName(filePath) // Set the file name for downloading
+            };
+
+            return fileContentResult;
+        }
+        [HttpGet("downloadCoverPhoto")]
+        public IActionResult downloadCoverPhoto(string UserID)
+        {
+            var filePath = Path.Combine(directoryPath, "StaticFiles", "Photos", "CoverPhoto", UserID + "Cover.jpg");
             if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
             {
                 return NotFound(); // Return 404 Not Found if the file doesn't exist

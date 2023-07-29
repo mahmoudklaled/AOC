@@ -1,12 +1,14 @@
 ﻿using BDataBase.Core.Models.Accounts;
 using Business.Posts.Helper;
 using DataBase.Core;
+using DataBase.Core.Consts;
 using DataBase.Core.Enums;
 using DataBase.Core.Models.CommentModels;
 using DataBase.Core.Models.PhotoModels;
 using DataBase.Core.Models.Posts;
 using DataBase.Core.Models.Reacts;
 using DataBase.Core.Models.VedioModels;
+using Microsoft.CodeAnalysis.Differencing;
 using Microsoft.Extensions.Hosting;
 using System.Collections.ObjectModel;
 using Utilites;
@@ -28,7 +30,7 @@ namespace Business.Posts.Services
             int take, skip;
             (take,skip) = GetTakeSkipValues(pageNumber);
             string[] includes = { "Photos", "Vedios" , "Reacts" , "Comments" , "UserAccounts" };
-            var result = await _unitOfWork.Post.FindAllAsync(null,take, skip, includes ,p=>p.TimeCreated);
+            var result = await _unitOfWork.Post.FindAllAsync(null,take, skip, includes ,p=>p.TimeCreated , OrderBy.Descending);
             //foreach(var item in result)
             //    item.TimeCreated = DateTime.MinValue +( (DateTime.UtcNow)-(item.TimeCreated));
             
@@ -39,7 +41,7 @@ namespace Business.Posts.Services
             int take, skip;
             (take, skip) = GetTakeSkipValues(pageNumber);
             string[] includes = { "Photos", "Vedios" , "Reacts" , "Comments" , "UserAccounts" };
-            var result = await _unitOfWork.QuestionPost.FindAllAsync(null, take, skip,  includes , p => p.TimeCreated);
+            var result = await _unitOfWork.QuestionPost.FindAllAsync(null, take, skip,  includes , p => p.TimeCreated, OrderBy.Descending);
             //foreach (var item in result)
             //    item.TimeCreated = DateTime.MinValue + ((DateTime.UtcNow) - (item.TimeCreated));
             return  result.ToList();
@@ -210,30 +212,32 @@ namespace Business.Posts.Services
 
             if (post.Photos == null)
                 post.Photos = new Collection<QuestionPhoto>();
-            foreach (var photo in postmodel.PhotosPath)
-            {
-                var photoModel = new QuestionPhoto()
+            if (postmodel.PhotosPath!=null)
+                foreach (var photo in postmodel.PhotosPath)
                 {
-                    Id = Guid.NewGuid(),
-                    PhotoPath = photo,
-                    QuestionPost = post,
-                    QuestionId = post.Id
-                };
-                post.Photos.Add(photoModel);
-            }
+                    var photoModel = new QuestionPhoto()
+                    {
+                        Id = Guid.NewGuid(),
+                        PhotoPath = photo,
+                        QuestionPost = post,
+                        QuestionId = post.Id
+                    };
+                    post.Photos.Add(photoModel);
+                }
             if (post.Vedios == null)
                 post.Vedios = new Collection<QuestionVedio>();
-            foreach (var vedio in postmodel.VediosPath)
-            {
-                var vedioModel = new QuestionVedio()
+            if(postmodel.VediosPath!=null)
+                foreach (var vedio in postmodel.VediosPath)
                 {
-                    Id = Guid.NewGuid(),
-                    VedioPath = vedio,
-                    QuestionPost = post,
-                    QuestionPostId = post.Id
-                };
-                post.Vedios.Add(vedioModel);
-            }
+                    var vedioModel = new QuestionVedio()
+                    {
+                        Id = Guid.NewGuid(),
+                        VedioPath = vedio,
+                        QuestionPost = post,
+                        QuestionPostId = post.Id
+                    };
+                    post.Vedios.Add(vedioModel);
+                }
             //post.Title = postmodel.Title;
             //post.Description = postmodel.Description;
             post.Answer = postmodel.Answer;
@@ -354,14 +358,20 @@ namespace Business.Posts.Services
                         {
                             var photo = await _unitOfWork.PostPhoto.FindAsync(p => p.Id == item);
                             if (photo != null)
+                            {
+                                MediaUtilites.DeleTeMediaPath(photo.PhotoPath);
                                 _unitOfWork.PostPhoto.Delete(photo);
+                            }
                         }
                     if(postmodel.DeletedVedioIds!=null)
                         foreach (var item in postmodel.DeletedVedioIds)
                         {
                             var vedio = await _unitOfWork.PostVedio.FindAsync(p => p.Id == item);
                             if (vedio != null)
+                            {
+                                MediaUtilites.DeleTeMediaPath(vedio.VedioPath);
                                 _unitOfWork.PostVedio.Delete(vedio);
+                            }
                         }
                     break;
                 case PostsTypes.Question:
@@ -370,14 +380,20 @@ namespace Business.Posts.Services
                         {
                             var photo = await _unitOfWork.QuestionPhoto.FindAsync(p => p.Id == item);
                             if (photo != null)
+                            {
+                                MediaUtilites.DeleTeMediaPath(photo.PhotoPath);
                                 _unitOfWork.QuestionPhoto.Delete(photo);
+                            }
                         }
                     if (postmodel.DeletedVedioIds != null)
                         foreach (var item in postmodel.DeletedVedioIds)
                         {
                             var vedio = await _unitOfWork.QuestionVedio.FindAsync(p => p.Id == item);
                             if (vedio != null)
+                            {
+                                MediaUtilites.DeleTeMediaPath(vedio.VedioPath);
                                 _unitOfWork.QuestionVedio.Delete(vedio);
+                            }
                         }
                     break;
                 default: break;
@@ -388,7 +404,7 @@ namespace Business.Posts.Services
         }
         private (int take , int skip) GetTakeSkipValues(int pageNumber)
         {
-            return (_pageSize,pageNumber*_pageSize);
+            return (_pageSize,(pageNumber-1)*_pageSize);
         }
 
     }
