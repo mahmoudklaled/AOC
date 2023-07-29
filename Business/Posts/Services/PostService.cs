@@ -29,8 +29,8 @@ namespace Business.Posts.Services
             (take,skip) = GetTakeSkipValues(pageNumber);
             string[] includes = { "Photos", "Vedios" , "Reacts" , "Comments" , "UserAccounts" };
             var result = await _unitOfWork.Post.FindAllAsync(null,take, skip, includes);
-            foreach(var item in result)
-                item.TimeCreated = DateTime.MinValue +( (DateTime.UtcNow)-(item.TimeCreated));
+            //foreach(var item in result)
+            //    item.TimeCreated = DateTime.MinValue +( (DateTime.UtcNow)-(item.TimeCreated));
             
             return result.ToList();
         }
@@ -40,8 +40,8 @@ namespace Business.Posts.Services
             (take, skip) = GetTakeSkipValues(pageNumber);
             string[] includes = { "Photos", "Vedios" , "Reacts" , "Comments" , "UserAccounts" };
             var result = await _unitOfWork.QuestionPost.FindAllAsync(null, take, skip,  includes);
-            foreach (var item in result)
-                item.TimeCreated = DateTime.MinValue + ((DateTime.UtcNow) - (item.TimeCreated));
+            //foreach (var item in result)
+            //    item.TimeCreated = DateTime.MinValue + ((DateTime.UtcNow) - (item.TimeCreated));
             return  result.ToList();
         }
         public async Task<List<AllPostsModel>> GetPostTypesAsync(int pageNumber)
