@@ -27,23 +27,28 @@ namespace Business.Posts.Services
         {
             int take, skip;
             (take,skip) = GetTakeSkipValues(pageNumber);
-            string[] includes = { "Photos", "Vedios" , "Reacts" , "Comments" };
+            string[] includes = { "Photos", "Vedios" , "Reacts" , "Comments" , "UserAccounts" };
             var result = await _unitOfWork.Post.FindAllAsync(null,take, skip, includes);
+            foreach(var item in result)
+                item.TimeCreated = DateTime.MinValue +( (DateTime.UtcNow)-(item.TimeCreated));
+            
             return result.ToList();
         }
         public async Task<List<QuestionPost>> GetQuestionPostAsync(int pageNumber)
         {
             int take, skip;
             (take, skip) = GetTakeSkipValues(pageNumber);
-            string[] includes = { "Photos", "Vedios" , "Reacts" , "Comments" };
+            string[] includes = { "Photos", "Vedios" , "Reacts" , "Comments" , "UserAccounts" };
             var result = await _unitOfWork.QuestionPost.FindAllAsync(null, take, skip,  includes);
+            foreach (var item in result)
+                item.TimeCreated = DateTime.MinValue + ((DateTime.UtcNow) - (item.TimeCreated));
             return  result.ToList();
         }
         public async Task<List<AllPostsModel>> GetPostTypesAsync(int pageNumber)
         {
             
-            var posts = await GetPostAsync(pageNumber+1/2);
-            var questions = await GetQuestionPostAsync(pageNumber+1/2);
+            var posts = await GetPostAsync(pageNumber);
+            var questions = await GetQuestionPostAsync(pageNumber);
 
             var allPostsModel = new List<AllPostsModel>();
 
@@ -69,7 +74,9 @@ namespace Business.Posts.Services
                 Type = PostsTypes.Post,
                 Question = string.Empty, 
                 Answer = string.Empty ,
-                UserAccountsId=post.UserAccountsId
+                UserAccountsId=post.UserAccountsId,
+                PostUserFirstName= post.UserAccounts.FirstName,
+                PostUserLastName=post.UserAccounts.LastName,
             }));
 
             // Add questions with type 'Question' and populate Question and Answer properties
@@ -77,7 +84,7 @@ namespace Business.Posts.Services
             {
                 Id = question.Id,
                 //Title = question.Title,
-                Description = question.Description,
+                //Description = question.Description,
                 TimeCreated = question.TimeCreated,
                 Photo = question.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList().ToList(),
                 Vedio = question.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
@@ -86,7 +93,9 @@ namespace Business.Posts.Services
                 Type = PostsTypes.Question,
                 Question = question.Question, // Set the Question property for questions
                 Answer = question.Answer, // Set the Answer property for questions
-                UserAccountsId = question.UserAccountsId
+                UserAccountsId = question.UserAccountsId,
+                PostUserFirstName = question.UserAccounts.FirstName,
+                PostUserLastName = question.UserAccounts.LastName,
 
             }));
 
