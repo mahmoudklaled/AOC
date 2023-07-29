@@ -149,7 +149,7 @@ namespace GAMAX.Services.Controllers
             return Ok(result);
         }
         [HttpPost("AddQuestionPost")]
-        public async Task<IActionResult> AddQuestionPost( Dto.UploadQuestionPost questionPostModel)
+        public async Task<IActionResult> AddQuestionPost([FromForm] Dto.UploadQuestionPost questionPostModel)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var uploadPost = new DataBase.Core.Models.Posts.UploadPost
