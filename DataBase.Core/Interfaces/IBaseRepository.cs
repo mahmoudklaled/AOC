@@ -19,7 +19,7 @@ namespace DataBase.Core.Interfaces
         IEnumerable<T> FindAll(Expression<Func<T, bool>> criteria, string[] includes = null);
         IEnumerable<T> FindAll(Expression<Func<T, bool>> criteria, int take, int skip);
         IEnumerable<T> FindAll(Expression<Func<T, bool>> criteria, int? take, int? skip,
-            Expression<Func<T, object>> orderBy = null, string orderByDirection = OrderBy.Ascending);
+            Expression<Func<T, object>> orderBy = null, string orderByDirection = OrderBy.Descending);
 
         Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> criteria, string[] includes = null);
         Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> criteria, int skip, int take);
