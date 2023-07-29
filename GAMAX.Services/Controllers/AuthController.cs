@@ -107,8 +107,8 @@ namespace GAMAX.Services.Controllers
                 SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
                 SetAccessToken(result.Token, result.ExpiresOn);
             }
-
-            return Ok();
+            return RedirectToActionPermanent("GetProfileAcountData", "Accounts");
+            //return Ok();
         }
 
         [HttpPost("addRole")]
