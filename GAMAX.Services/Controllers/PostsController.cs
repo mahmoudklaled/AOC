@@ -7,7 +7,10 @@ using DataBase.Core.Models.Reacts;
 using DataBase.Core.Models.VedioModels;
 using GAMAX.Services.Dto;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
+using System;
 using System.Security.Claims;
+using Utilites;
 
 namespace GAMAX.Services.Controllers
 {
@@ -33,7 +36,7 @@ namespace GAMAX.Services.Controllers
                 {
                     Id = post.Id,
                     Description = post.Description,
-                    TimeCreated = (DateTime.UtcNow) - (post.TimeCreated),
+                    TimeCreated = TimeHelper.ConvertTimeCreateToString(post.TimeCreated),
                     UserAccountsId = post.UserAccountsId,
                     PostUserLastName = post.UserAccounts.LastName,
                     PostUserFirstName = post.UserAccounts.FirstName,
@@ -57,7 +60,7 @@ namespace GAMAX.Services.Controllers
                     Id = post.Id,
                     Answer=post.Answer,
                     Question=post.Question,
-                    TimeCreated = (DateTime.UtcNow) - (post.TimeCreated),
+                    TimeCreated = TimeHelper.ConvertTimeCreateToString(post.TimeCreated),
                     UserAccountsId = post.UserAccountsId,
                     PostUserLastName = post.UserAccounts.LastName,
                     PostUserFirstName = post.UserAccounts.FirstName,
@@ -83,10 +86,10 @@ namespace GAMAX.Services.Controllers
                     case PostsTypes.Post:
                         posts.Add(new Dto.AllPost
                         {
-                            Type = post.Type,
+                            Type = PostsTypes.Post,
                             Id = post.Id,
                             Description = post.Description,
-                            TimeCreated = (DateTime.UtcNow) - (post.TimeCreated),
+                            TimeCreated = TimeHelper.ConvertTimeCreateToString(post.TimeCreated),
                             UserAccountsId = post.UserAccountsId,
                             PostUserLastName = post.PostUserLastName,
                             PostUserFirstName = post.PostUserFirstName,
@@ -99,11 +102,11 @@ namespace GAMAX.Services.Controllers
                     case PostsTypes.Question:
                         posts.Add(new Dto.AllPost
                         {
-                            Type= post.Type,
+                            Type= PostsTypes.Question,
                             Id = post.Id,
                             Answer = post.Answer,
                             Question = post.Question,
-                            TimeCreated = (DateTime.UtcNow) - (post.TimeCreated),
+                            TimeCreated = TimeHelper.ConvertTimeCreateToString(post.TimeCreated),
                             UserAccountsId = post.UserAccountsId,
                             PostUserLastName = post.PostUserLastName,
                             PostUserFirstName = post.PostUserFirstName,
@@ -201,6 +204,29 @@ namespace GAMAX.Services.Controllers
             };
             bool result = await _postService.UpdatePostAsync(uploadPost, userInfo.Email); 
             return Ok(result);
+        }
+        private string ConvertTimeCreateToString(DateTime timeCreated)
+        {
+            TimeSpan time = (DateTime.UtcNow) - (timeCreated);
+            if (time.Days >= 365)
+            {
+                int years = time.Days / 365;
+                return $"{years} Y";
+            }
+            if (time.Days >= 30)
+            {
+                int months = time.Days / 30;
+                return $"{months} M";
+            }
+            if (time.Days > 0)
+                return $"{time.Days} D";
+            if (time.Hours > 0)
+                return $"{time.Hours} H";
+            if (time.Minutes > 0)
+                return $"{time.Minutes} Minutes";
+            if (time.Seconds > 0)
+                return $"{time.Seconds} S";
+            return "";
         }
     }
 }

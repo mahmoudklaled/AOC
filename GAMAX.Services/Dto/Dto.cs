@@ -48,7 +48,7 @@ namespace GAMAX.Services.Dto
         public Guid Id { get; set; }
         public string Question { get; set; }
         public string Answer { get; set; }
-        public TimeSpan TimeCreated { get; set; } 
+        public string TimeCreated { get; set; } 
         public ICollection<BasePhoto> Photos { get; set; }
         public ICollection<BaseVedio> Vedios { get; set; }
         public ICollection<BaseComment> Comments { get; set; }
@@ -61,7 +61,7 @@ namespace GAMAX.Services.Dto
     {
         public Guid Id { get; set; }
         public string Description { get; set; }
-        public TimeSpan TimeCreated { get; set; }
+        public string TimeCreated { get; set; }
         public ICollection<BasePhoto> Photos { get; set; }
         public ICollection<BaseVedio> Vedios { get; set; }
         public ICollection<BaseComment> Comments { get; set; }
@@ -74,7 +74,7 @@ namespace GAMAX.Services.Dto
     {
         public Guid Id { get; set; }
         public string Description { get; set; }
-        public TimeSpan TimeCreated { get; set; }
+        public string TimeCreated { get; set; }
         public string Question { get; set; }
         public string Answer { get; set; }
         public PostsTypes Type { get; set; }
