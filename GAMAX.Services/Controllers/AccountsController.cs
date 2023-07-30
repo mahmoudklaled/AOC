@@ -18,7 +18,7 @@ namespace GAMAX.Services.Controllers
             _accountService = acountService;
         }
 
-        [HttpGet("GetProfileAcountData")]  
+        [HttpPost("GetProfileAcountData")]  
         public async Task<IActionResult> GetProfileAcountData()
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
