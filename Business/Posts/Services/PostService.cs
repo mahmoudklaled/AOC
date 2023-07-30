@@ -24,8 +24,7 @@ namespace Business.Posts.Services
             _unitOfWork = unitOfWork;
         }
 
-
-        public async Task<List<Post>> GetPostAsync(int pageNumber)
+        public async Task<List<Post>> GetPostAsync(int pageNumber )
         {
             int take, skip;
             (take,skip) = GetTakeSkipValues(pageNumber);
@@ -45,6 +44,18 @@ namespace Business.Posts.Services
             //foreach (var item in result)
             //    item.TimeCreated = DateTime.MinValue + ((DateTime.UtcNow) - (item.TimeCreated));
             return  result.ToList();
+        }
+        public async Task<Post> GetPostByIDAsync(Guid id)
+        {
+            string[] includes = { "Photos", "Vedios", "Reacts", "Comments", "UserAccounts" };
+            var result = await _unitOfWork.Post.FindAsync(p=>p.Id==id, includes);
+            return result;
+        }
+        public async Task<QuestionPost> GetQuestionPostByIdAsync(Guid id)
+        {
+            string[] includes = { "Photos", "Vedios", "Reacts", "Comments", "UserAccounts" };
+            var result = await _unitOfWork.QuestionPost.FindAsync(p => p.Id == id, includes);
+            return result;
         }
         public async Task<List<AllPostsModel>> GetPostTypesAsync(int pageNumber)
         {
@@ -79,6 +90,87 @@ namespace Business.Posts.Services
                 UserAccountsId=post.UserAccountsId,
                 PostUserFirstName= post.UserAccounts.FirstName,
                 PostUserLastName=post.UserAccounts.LastName,
+            }));
+
+            // Add questions with type 'Question' and populate Question and Answer properties
+            allPostsModel.AddRange(questions.Select(question => new AllPostsModel
+            {
+                Id = question.Id,
+                //Title = question.Title,
+                //Description = question.Description,
+                TimeCreated = question.TimeCreated,
+                Photo = question.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList().ToList(),
+                Vedio = question.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
+                comments = question.Comments.Select(pp => new BaseComment { Id = pp.Id, comment = pp.comment, Date = pp.Date, UserAccountsId = pp.UserAccountsId }).ToList(),
+                reacts = question.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList(),
+                Type = PostsTypes.Question,
+                Question = question.Question, // Set the Question property for questions
+                Answer = question.Answer, // Set the Answer property for questions
+                UserAccountsId = question.UserAccountsId,
+                PostUserFirstName = question.UserAccounts.FirstName,
+                PostUserLastName = question.UserAccounts.LastName,
+
+            }));
+
+            // Sort the combined list by TimeCreated in descending order
+            allPostsModel = allPostsModel.OrderByDescending(p => p.TimeCreated).ToList();
+
+            return allPostsModel;
+        }
+        public async Task<List<Post>> GetPersonalPostAsync(int pageNumber, Guid userID)
+        {
+            int take, skip;
+            (take, skip) = GetTakeSkipValues(pageNumber);
+            string[] includes = { "Photos", "Vedios", "Reacts", "Comments", "UserAccounts" };
+            var result = await _unitOfWork.Post.FindAllAsync(p=>p.UserAccountsId== userID, take, skip, includes, p => p.TimeCreated, OrderBy.Descending);
+            //foreach(var item in result)
+            //    item.TimeCreated = DateTime.MinValue +( (DateTime.UtcNow)-(item.TimeCreated));
+
+            return result.ToList();
+        }
+        public async Task<List<QuestionPost>> GetPersonalQuestionPostAsync(int pageNumber, Guid userID)
+        {
+            int take, skip;
+            (take, skip) = GetTakeSkipValues(pageNumber);
+            string[] includes = { "Photos", "Vedios", "Reacts", "Comments", "UserAccounts" };
+            var result = await _unitOfWork.QuestionPost.FindAllAsync(p => p.UserAccountsId == userID, take, skip, includes, p => p.TimeCreated, OrderBy.Descending);
+            //foreach (var item in result)
+            //    item.TimeCreated = DateTime.MinValue + ((DateTime.UtcNow) - (item.TimeCreated));
+            return result.ToList();
+        }
+        public async Task<List<AllPostsModel>> GetPersonalPostTypesAsync(int pageNumber, Guid userID)
+        {
+
+            var posts = await GetPersonalPostAsync(pageNumber,  userID);
+            var questions = await GetPersonalQuestionPostAsync(pageNumber,  userID);
+
+            var allPostsModel = new List<AllPostsModel>();
+
+            List<PostPhoto> postPhotos = new List<PostPhoto>();
+            // Populate the postPhotos list with data
+
+            List<BasePhoto> basePhotos = postPhotos.Select(pp => new BasePhoto
+            {
+                Id = pp.Id,
+                PhotoPath = pp.PhotoPath
+            }).ToList();
+            // Add posts with type 'Post'
+            allPostsModel.AddRange(posts.Select(post => new AllPostsModel
+            {
+                Id = post.Id,
+                //Title = post.Title,
+                Description = post.Description,
+                TimeCreated = post.TimeCreated,
+                Photo = post.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList(),
+                Vedio = post.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
+                comments = post.Comments.Select(pp => new BaseComment { Id = pp.Id, comment = pp.comment, Date = pp.Date, UserAccountsId = pp.UserAccountsId }).ToList(),
+                reacts = post.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList(),
+                Type = PostsTypes.Post,
+                Question = string.Empty,
+                Answer = string.Empty,
+                UserAccountsId = post.UserAccountsId,
+                PostUserFirstName = post.UserAccounts.FirstName,
+                PostUserLastName = post.UserAccounts.LastName,
             }));
 
             // Add questions with type 'Question' and populate Question and Answer properties
