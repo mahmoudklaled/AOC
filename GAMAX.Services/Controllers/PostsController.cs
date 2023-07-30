@@ -51,6 +51,7 @@ namespace GAMAX.Services.Controllers
         [HttpPost("GetAllQuestionPosts")]
         public async Task<IActionResult> GetAllQuestionPosts(int pageNumber)
         {
+
             var result = await _postService.GetQuestionPostAsync(pageNumber);
             List<Dto.QuestionPost> posts = new List<Dto.QuestionPost>();
             foreach (var post in result)
@@ -73,10 +74,53 @@ namespace GAMAX.Services.Controllers
             }
             return Ok(posts);
         }
+        [HttpPost("GetPostByID")]
+        public async Task<IActionResult> GetPostByID(Guid id)
+        {
+            var result = await _postService.GetPostByIDAsync(id);
+                var post =  
+                (new Dto.Post
+                {
+                    Id = result.Id,
+                    Description = result.Description,
+                    TimeCreated = TimeHelper.ConvertTimeCreateToString(result.TimeCreated),
+                    UserAccountsId = result.UserAccountsId,
+                    PostUserLastName = result.UserAccounts.LastName,
+                    PostUserFirstName = result.UserAccounts.FirstName,
+                    Photos = result.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList().ToList(),
+                    Vedios = result.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
+                    Comments = result.Comments.Select(pp => new BaseComment { Id = pp.Id, comment = pp.comment, Date = pp.Date, UserAccountsId = pp.UserAccountsId }).ToList(),
+                    Reacts = result.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList(),
+                });
+            
+            return Ok(post);
+        }
+        [HttpPost("GetQuestionByID")]
+        public async Task<IActionResult> GetQuestionByID(Guid id)
+        {
+            var result = await _postService.GetQuestionPostByIdAsync(id);
+            var question=   
+                (new Dto.QuestionPost
+                {
+                    Id = result.Id,
+                    Answer = result.Answer,
+                    Question = result.Question,
+                    TimeCreated = TimeHelper.ConvertTimeCreateToString(result.TimeCreated),
+                    UserAccountsId = result.UserAccountsId,
+                    PostUserLastName = result.UserAccounts.LastName,
+                    PostUserFirstName = result.UserAccounts.FirstName,
+                    Photos = result.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList(),
+                    Vedios = result.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
+                    Comments = result.Comments.Select(pp => new BaseComment { Id = pp.Id, comment = pp.comment, Date = pp.Date, UserAccountsId = pp.UserAccountsId }).ToList(),
+                    Reacts = result.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList(),
 
+                });
+            return Ok(question);
+        }
         [HttpPost("GetAllPostTypes")]
         public async Task<IActionResult> GetAllPostTypes(int pageNumber)
         {
+            
             var result = await _postService.GetPostTypesAsync(pageNumber);
             List<Dto.AllPost> posts = new List<Dto.AllPost>();
             foreach (var post in result)
@@ -121,6 +165,108 @@ namespace GAMAX.Services.Controllers
 
                 }
                 
+            }
+            return Ok(posts);
+        }
+        [HttpPost("GetAllPersonalPosts")]
+        public async Task<IActionResult> GetAllPersonalPosts(int pageNumber)
+        {
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var result = await _postService.GetPersonalPostAsync(pageNumber,userInfo.Uid);
+            List<Dto.Post> posts = new List<Dto.Post>();
+            foreach (var post in result)
+            {
+                posts.Add(new Dto.Post
+                {
+                    Id = post.Id,
+                    Description = post.Description,
+                    TimeCreated = TimeHelper.ConvertTimeCreateToString(post.TimeCreated),
+                    UserAccountsId = post.UserAccountsId,
+                    PostUserLastName = post.UserAccounts.LastName,
+                    PostUserFirstName = post.UserAccounts.FirstName,
+                    Photos = post.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList().ToList(),
+                    Vedios = post.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
+                    Comments = post.Comments.Select(pp => new BaseComment { Id = pp.Id, comment = pp.comment, Date = pp.Date, UserAccountsId = pp.UserAccountsId }).ToList(),
+                    Reacts = post.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList(),
+                });
+            }
+            return Ok(posts);
+        }
+        [HttpPost("GetAllPersonalQuestionPosts")]
+        public async Task<IActionResult> GetAllPersonalQuestionPosts(int pageNumber)
+        {
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var result = await _postService.GetPersonalQuestionPostAsync(pageNumber, userInfo.Uid);
+            List<Dto.QuestionPost> posts = new List<Dto.QuestionPost>();
+            foreach (var post in result)
+            {
+                posts.Add(new Dto.QuestionPost
+                {
+                    Id = post.Id,
+                    Answer = post.Answer,
+                    Question = post.Question,
+                    TimeCreated = TimeHelper.ConvertTimeCreateToString(post.TimeCreated),
+                    UserAccountsId = post.UserAccountsId,
+                    PostUserLastName = post.UserAccounts.LastName,
+                    PostUserFirstName = post.UserAccounts.FirstName,
+                    Photos = post.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList(),
+                    Vedios = post.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
+                    Comments = post.Comments.Select(pp => new BaseComment { Id = pp.Id, comment = pp.comment, Date = pp.Date, UserAccountsId = pp.UserAccountsId }).ToList(),
+                    Reacts = post.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList(),
+
+                });
+            }
+            return Ok(posts);
+        }
+
+        [HttpPost("GetAllPersonalPostTypes")]
+        public async Task<IActionResult> GetAllPersonalPostTypes(int pageNumber)
+        {
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor); 
+            var result = await _postService.GetPersonalPostTypesAsync(pageNumber, userInfo.Uid);
+            List<Dto.AllPost> posts = new List<Dto.AllPost>();
+            foreach (var post in result)
+            {
+                switch (post.Type)
+                {
+                    case PostsTypes.Post:
+                        posts.Add(new Dto.AllPost
+                        {
+                            Type = PostsTypes.Post,
+                            Id = post.Id,
+                            Description = post.Description,
+                            TimeCreated = TimeHelper.ConvertTimeCreateToString(post.TimeCreated),
+                            UserAccountsId = post.UserAccountsId,
+                            PostUserLastName = post.PostUserLastName,
+                            PostUserFirstName = post.PostUserFirstName,
+                            Photos = post.Photo,
+                            Vedios = post.Vedio,
+                            Comments = post.comments,
+                            Reacts = post.reacts,
+                        });
+                        break;
+                    case PostsTypes.Question:
+                        posts.Add(new Dto.AllPost
+                        {
+                            Type = PostsTypes.Question,
+                            Id = post.Id,
+                            Answer = post.Answer,
+                            Question = post.Question,
+                            TimeCreated = TimeHelper.ConvertTimeCreateToString(post.TimeCreated),
+                            UserAccountsId = post.UserAccountsId,
+                            PostUserLastName = post.PostUserLastName,
+                            PostUserFirstName = post.PostUserFirstName,
+                            Photos = post.Photo,
+                            Vedios = post.Vedio,
+                            Comments = post.comments,
+                            Reacts = post.reacts,
+
+                        });
+                        break;
+                    default: break;
+
+                }
+
             }
             return Ok(posts);
         }
@@ -185,6 +331,11 @@ namespace GAMAX.Services.Controllers
                 
             };
             bool result = await _postService.UpdateQuestionPostAsync(uploadPost, userInfo.Email);
+            if (result)
+            {
+                var post = await _postService.GetQuestionPostByIdAsync(questionPostModel.Id);
+                return Ok(post);
+            }
             return Ok(result);
         }
         [HttpPost("UpdatePost")]
@@ -203,7 +354,12 @@ namespace GAMAX.Services.Controllers
 
             };
             bool result = await _postService.UpdatePostAsync(uploadPost, userInfo.Email); 
-            return Ok(result);
+            if(result) {
+                var post = await _postService.GetPostByIDAsync(postModel.Id);
+                return Ok(post);
+            }
+
+            return BadRequest(result);
         }
         private string ConvertTimeCreateToString(DateTime timeCreated)
         {

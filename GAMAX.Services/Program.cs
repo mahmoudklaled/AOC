@@ -118,7 +118,9 @@ var routesToSkipTokenValidation = new List<string>
     "/api/Auth/ResendConfirmMail",
     "/api/Auth/ResetPasswordCode",
     "/api/Auth/UpdatePassword",
-    "/api/StaticFiles/download"
+    "/api/StaticFiles/download",
+    "/api/StaticFiles/downloadProfilePhoto",
+    "/api/StaticFiles/downloadCoverPhoto"
 };
 
 // Configure the HTTP request pipeline.

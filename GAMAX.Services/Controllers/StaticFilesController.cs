@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DataBase.EF.Migrations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GAMAX.Services.Controllers
@@ -12,14 +13,15 @@ namespace GAMAX.Services.Controllers
         [HttpGet("download")]
         public IActionResult DownloadFile(string filePath)
         {
-            filePath =Path.Combine(directoryPath, "StaticFiles", filePath);
-            if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
+            //filePath = filePath.Replace("\\\\", "\\");
+            var FullPath =Path.Combine(directoryPath, filePath);
+            if (string.IsNullOrEmpty(FullPath) || !System.IO.File.Exists(FullPath))
             {
                 return NotFound(); // Return 404 Not Found if the file doesn't exist
             }
 
             // Get the file extension from the file path
-            string fileExtension = Path.GetExtension(filePath).ToLower();
+            string fileExtension = Path.GetExtension(FullPath).ToLower();
 
             // Set the content type based on the file extension
             string contentType;
@@ -37,12 +39,12 @@ namespace GAMAX.Services.Controllers
             }
 
             // Read the file bytes
-            byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+            byte[] fileBytes = System.IO.File.ReadAllBytes(FullPath);
 
             // Create a file content result
             var fileContentResult = new FileContentResult(fileBytes, contentType)
             {
-                FileDownloadName = Path.GetFileName(filePath) // Set the file name for downloading
+                FileDownloadName = Path.GetFileName(FullPath) // Set the file name for downloading
             };
 
             return fileContentResult;

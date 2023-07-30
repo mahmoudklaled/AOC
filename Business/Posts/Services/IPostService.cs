@@ -11,7 +11,12 @@ namespace Business.Posts.Services
     {
         Task<List<Post>> GetPostAsync(int pageNumber);
         Task<List<QuestionPost>> GetQuestionPostAsync(int pageNumber);
+        Task<Post> GetPostByIDAsync(Guid id);
+        Task<QuestionPost> GetQuestionPostByIdAsync(Guid id);
         Task<List<AllPostsModel>> GetPostTypesAsync(int pageNumber);
+        Task<List<Post>> GetPersonalPostAsync(int pageNumber,Guid userID);
+        Task<List<QuestionPost>> GetPersonalQuestionPostAsync(int pageNumber, Guid userID);
+        Task<List<AllPostsModel>> GetPersonalPostTypesAsync(int pageNumber, Guid userID);
         Task<bool> AddQuestionPostAsync(UploadPost postmodel, string userEmail);
         Task<bool> AddPostAsync(UploadPost postmodel, string userEmail);
         Task<bool> UpdatePostAsync(UpdataPost postmodel, string userEmail);
