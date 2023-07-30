@@ -16,7 +16,7 @@ namespace GAMAX.Services.Dto
         public List<IFormFile>? Vedios { get; set; }
         public PostsTypes Type { get; set; } = PostsTypes.Question;
         public string Question { get; set; }
-        public string Answer { get; set; }
+        public string? Answer { get; set; }
     }
     public record UpdatePost
     {
