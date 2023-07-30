@@ -169,7 +169,7 @@ namespace GAMAX.Services.Controllers
         }
 
         [HttpPost("UpdateQuestion")]
-        public async Task<IActionResult> UpdateQuestion( UpdateQuestion questionPostModel)
+        public async Task<IActionResult> UpdateQuestion( [FromForm] UpdateQuestion questionPostModel)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var uploadPost = new DataBase.Core.Models.Posts.UpdataPost
