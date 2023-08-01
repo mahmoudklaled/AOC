@@ -72,8 +72,8 @@ namespace Business.Accounts.Services
         }
         public async Task<UserAccounts> GetAccountProfileAsync(string email)
         {
-            string[] includes = { "Posts", "QuestionPosts" };
-            var accountProfile = await _unitOfWork.UserAccounts.FindAllAsync(p => p.Email == email, includes);
+            //string[] includes = { "Posts", "QuestionPosts" };
+            var accountProfile = await _unitOfWork.UserAccounts.FindAllAsync(p => p.Email == email /*includes*/);
             return accountProfile.FirstOrDefault();
         }
         public async Task<List<SearchAccount>> SearchAccountsAsync(string searchValue)

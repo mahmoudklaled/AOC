@@ -15,10 +15,16 @@ using DataBase.Core;
 using DataBase.EF;
 using DataBase.Core.Models.Authentication;
 using Utilites;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-
+builder.Services.AddControllers()
+.AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.MaxDepth = 128; // Set the maximum allowed depth to 128 (or any other value you need)
+                                                    // Add more settings if necessary
+});
 
 
 builder.Services.AddHttpContextAccessor();
