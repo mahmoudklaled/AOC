@@ -255,16 +255,16 @@ namespace Business.Posts.Services
             questionpost.Question = postmodel.Question;
             questionpost.Answer = postmodel.Answer;
             _unitOfWork.QuestionPost.Update(questionpost);
-            var update = _unitOfWork.Complete();
+            var update = await _unitOfWork.Complete();
 
             
             questionpost = await AddNewPostPhotoAndVedioForQuestion(postmodel,questionpost);
             _unitOfWork.QuestionPost.Update(questionpost);
-             update = _unitOfWork.Complete();
+             update = await _unitOfWork.Complete();
 
             await DeletePostPhotoAndVedio(postmodel);
 
-            return await update > 0;
+            return  update > 0;
         }
         public async Task<bool> DeletePostAsync(Guid id, string userEmail)
         {
