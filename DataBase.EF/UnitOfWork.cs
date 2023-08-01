@@ -46,14 +46,33 @@ namespace DataBase.EF
         {
             _context = context;
             UserAccounts = new BaseRepository<UserAccounts>(_context);
+            ProfilePhoto = new BaseRepository<ProfilePhoto>(_context);
+            CoverPhoto = new BaseRepository<CoverPhoto>(_context);
+
             QuestionPost= new BaseRepository<QuestionPost>(_context);
-            Post = new BaseRepository<Post>(_context);
-            PostComment= new BaseRepository<PostComment>(_context);
-            PostReact = new BaseRepository<PostReact>(_context);
+            QuestionPhoto= new BaseRepository<QuestionPhoto>(_context);
+            QuestionVedio = new BaseRepository<QuestionVedio>(_context);
             QuestionComment = new BaseRepository<QuestionComment>(_context);
             QuestionReact = new BaseRepository<QuestionReact>(_context);
-            PostCommentReact = new BaseRepository<PostCommentReact>(_context);
             QuestionCommentReact = new BaseRepository<QuestionCommentReact>(_context);
+            QuestionCommentVedio = new BaseRepository<QuestionCommentVedio>(_context);
+            QuestionCommentPhoto = new BaseRepository<QuestionCommentPhoto>(_context);
+            
+            Post = new BaseRepository<Post>(_context);
+            PostPhoto = new BaseRepository<PostPhoto>(_context);
+            PostVedio= new BaseRepository<PostVedio>(_context);
+            PostComment = new BaseRepository<PostComment>(_context);
+            PostReact = new BaseRepository<PostReact>(_context);
+            PostCommentReact = new BaseRepository<PostCommentReact>(_context);
+            PostCommentPhoto = new BaseRepository<PostCommentPhoto>(_context);
+            PostCommentVedio = new BaseRepository<PostCommentVedio>(_context) ;
+
+            Friends = new BaseRepository<Friend>(_context);
+            FriendRequests = new BaseRepository<FriendRequest>(_context);
+
+
+
+
 
         }
 

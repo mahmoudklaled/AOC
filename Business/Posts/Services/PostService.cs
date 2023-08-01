@@ -527,48 +527,57 @@ namespace Business.Posts.Services
             switch (postmodel.Type)
             {
                 case PostsTypes.Post:
-                    if(postmodel.DeletedPhotoIds!=null)
-                        foreach (var item in postmodel.DeletedPhotoIds)
+                    if (postmodel.DeletedPhotoIds != null) { 
+                        foreach (var photoID in postmodel.DeletedPhotoIds)
                         {
-                            var photo = await _unitOfWork.PostPhoto.FindAsync(p => p.Id == item);
+                            
+                            var photo = await _unitOfWork.PostPhoto.FindAsync(p => p.Id == photoID);
                             if (photo != null)
                             {
                                 MediaUtilites.DeleTeMediaPath(photo.PhotoPath);
                                 _unitOfWork.PostPhoto.Delete(photo);
+
                             }
                         }
-                    if(postmodel.DeletedVedioIds!=null)
-                        foreach (var item in postmodel.DeletedVedioIds)
+                    }
+                    if (postmodel.DeletedVedioIds != null)
+                    {
+                        foreach (var delVedioID in postmodel.DeletedVedioIds)
                         {
-                            var vedio = await _unitOfWork.PostVedio.FindAsync(p => p.Id == item);
+                            var vedio = await _unitOfWork.PostVedio.FindAsync(p => p.Id == delVedioID);
                             if (vedio != null)
                             {
                                 MediaUtilites.DeleTeMediaPath(vedio.VedioPath);
                                 _unitOfWork.PostVedio.Delete(vedio);
                             }
                         }
+                    }
                     break;
                 case PostsTypes.Question:
                     if (postmodel.DeletedPhotoIds != null)
-                        foreach (var item in postmodel.DeletedPhotoIds)
+                    {
+                        foreach (Guid photoID2 in postmodel.DeletedPhotoIds)
                         {
-                            var photo = await _unitOfWork.QuestionPhoto.FindAsync(p => p.Id == item);
+                            var photo = await _unitOfWork.QuestionPhoto.FindAsync(p => p.Id == photoID2);
                             if (photo != null)
                             {
                                 MediaUtilites.DeleTeMediaPath(photo.PhotoPath);
                                 _unitOfWork.QuestionPhoto.Delete(photo);
                             }
                         }
+                    }
                     if (postmodel.DeletedVedioIds != null)
-                        foreach (var item in postmodel.DeletedVedioIds)
+                    {
+                        foreach (var VedioId in postmodel.DeletedVedioIds)
                         {
-                            var vedio = await _unitOfWork.QuestionVedio.FindAsync(p => p.Id == item);
+                            var vedio = await _unitOfWork.QuestionVedio.FindAsync(p => p.Id == VedioId);
                             if (vedio != null)
                             {
                                 MediaUtilites.DeleTeMediaPath(vedio.VedioPath);
                                 _unitOfWork.QuestionVedio.Delete(vedio);
                             }
                         }
+                    }
                     break;
                 default: break;
 

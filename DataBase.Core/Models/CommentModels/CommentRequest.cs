@@ -12,8 +12,6 @@ namespace DataBase.Core.Models.CommentModels
     {
         public Guid Id { get; set; }
         public string? comment { get; set; }
-        public Guid PostId { get; set; }
-        public PostsTypes PostsType { get; set; }
         public IFormFile? Photo { get; set; }
         public IFormFile? Vedio { get; set; }
 
@@ -22,7 +20,6 @@ namespace DataBase.Core.Models.CommentModels
     {
         public string? comment { get; set; }
         public Guid PostId { get; set; }
-        public PostsTypes PostsType { get; set; }
         public IFormFile? Photo { get; set; }
         public IFormFile? Vedio { get; set; }
 
