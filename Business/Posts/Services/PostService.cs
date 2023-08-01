@@ -220,8 +220,8 @@ namespace Business.Posts.Services
         }
         public async Task<bool> UpdatePostAsync(UpdataPost postmodel, string userEmail)
         {
-            
-            var post = await _unitOfWork.Post.FindAsync(p => p.Id == postmodel.Id);
+            string[] includes = { "Photos", "Vedios", "Reacts", "Comments", "UserAccounts" };
+            var post = await _unitOfWork.Post.FindAsync(p => p.Id == postmodel.Id,includes);
             if (post == null)
                 return false;
             var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
@@ -229,13 +229,16 @@ namespace Business.Posts.Services
                 return false;
             if (post.UserAccountsId != user.Id)
                 return false;
-            DeletePostPhotoAndVedio(postmodel);
-            AddNewPostPhotoAndVedio(postmodel);
-            post.Description= postmodel.Description;
-            //post.Title=postmodel.Title;
+            post.Description = postmodel.Description;
             _unitOfWork.Post.Update(post);
-            var update = _unitOfWork.Complete();
-            return await update > 0;
+            var update = await _unitOfWork.Complete();
+            post = await AddNewPostPhotoAndVedioForPost(postmodel, post);
+            _unitOfWork.Post.Update(post);
+            var update2 = await _unitOfWork.Complete();
+
+            await DeletePostPhotoAndVedio(postmodel);
+
+            return true;
         }
         public async Task<bool> UpdateQuestionPostAsync(UpdataPost postmodel, string userEmail)
         {
@@ -249,14 +252,18 @@ namespace Business.Posts.Services
                 return false;
             if (questionpost.UserAccountsId != user.Id)
                 return false;
-            DeletePostPhotoAndVedio(postmodel);
-            AddNewPostPhotoAndVedio(postmodel);
-            //questionpost.Description= postmodel.Description;
-            //questionpost.Title= postmodel.Title;
             questionpost.Question = postmodel.Question;
-            questionpost.Answer= postmodel.Answer;
+            questionpost.Answer = postmodel.Answer;
             _unitOfWork.QuestionPost.Update(questionpost);
-            var update =  _unitOfWork.Complete();
+            var update = _unitOfWork.Complete();
+
+            
+            questionpost = await AddNewPostPhotoAndVedioForQuestion(postmodel,questionpost);
+            _unitOfWork.QuestionPost.Update(questionpost);
+             update = _unitOfWork.Complete();
+
+            await DeletePostPhotoAndVedio(postmodel);
+
             return await update > 0;
         }
         public async Task<bool> DeletePostAsync(Guid id, string userEmail)
@@ -378,7 +385,7 @@ namespace Business.Posts.Services
             post.Description = postmodel.Description;
             return post;
         }
-        private async void AddNewPostPhotoAndVedio(UpdataPost postmodel)
+        private async Task AddNewPostPhotoAndVedio(UpdataPost postmodel )
         {
             switch (postmodel.Type)
             {
@@ -391,9 +398,8 @@ namespace Business.Posts.Services
                             {
                                 Id = Guid.NewGuid(),
                                 PhotoPath = path,
-                                PostId = postmodel.Id
                             };
-                            await _unitOfWork.PostPhoto.AddAsync(photo);
+                            var result = await _unitOfWork.PostPhoto.AddAsync(photo);
                         }
                     if(postmodel.NewVedios!=null)
                         foreach (var item in postmodel.NewVedios)
@@ -403,7 +409,6 @@ namespace Business.Posts.Services
                             {
                                 Id = Guid.NewGuid(),
                                 VedioPath = path,
-                                PostId = postmodel.Id
                             };
                             await _unitOfWork.PostVedio.AddAsync(vedio);
                         }
@@ -417,7 +422,6 @@ namespace Business.Posts.Services
                             {
                                 Id = Guid.NewGuid(),
                                 PhotoPath = path,
-                                QuestionId = postmodel.Id
                             };
                             await _unitOfWork.QuestionPhoto.AddAsync(photo);
                         }
@@ -429,7 +433,6 @@ namespace Business.Posts.Services
                             {
                                 Id = Guid.NewGuid(),
                                 VedioPath = path,
-                                QuestionPostId = postmodel.Id
                             };
                             await _unitOfWork.QuestionVedio.AddAsync(vedio);
                         }
@@ -440,7 +443,86 @@ namespace Business.Posts.Services
             }
             _unitOfWork.Complete();
         }
-        private async void DeletePostPhotoAndVedio(UpdataPost postmodel)
+        private async Task<Post> AddNewPostPhotoAndVedioForPost(UpdataPost postmodel ,Post post)
+        {
+            //string[] includes = { "Photos", "Vedios", "Reacts", "Comments", "UserAccounts" };
+            //var post = await _unitOfWork.Post.FindAsync(p => p.Id == postmodel.Id, includes);
+            if (postmodel.NewPhotos != null)
+            {
+                if (post.Photos == null)
+                    post.Photos = new List<PostPhoto>();
+                foreach (var item in postmodel.NewPhotos)
+                {
+                    var path = MediaUtilites.ConverIformToPath(item, "PostPhoto");
+                    var photo = new PostPhoto
+                    {
+                        PhotoPath = path,
+                        Post=post,
+                        PostId=post.Id
+                    };
+                    post.Photos.Add(photo);
+                    
+                }
+            }
+            if (postmodel.NewVedios != null)
+            {
+                if (post.Vedios == null)
+                    post.Vedios = new List<PostVedio>();
+                foreach (var item in postmodel.NewVedios)
+                {
+                    var path = MediaUtilites.ConverIformToPath(item, "PostVedios");
+                    var vedio = new PostVedio
+                    {
+                        VedioPath = path,
+                        Post = post,
+                        PostId = post.Id
+                    };
+                    post.Vedios.Add(vedio);
+                }
+            }
+            return post;
+        }
+        
+        private async Task<QuestionPost> AddNewPostPhotoAndVedioForQuestion(UpdataPost postmodel , QuestionPost questionPost)
+        {
+            if (postmodel.NewPhotos != null)
+            {
+                if (questionPost.Photos == null)
+                    questionPost.Photos = new List<QuestionPhoto>();
+                foreach (var item in postmodel.NewPhotos)
+                {
+                    var path = MediaUtilites.ConverIformToPath(item, "PostPhoto");
+                    var photo = new QuestionPhoto
+                    {
+                        PhotoPath = path,
+                        QuestionId = questionPost.Id,
+                        QuestionPost = questionPost
+                    };
+                    questionPost.Photos.Add(photo);
+
+                }
+            }
+            if (postmodel.NewVedios != null)
+            {
+                if (questionPost.Vedios == null)
+                    questionPost.Vedios = new List<QuestionVedio>();
+                foreach (var item in postmodel.NewVedios)
+                {
+                    var path = MediaUtilites.ConverIformToPath(item, "PostVedios");
+                    var vedio = new QuestionVedio
+                    {
+
+                        VedioPath = path,
+                        QuestionPostId = questionPost.Id,
+                        QuestionPost = questionPost
+                    };
+                    questionPost.Vedios.Add(vedio);
+                }
+            }
+            return questionPost;
+            
+        }
+        private async Task DeletePostPhotoAndVedio(UpdataPost postmodel)
         {
             switch (postmodel.Type)
             {
@@ -492,7 +574,7 @@ namespace Business.Posts.Services
 
 
             }
-            _unitOfWork.Complete();
+            var result = await  _unitOfWork.Complete();
         }
         private (int take , int skip) GetTakeSkipValues(int pageNumber)
         {

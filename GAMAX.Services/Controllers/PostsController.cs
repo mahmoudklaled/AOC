@@ -353,13 +353,28 @@ namespace GAMAX.Services.Controllers
                 Description=postModel.Description,
 
             };
-            bool result = await _postService.UpdatePostAsync(uploadPost, userInfo.Email); 
-            if(result) {
-                var post = await _postService.GetPostByIDAsync(postModel.Id);
+            bool susscuss = await _postService.UpdatePostAsync(uploadPost, userInfo.Email); 
+            if(susscuss) {
+                var result = await _postService.GetPostByIDAsync(uploadPost.Id);
+                var post =
+                (new Dto.Post
+                {
+                    Id = result.Id,
+                    Description = result.Description,
+                    TimeCreated = TimeHelper.ConvertTimeCreateToString(result.TimeCreated),
+                    UserAccountsId = result.UserAccountsId,
+                    PostUserLastName = result.UserAccounts.LastName,
+                    PostUserFirstName = result.UserAccounts.FirstName,
+                    Photos = result.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList().ToList(),
+                    Vedios = result.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
+                    Comments = result.Comments.Select(pp => new BaseComment { Id = pp.Id, comment = pp.comment, Date = pp.Date, UserAccountsId = pp.UserAccountsId }).ToList(),
+                    Reacts = result.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList(),
+                });
+
                 return Ok(post);
             }
 
-            return BadRequest(result);
+            return BadRequest(susscuss);
         }
         private string ConvertTimeCreateToString(DateTime timeCreated)
         {
