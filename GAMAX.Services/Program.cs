@@ -39,6 +39,8 @@ builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAcountService, AcountService>();
 builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<ICommentServices, CommentServices>();
+builder.Services.AddScoped<IReactServices, ReactsServices>();
 
 builder.Services.AddMailKit(config =>
 {
