@@ -16,15 +16,23 @@ using DataBase.EF;
 using DataBase.Core.Models.Authentication;
 using Utilites;
 using System.Text.Json;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+//builder.Services.AddControllers();
+//.AddJsonOptions(options =>
+//{
+//    options.JsonSerializerOptions.MaxDepth = 256; // Set the maximum allowed depth to 128 (or any other value you need)
+//                                                  // Add more settings if necessary
+//});
+builder.Services.AddControllers();
 builder.Services.AddControllers()
-.AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.MaxDepth = 128; // Set the maximum allowed depth to 128 (or any other value you need)
-                                                    // Add more settings if necessary
-});
+    .AddNewtonsoftJson(options =>
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
+
 
 
 builder.Services.AddHttpContextAccessor();
@@ -70,7 +78,7 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-builder.Services.AddControllers();
+//builder.Services.AddControllers();
 
 builder.Services.AddCors(options =>
 {
