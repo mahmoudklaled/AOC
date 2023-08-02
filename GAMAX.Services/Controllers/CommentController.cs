@@ -1,9 +1,5 @@
-﻿using Business.Posts.Services;
-using DataBase.Core.Models.CommentModels;
-using GAMAX.Services.Dto;
+﻿using GAMAX.Services.Dto;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.Design;
-using System.Security.Claims;
 
 namespace GAMAX.Services.Controllers
 {
@@ -12,8 +8,8 @@ namespace GAMAX.Services.Controllers
     public class CommentController : ControllerBase
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ICommentServices _commentServices;
-        public CommentController(IHttpContextAccessor httpContextAccessor, ICommentServices commentServices)
+        private readonly Business.Posts.Services.ICommentServices _commentServices;
+        public CommentController(IHttpContextAccessor httpContextAccessor, Business.Posts.Services.ICommentServices commentServices)
         {
             _httpContextAccessor = httpContextAccessor;
             _commentServices = commentServices;
@@ -21,18 +17,27 @@ namespace GAMAX.Services.Controllers
         [HttpPost("GetPostComments")]
         public async Task<IActionResult> GetPostComments(Guid postId, int PageNumber)
         {
-            return Ok(_commentServices.GetPostCommentsAsync(postId , PageNumber));
+            var result = await _commentServices.GetPostCommentsAsync(postId, PageNumber);
+            return Ok(result);
         }
         [HttpPost("GetQuestionComments")]
         public async Task<IActionResult> GetQuestionComments(Guid postId, int PageNumber)
         {
-           return Ok(_commentServices.GetQuestionCommentsAsync(postId, PageNumber));
+            var result = await _commentServices.GetQuestionCommentsAsync(postId, PageNumber);
+           return Ok(result);
         }
         [HttpPost("AddPostComment")]
-        public async Task<IActionResult> AddPostComment([FromBody] AddCommentRequest comment)
+        public async Task<IActionResult> AddPostComment([FromForm] AddCommentRequest requestModel)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
-            var result = await _commentServices.AddPostCommentAsync(comment, userInfo.Email);
+            var cmmnt = new DataBase.Core.Models.CommentModels.AddCommentRequest
+            {
+                comment = requestModel.comment,
+                Photo = requestModel.Photo,
+                Vedio = requestModel.Vedio,
+                PostId = requestModel.PostId,
+            };
+            var result = await _commentServices.AddPostCommentAsync(cmmnt, userInfo.Email);
             if (result)
                 return Ok();
 
@@ -41,10 +46,17 @@ namespace GAMAX.Services.Controllers
             });
         }
         [HttpPost("AddQuestionComment")]
-        public async Task<IActionResult> AddQuestionComment([FromBody] AddCommentRequest comment)
+        public async Task<IActionResult> AddQuestionComment([FromForm] AddCommentRequest requestModel)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
-            var result = await _commentServices.AddQuestionCommentAsync(comment, userInfo.Email);
+            var cmmnt = new DataBase.Core.Models.CommentModels.AddCommentRequest
+            {
+                comment = requestModel.comment,
+                Photo = requestModel.Photo,
+                Vedio = requestModel.Vedio,
+                PostId = requestModel.PostId,
+            };
+            var result = await _commentServices.AddQuestionCommentAsync(cmmnt, userInfo.Email);
             if (result)
                 return Ok();
 
@@ -80,10 +92,18 @@ namespace GAMAX.Services.Controllers
             });
         }
         [HttpPost("UpdatePostComment")]
-        public async Task<IActionResult> UpdatePostComment([FromBody] CommentUpdateRequest comment)
+        public async Task<IActionResult> UpdatePostComment([FromForm] CommentUpdateRequest requestModel)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
-            var result = await _commentServices.UpdatePostCommentAsync(comment, userInfo.Email);
+            var cmmnt = new DataBase.Core.Models.CommentModels.CommentUpdateRequest
+            {
+                comment = requestModel.comment,
+                Photo = requestModel.Photo,
+                Vedio = requestModel.Vedio,
+                Id= requestModel.Id,
+                
+            };
+            var result = await _commentServices.UpdatePostCommentAsync(cmmnt, userInfo.Email);
             if (result)
                 return Ok();
 
@@ -94,10 +114,18 @@ namespace GAMAX.Services.Controllers
 
         }
         [HttpPost("UpdateQuestionComment")]
-        public async Task<IActionResult> UpdateQuestionComment([FromBody] CommentUpdateRequest comment)
+        public async Task<IActionResult> UpdateQuestionComment([FromForm] CommentUpdateRequest requestModel)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
-            var result = await _commentServices.UpdateQuestionCommentAsync(comment, userInfo.Email);
+            var cmmnt = new DataBase.Core.Models.CommentModels.CommentUpdateRequest
+            {
+                comment = requestModel.comment,
+                Photo = requestModel.Photo,
+                Vedio = requestModel.Vedio,
+                Id = requestModel.Id,
+
+            };
+            var result = await _commentServices.UpdateQuestionCommentAsync(cmmnt, userInfo.Email);
             if (result)
                 return Ok();
 

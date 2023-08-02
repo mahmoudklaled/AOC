@@ -113,7 +113,22 @@ namespace GAMAX.Services.Dto
 
 
     #region comments
+    public record CommentUpdateRequest 
+    {
+        public Guid Id { get; set; }
+        public string? comment { get; set; }
+        public IFormFile? Photo { get; set; }
+        public IFormFile? Vedio { get; set; }
 
+    }
+    public record AddCommentRequest 
+    {
+        public string? comment { get; set; }
+        public Guid PostId { get; set; }
+        public IFormFile? Photo { get; set; }
+        public IFormFile? Vedio { get; set; }
+
+    }
     public record CommentUpdate
     {
         public Guid Id { get; set; }
@@ -128,6 +143,6 @@ namespace GAMAX.Services.Dto
 
 
     #region React
-        #endregion
+    #endregion
 
 }

@@ -47,26 +47,30 @@ namespace Business.Posts.Services
                 Post = post,
                 comment = comment.comment
             };
+            await _unitOfWork.PostComment.AddAsync(Newcomment);
             if (comment.Photo != null)
             {
-                Newcomment.PostCommentPhoto = new PostCommentPhoto()
-                {
-                    Id = Guid.NewGuid(),
-                    PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, "CommentsPhoto"),
-                    PostCommentId = Newcomment.Id
-                };
+                var photoPath = MediaUtilites.ConverIformToPath(comment.Photo, "CommentsPhoto");
+                var postComentPhoto = new PostCommentPhoto()
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, "CommentsPhoto"),
+                                        PostCommentId = Newcomment.Id
+                                    };
+                await _unitOfWork.PostCommentPhoto.AddAsync(postComentPhoto);
             }
             if (comment.Vedio != null)
             {
-                Newcomment.PostCommentVedio = new PostCommentVedio()
+                var postCommentVedio = new PostCommentVedio()
                 {
                     Id = Guid.NewGuid(),
                     VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, "CommentsVedio"),
                     PostCommentId = Newcomment.Id
                 };
+                await _unitOfWork.PostCommentVedio.AddAsync(postCommentVedio);
             }
-            await _unitOfWork.PostComment.AddAsync(Newcomment);
-            return await _unitOfWork.Complete() > 0;
+            var update = await _unitOfWork.Complete();
+            return update > 0;
         }
 
         public async Task<bool> UpdatePostCommentAsync(CommentUpdateRequest comment, string userEmail)
