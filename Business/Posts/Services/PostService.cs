@@ -198,25 +198,27 @@ namespace Business.Posts.Services
 
             return allPostsModel;
         }
-        public async Task<bool> AddPostAsync(UploadPost postmodel, string userEmail)
+        public async Task<(bool , Guid)> AddPostAsync(UploadPost postmodel, string userEmail)
         {
             var user = await _unitOfWork.UserAccounts.FindAsync(p=>p.Email ==userEmail);
-            if (user == null) return false;
+            if (user == null) return (false,Guid.Empty);
             var newpostmodel = PostHelper.ConvertToPaths(postmodel, SharedFolderPaths.PostPhotos, SharedFolderPaths.PostVideos);
             var post = PreparePostModel(newpostmodel, user);
             await _unitOfWork.Post.AddAsync(post);
-            var saveresult = _unitOfWork.Complete();
-            return await saveresult > 0;
+            var postID = post.Id;
+            var saveresult = await _unitOfWork.Complete();
+            return (saveresult > 0, postID);
         }
-        public async Task<bool> AddQuestionPostAsync(UploadPost postmodel, string userEmail)
+        public async Task<(bool,Guid)> AddQuestionPostAsync(UploadPost postmodel, string userEmail)
         {
             var user = await _unitOfWork.UserAccounts.FindAsync(p=>p.Email==userEmail);
-            if (user == null) return false;
+            if (user == null) return (false,Guid.Empty);
             var newpostmodel = PostHelper.ConvertToPaths(postmodel, SharedFolderPaths.QuestionPhotos, SharedFolderPaths.QuestionVideos);
             var post = PrepareQuestonPostModel(newpostmodel, user);
             await _unitOfWork.QuestionPost.AddAsync(post);
-            var saveresult =  _unitOfWork.Complete();
-            return await saveresult > 0;
+            var saveresult =  await _unitOfWork.Complete();
+            var PostID = post.Id;
+            return ( saveresult > 0, PostID);
         }
         public async Task<bool> UpdatePostAsync(UpdataPost postmodel, string userEmail)
         {
