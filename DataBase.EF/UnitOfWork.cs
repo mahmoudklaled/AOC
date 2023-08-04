@@ -70,10 +70,6 @@ namespace DataBase.EF
             Friends = new BaseRepository<Friend>(_context);
             FriendRequests = new BaseRepository<FriendRequest>(_context);
 
-
-
-
-
         }
 
         public async Task<int> Complete()

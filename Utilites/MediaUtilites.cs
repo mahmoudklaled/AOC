@@ -9,21 +9,8 @@ namespace Utilites
 {
     public static class MediaUtilites
     {
-        //notes path must inclue media exctention e.g filePath = "path/to/save/image.jpg";
-        private static string FolderPath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())?.FullName, "StaticFiles");
+        private static string FolderPath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())?.FullName);
 
-        public static async Task SaveMediaAsync(byte[] mediaBytes, string filePath)
-        {
-            await File.WriteAllBytesAsync(filePath, mediaBytes);
-        }
-
-        public static async Task SaveMediaAsync(Stream mediaStream, string filePath)
-        {
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                await mediaStream.CopyToAsync(fileStream);
-            }
-        }
         public static string ConverIformToPath(IFormFile formFile, string FileFolderPath)
         {
             if (formFile != null && formFile.Length > 0)
@@ -37,7 +24,7 @@ namespace Utilites
                     formFile.CopyTo(fileStream);
                 }
 
-                return (Path.Combine("StaticFiles", FileFolderPath, newFileName));
+                return (Path.Combine(FileFolderPath, newFileName));
             }
             return string.Empty;
 
@@ -47,7 +34,6 @@ namespace Utilites
             var fullPath = Path.Combine(FolderPath, mediaPath);
             if (File.Exists(fullPath))
             {
-                // Delete the media file
                 File.Delete(fullPath);
             }
             return;

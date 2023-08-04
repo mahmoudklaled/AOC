@@ -50,11 +50,10 @@ namespace Business.Posts.Services
             await _unitOfWork.PostComment.AddAsync(Newcomment);
             if (comment.Photo != null)
             {
-                var photoPath = MediaUtilites.ConverIformToPath(comment.Photo, "CommentsPhoto");
                 var postComentPhoto = new PostCommentPhoto()
                                     {
                                         Id = Guid.NewGuid(),
-                                        PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, "CommentsPhoto"),
+                                        PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, SharedFolderPaths.CommentsPhotos),
                                         PostCommentId = Newcomment.Id
                                     };
                 await _unitOfWork.PostCommentPhoto.AddAsync(postComentPhoto);
@@ -64,7 +63,7 @@ namespace Business.Posts.Services
                 var postCommentVedio = new PostCommentVedio()
                 {
                     Id = Guid.NewGuid(),
-                    VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, "CommentsVedio"),
+                    VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, SharedFolderPaths.CommentsVideos),
                     PostCommentId = Newcomment.Id
                 };
                 await _unitOfWork.PostCommentVedio.AddAsync(postCommentVedio);
@@ -91,7 +90,7 @@ namespace Business.Posts.Services
                 cmnt.PostCommentPhoto = new PostCommentPhoto()
                 {
                     Id = Guid.NewGuid(),
-                    PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, "CommentsPhoto"),
+                    PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, SharedFolderPaths.CommentsPhotos),
                     PostCommentId = cmnt.Id
                 };
             }
@@ -104,7 +103,7 @@ namespace Business.Posts.Services
                 cmnt.PostCommentVedio = new PostCommentVedio()
                 {
                     Id = Guid.NewGuid(),
-                    VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, "CommentsVedio"),
+                    VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, SharedFolderPaths.CommentsVideos),
                     PostCommentId = cmnt.Id
                 };
             }
@@ -150,7 +149,7 @@ namespace Business.Posts.Services
                 Newcomment.QuestionCommentPhoto = new QuestionCommentPhoto()
                 {
                     Id = Guid.NewGuid(),
-                    PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, "CommentsPhoto"),
+                    PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, SharedFolderPaths.CommentsPhotos),
                     QuestionCommentId = Newcomment.Id
                 };
             }
@@ -159,7 +158,7 @@ namespace Business.Posts.Services
                 Newcomment.QuestionCommentVedio = new QuestionCommentVedio()
                 {
                     Id = Guid.NewGuid(),
-                    VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, "CommentsVedio"),
+                    VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, SharedFolderPaths.CommentsVideos),
                     QuestionCommentId = Newcomment.Id
                 };
             }
@@ -184,7 +183,7 @@ namespace Business.Posts.Services
                 cmnt.QuestionCommentPhoto = new QuestionCommentPhoto()
                 {
                     Id = Guid.NewGuid(),
-                    PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, "CommentsPhoto"),
+                    PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, SharedFolderPaths.CommentsPhotos),
                     QuestionCommentId = cmnt.Id
                 };
             }
@@ -197,7 +196,7 @@ namespace Business.Posts.Services
                 cmnt.QuestionCommentVedio = new QuestionCommentVedio()
                 {
                     Id = Guid.NewGuid(),
-                    VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, "CommentsVedio"),
+                    VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, SharedFolderPaths.CommentsVideos),
                     QuestionCommentId = cmnt.Id
                 };
             }

@@ -333,7 +333,7 @@ namespace GAMAX.Services.Controllers
             bool result = await _postService.UpdateQuestionPostAsync(uploadPost, userInfo.Email);
             if (result)
             {
-                return Ok();
+                //return Ok();
                 var post = await _postService.GetQuestionPostByIdAsync(questionPostModel.Id);
                 return Ok(post);
             }
@@ -371,7 +371,7 @@ namespace GAMAX.Services.Controllers
                     Comments = result.Comments.Select(pp => new BaseComment { Id = pp.Id, comment = pp.comment, Date = pp.Date, UserAccountsId = pp.UserAccountsId }).ToList(),
                     Reacts = result.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList(),
                 });
-                return Ok();
+                //return Ok();
                 return Ok(post);
             }
 

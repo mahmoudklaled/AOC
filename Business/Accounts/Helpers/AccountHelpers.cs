@@ -11,34 +11,31 @@ namespace Business.Accounts.LogicBusiness
     public static class AccountHelpers
     {
         private static string parentFolder = Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
-        private static string PhotoPath = Path.Combine("StaticFiles", "Photos");
-
         public static string GetDefaultProfilePohot(Guid id)
         {
-            var sourceFile = Path.Combine(parentFolder, PhotoPath); 
-            CopyAndRenamePhoto(sourceFile, Path.Combine(sourceFile, "ProfilePhoto"), "Profile.jpg", id.ToString() + "Profile.jpg");
-            return Path.Combine(PhotoPath, "ProfilePhoto", id.ToString()+"Profile.jpg");
+            var sourceFile = Path.Combine(parentFolder, SharedFolderPaths.ProfilePhotos); 
+            CopyAndRenamePhoto(sourceFile, sourceFile, "Profile.jpg", id.ToString() + "Profile.jpg");
+            return Path.Combine(SharedFolderPaths.ProfilePhotos, id.ToString()+"Profile.jpg");
         }
         public static string GetDefaultCoverPohot(Guid id)
         {
-            var sourceFile = Path.Combine(parentFolder, PhotoPath);
-            CopyAndRenamePhoto(sourceFile, Path.Combine(sourceFile, "CoverPhoto"), "Cover.jpg", id.ToString() + "Cover.jpg");
-            return Path.Combine(PhotoPath, "CoverPhoto", id.ToString()+"Cover.jpg");
+            var sourceFile = Path.Combine(parentFolder, SharedFolderPaths.CoverPhotos);
+            CopyAndRenamePhoto(sourceFile, sourceFile, "Cover.jpg", id.ToString() + "Cover.jpg");
+            return Path.Combine(SharedFolderPaths.CoverPhotos, id.ToString()+"Cover.jpg");
         }
-        public static string IformToProfilePath(IFormFile formFile,  Guid userId)
+        public static string IformToProfilePath(IFormFile formFile,  Guid userId )
         {
             if (formFile != null && formFile.Length > 0)
             {
-                string fileExtension = Path.GetExtension(formFile.FileName);
-                string newFileName = $"{userId}Profile.{fileExtension}";
-                string newFilePath = Path.Combine(PhotoPath, "ProfilePhoto", newFileName);
+                string newFileName = $"{userId}Profile.jpg";
+                string newFilePath = Path.Combine(parentFolder,SharedFolderPaths.ProfilePhotos, newFileName);
 
                 using (var fileStream = new FileStream(newFilePath, FileMode.Create))
                 {
                     formFile.CopyTo(fileStream);
                 }
 
-                return (Path.Combine(PhotoPath, "ProfilePhoto", newFileName));
+                return (Path.Combine(SharedFolderPaths.ProfilePhotos, newFileName));
             }
             return string.Empty;
 
@@ -47,20 +44,19 @@ namespace Business.Accounts.LogicBusiness
         {
             if (formFile != null && formFile.Length > 0)
             {
-                string fileExtension = Path.GetExtension(formFile.FileName);
-                string newFileName = $"{userId}Cover.{fileExtension}";
-                string newFilePath = Path.Combine(PhotoPath, "CoverPhoto", newFileName);
+                string newFileName = $"{userId}Profile.jpg";
+                string newFilePath = Path.Combine(parentFolder,SharedFolderPaths.CoverPhotos, newFileName);
 
                 using (var fileStream = new FileStream(newFilePath, FileMode.Create))
                 {
                     formFile.CopyTo(fileStream);
                 }
-
-                return (Path.Combine(PhotoPath, "CoverPhoto", newFileName));
+                return (Path.Combine(SharedFolderPaths.CoverPhotos, newFileName));
             }
             return string.Empty;
 
         }
+
         public static void CopyAndRenamePhoto(string sourceFolderPath, string destinationFolderPath, string photoName, string newPhotoName)
         {
             try

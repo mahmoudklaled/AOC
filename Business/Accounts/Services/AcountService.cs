@@ -72,8 +72,8 @@ namespace Business.Accounts.Services
         }
         public async Task<UserAccounts> GetAccountProfileAsync(string email)
         {
-            //string[] includes = { "Posts", "QuestionPosts" };
-            var accountProfile = await _unitOfWork.UserAccounts.FindAllAsync(p => p.Email == email /*includes*/);
+            //string[] includes = { "Posts", "QuestionPosts" , "CoverPhoto", "ProfilePhoto" };
+            var accountProfile = await _unitOfWork.UserAccounts.FindAllAsync(p => p.Email == email /*,includes*/);
             return accountProfile.FirstOrDefault();
         }
         public async Task<List<SearchAccount>> SearchAccountsAsync(string searchValue)
@@ -110,7 +110,7 @@ namespace Business.Accounts.Services
             var UpdateResult = _unitOfWork.Complete();
             return await UpdateResult > 0;
         }
-        public async Task<bool> UpdateProfileCoverAsync(IFormFile formFile , string email)
+        public async Task<bool> UpdateProfilePhotoAsync(IFormFile formFile , string email)
         {
             string[] includes = { "ProfilePhoto" };
             var profileAccount = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == email, includes);
@@ -118,31 +118,32 @@ namespace Business.Accounts.Services
             var photoPath = AccountHelpers.IformToProfilePath(formFile, profileAccount.Id);
             if (profileAccount.ProfilePhoto != null)
                  _unitOfWork.ProfilePhoto.Delete(profileAccount.ProfilePhoto);
-            profileAccount.ProfilePhoto = new DataBase.Core.Models.PhotoModels.ProfilePhoto
+            var ProfilePhoto = new DataBase.Core.Models.PhotoModels.ProfilePhoto
             {
                 Id = Guid.NewGuid(),
                 PhotoPath = photoPath,
                 UserAccountsId = profileAccount.Id
             };
+            _unitOfWork.ProfilePhoto.Add(ProfilePhoto);
             var result = await _unitOfWork.Complete();
             return result > 0;
              
         }
-        public async Task<bool> UpdateProfilePhotoAsync(IFormFile formFile, string email)
+        public async Task<bool> UpdateProfileCoverAsync(IFormFile formFile, string email)
         {
-            
-            string[] includes = { "ProfilePhoto" };
+            string[] includes = { "CoverPhoto" };
             var profileAccount = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == email, includes);
             if (profileAccount == null) return false;
-            var photoPath = AccountHelpers.IformToProfilePath(formFile, profileAccount.Id);
+            var photoPath = AccountHelpers.IformToCoverPath(formFile, profileAccount.Id);
             if (profileAccount.CoverPhoto != null)
                 _unitOfWork.CoverPhoto.Delete(profileAccount.CoverPhoto);
-            profileAccount.CoverPhoto = new DataBase.Core.Models.PhotoModels.CoverPhoto
+            var CoverPhoto = new DataBase.Core.Models.PhotoModels.CoverPhoto
             {
                 Id = Guid.NewGuid(),
                 PhotoPath = photoPath,
                 UserAccountsId = profileAccount.Id
             };
+            _unitOfWork.CoverPhoto.Add(CoverPhoto);
             var result = await _unitOfWork.Complete();
             return result > 0;
         }

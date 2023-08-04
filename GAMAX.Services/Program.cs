@@ -14,19 +14,30 @@ using Business.Posts.Services;
 using DataBase.Core;
 using DataBase.EF;
 using DataBase.Core.Models.Authentication;
-using Utilites;
-using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.AspNetCore.Mvc.Filters;
+using Business;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-//builder.Services.AddControllers();
-//.AddJsonOptions(options =>
-//{
-//    options.JsonSerializerOptions.MaxDepth = 256; // Set the maximum allowed depth to 128 (or any other value you need)
-//                                                  // Add more settings if necessary
-//});
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+SharedFolderPaths.ProfilePhotos = builder.Configuration.GetValue<string>("SharedFolder:ProfilePhotos");
+SharedFolderPaths.CoverPhotos = builder.Configuration.GetValue<string>("SharedFolder:CoverPhotos");
+SharedFolderPaths.PostPhotos = builder.Configuration.GetValue<string>("SharedFolder:PostPhotos");
+SharedFolderPaths.PostVideos = builder.Configuration.GetValue<string>("SharedFolder:PostVideos");
+SharedFolderPaths.QuestionVideos = builder.Configuration.GetValue<string>("SharedFolder:QuestionVideos");
+SharedFolderPaths.QuestionPhotos = builder.Configuration.GetValue<string>("SharedFolder:QuestionPhotos");
+SharedFolderPaths.CommentsPhotos = builder.Configuration.GetValue<string>("SharedFolder:CommentsPhotos");
+SharedFolderPaths.CommentsVideos = builder.Configuration.GetValue<string>("SharedFolder:CommentsVedio");
+
+
+
+
+
+
+
 builder.Services.AddControllers();
 builder.Services.AddControllers()
     .AddNewtonsoftJson(options =>
@@ -78,8 +89,6 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-//builder.Services.AddControllers();
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAnyOrigin",
@@ -92,10 +101,6 @@ builder.Services.AddCors(options =>
         });
 });
 
-var configuration = builder.Configuration;
-
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
 
 
@@ -111,6 +116,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+//TODO What is this ?
 var apiProjectPath = Directory.GetCurrentDirectory();
 var solutionPath = Directory.GetParent(apiProjectPath)?.FullName;
 var photosFolderPath = Path.Combine(solutionPath, "StaticFiles");
@@ -119,7 +125,7 @@ var photosFolderPath = Path.Combine(solutionPath, "StaticFiles");
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(photosFolderPath),
-    RequestPath = "/Photos"
+    RequestPath = "/ProfilePhotos"
 });
 
 // Define the routes that should skip token validation
@@ -157,10 +163,6 @@ app.UseWhen(context => !routesToSkipTokenValidation.Contains(context.Request.Pat
 
 app.UseAuthentication();
 app.UseAuthorization();
-//app.UseEndpoints(endpoints =>
-//{
-//    endpoints.MapControllers();
-//});
 app.MapControllers();
 
 app.Run();
