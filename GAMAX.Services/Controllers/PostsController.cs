@@ -294,8 +294,26 @@ namespace GAMAX.Services.Controllers
                 Vedios = postModel.Vedios,
                 Description = postModel.Description
             };
-            bool result = await _postService.AddPostAsync(uploadPost, userInfo.Email); 
-            return Ok(result);
+            (bool result, Guid id) = await _postService.AddPostAsync(uploadPost, userInfo.Email); 
+            if(result)
+            {
+                var  post = await _postService.GetPostByIDAsync(id);
+                var postResult = new Dto.Post
+                            {
+                                Id = post.Id,
+                                Description = post.Description,
+                                TimeCreated = TimeHelper.ConvertTimeCreateToString(post.TimeCreated),
+                                UserAccountsId = post.UserAccountsId,
+                                PostUserLastName = post.UserAccounts.LastName,
+                                PostUserFirstName = post.UserAccounts.FirstName,
+                                Photos = post.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList().ToList(),
+                                Vedios = post.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
+                                Comments = post.Comments.Select(pp => new BaseComment { Id = pp.Id, comment = pp.comment, Date = pp.Date, UserAccountsId = pp.UserAccountsId }).ToList(),
+                                Reacts = post.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList(),
+                            };
+                return Ok(post);
+            }
+            return BadRequest(result);
         }
         [HttpPost("AddQuestionPost")]
         public async Task<IActionResult> AddQuestionPost([FromForm] Dto.UploadQuestionPost questionPostModel)
@@ -310,8 +328,29 @@ namespace GAMAX.Services.Controllers
                 Type = questionPostModel.Type,
 
             };
-            bool result = await _postService.AddQuestionPostAsync(uploadPost, userInfo.Email); 
-            return Ok(result);
+            (bool result ,Guid id ) = await _postService.AddQuestionPostAsync(uploadPost, userInfo.Email);
+            if( result )
+            {
+                var post = await _postService.GetQuestionPostByIdAsync(id);
+                var question =
+                (new Dto.QuestionPost
+                {
+                    Id = post.Id,
+                    Answer = post.Answer,
+                    Question = post.Question,
+                    TimeCreated = TimeHelper.ConvertTimeCreateToString(post.TimeCreated),
+                    UserAccountsId = post.UserAccountsId,
+                    PostUserLastName = post.UserAccounts.LastName,
+                    PostUserFirstName = post.UserAccounts.FirstName,
+                    Photos = post.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList(),
+                    Vedios = post.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
+                    Comments = post.Comments.Select(pp => new BaseComment { Id = pp.Id, comment = pp.comment, Date = pp.Date, UserAccountsId = pp.UserAccountsId }).ToList(),
+                    Reacts = post.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList(),
+
+                });
+                return Ok(question);
+            }
+            return BadRequest(result);
         }
 
         [HttpPost("UpdateQuestion")]
@@ -335,7 +374,23 @@ namespace GAMAX.Services.Controllers
             {
                 //return Ok();
                 var post = await _postService.GetQuestionPostByIdAsync(questionPostModel.Id);
-                return Ok(post);
+                var question =
+                (new Dto.QuestionPost
+                {
+                    Id = post.Id,
+                    Answer = post.Answer,
+                    Question = post.Question,
+                    TimeCreated = TimeHelper.ConvertTimeCreateToString(post.TimeCreated),
+                    UserAccountsId = post.UserAccountsId,
+                    PostUserLastName = post.UserAccounts.LastName,
+                    PostUserFirstName = post.UserAccounts.FirstName,
+                    Photos = post.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList(),
+                    Vedios = post.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
+                    Comments = post.Comments.Select(pp => new BaseComment { Id = pp.Id, comment = pp.comment, Date = pp.Date, UserAccountsId = pp.UserAccountsId }).ToList(),
+                    Reacts = post.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList(),
+
+                });
+                return Ok(question);
             }
             return Ok(result);
         }
