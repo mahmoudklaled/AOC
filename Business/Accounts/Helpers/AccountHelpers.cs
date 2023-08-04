@@ -44,7 +44,7 @@ namespace Business.Accounts.LogicBusiness
         {
             if (formFile != null && formFile.Length > 0)
             {
-                string newFileName = $"{userId}Profile.jpg";
+                string newFileName = $"{userId}Cover.jpg";
                 string newFilePath = Path.Combine(parentFolder,SharedFolderPaths.CoverPhotos, newFileName);
 
                 using (var fileStream = new FileStream(newFilePath, FileMode.Create))
