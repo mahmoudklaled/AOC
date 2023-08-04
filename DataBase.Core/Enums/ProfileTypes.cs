@@ -12,4 +12,10 @@ namespace DataBase.Core.Enums
         User,
         Team
     }
+    public enum Gender
+    {
+        Unknown,
+        Male,
+        Femle
+    }
 }

@@ -206,7 +206,7 @@ namespace Business.Posts.Services
 
         public async Task<List<PostComment>> GetPostCommentsAsync(Guid postId, int cntToSkip)
         {
-            string[] includes = { "PostCommentPhoto", "PostCommentVedio", "PostCommentReacts" };
+            string[] includes = { "PostCommentPhoto", "PostCommentVedio", "PostCommentReacts" , "UserAccounts" };
             if (cntToSkip < 0)
                 cntToSkip = 0;
             var result = await _unitOfWork.PostComment.FindAllAsync(p => p.PostId == postId, cntToSkip * 5, 5, includes);                   
@@ -215,7 +215,7 @@ namespace Business.Posts.Services
 
         public async Task<List<QuestionComment>> GetQuestionCommentsAsync(Guid postId, int cntToSkip)
         {
-            string[] includes = { "QuestionCommentPhoto", "QuestionCommentVedio", "QuestionCommentReacts" };
+            string[] includes = { "QuestionCommentPhoto", "QuestionCommentVedio", "QuestionCommentReacts" , "UserAccounts" };
             if (cntToSkip < 0)
                 cntToSkip = 0;
             var result = await _unitOfWork.QuestionComment.FindAllAsync(p => p.QuestionPostId == postId, cntToSkip * 5, 5, includes);
