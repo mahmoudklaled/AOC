@@ -129,6 +129,18 @@ namespace GAMAX.Services.Dto
         public IFormFile? Vedio { get; set; }
 
     }
+    public record CommentData
+    {
+        public Guid Id { get; set; }
+        public string? comment { get; set; }
+        public DateTime Date { get; set; } 
+        public string UserFirstName { get; set; }
+        public string UserLastName { get; set; }
+        public BasePhoto? CommentPhoto { get; set; }
+        public BaseVedio? CommentVedio { get; set; }
+        public List<BaseReact> CommentReacts { get; set; }
+
+    }
     public record CommentUpdate
     {
         public Guid Id { get; set; }
@@ -143,6 +155,34 @@ namespace GAMAX.Services.Dto
 
 
     #region React
+    #endregion
+
+    #region UserProfile
+    public record UserAccounts
+    {
+        public Guid Id { get; set; }
+        public string Email { get; set; }
+        public string UserName { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string? Bio { get; set; }
+        public string? City { get; set; }
+        public string? Country { get; set; }
+        public DateTime? Birthdate { get; set; }
+        public string? gender { get; set; }
+        public string Type { get; set; } 
+    }
+    public record ProfileUpdateModel
+    {
+        public Guid Id { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string? City { get; set; }
+        public string? Country { get; set; }
+        public string? Bio { get; set; }
+        public DateTime? Birthdate { get; set; }
+        public string? gender { get; set; } = "Unknown";
+    }
     #endregion
 
 }

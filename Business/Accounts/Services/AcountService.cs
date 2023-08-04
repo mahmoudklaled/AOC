@@ -95,18 +95,15 @@ namespace Business.Accounts.Services
         }
         public async Task<bool> UpdateAccountProfileAsync(ProfileUpdateModel profileUpdateModel)
         {
-            var profileAccount= await _unitOfWork.UserAccounts.FindAsync(p=>p.Email==profileUpdateModel.Email);
-            var UpdateProfileAccount = new UserAccounts
-            {
-                Id = profileAccount.Id,
-                UserName= profileAccount.UserName,
-                Email = profileAccount.Email,
-                FirstName = profileUpdateModel.FirstName,
-                LastName = profileUpdateModel.LastName,
-                City = profileUpdateModel.City,
-                Country = profileUpdateModel.Country
-            };
-             _unitOfWork.UserAccounts.Update(UpdateProfileAccount);
+            var profileAccount= await _unitOfWork.UserAccounts.FindAsync(p=>p.Id==profileUpdateModel.Id);
+            profileAccount.FirstName = profileUpdateModel.FirstName;
+            profileAccount.LastName = profileUpdateModel.LastName;
+            profileAccount.City = profileUpdateModel.City;
+            profileAccount.Country = profileUpdateModel.Country;
+            profileAccount.Bio=profileUpdateModel.Bio;
+            profileAccount.Birthdate = profileUpdateModel.Birthdate;
+            profileAccount.gender = profileAccount.gender;
+             _unitOfWork.UserAccounts.Update(profileAccount);
             var UpdateResult = _unitOfWork.Complete();
             return await UpdateResult > 0;
         }

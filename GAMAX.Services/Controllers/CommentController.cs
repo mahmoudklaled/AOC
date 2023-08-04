@@ -1,4 +1,8 @@
-﻿using GAMAX.Services.Dto;
+﻿using DataBase.Core.Models.PhotoModels;
+using DataBase.Core.Models.Posts;
+using DataBase.Core.Models.Reacts;
+using DataBase.Core.Models.VedioModels;
+using GAMAX.Services.Dto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GAMAX.Services.Controllers
@@ -18,13 +22,43 @@ namespace GAMAX.Services.Controllers
         public async Task<IActionResult> GetPostComments(Guid postId, int PageNumber)
         {
             var result = await _commentServices.GetPostCommentsAsync(postId, PageNumber);
-            return Ok(result);
+            var commentsInfo = new List<CommentData>();
+            foreach (var item in result)
+            {
+                commentsInfo.Add(new CommentData
+                {
+                    Id = item.Id,
+                    comment = item.comment,
+                    CommentPhoto = item.PostCommentPhoto,
+                    CommentVedio = item.PostCommentVedio,
+                    Date = item.Date,
+                    UserFirstName = item.UserAccounts.FirstName,
+                    UserLastName = item.UserAccounts.LastName,
+                    CommentReacts = item.PostCommentReacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts }).ToList()
+                });
+            }
+            return Ok(commentsInfo);
         }
         [HttpPost("GetQuestionComments")]
         public async Task<IActionResult> GetQuestionComments(Guid postId, int PageNumber)
         {
             var result = await _commentServices.GetQuestionCommentsAsync(postId, PageNumber);
-           return Ok(result);
+            var commentsInfo = new List<CommentData>();
+            foreach (var item in result)
+            {
+                commentsInfo.Add(new CommentData
+                {
+                    Id= item.Id,
+                    comment= item.comment,
+                    CommentPhoto =item.QuestionCommentPhoto,
+                    CommentVedio=item.QuestionCommentVedio,
+                    Date=item.Date,
+                    UserFirstName=item.UserAccounts.FirstName,
+                    UserLastName=item.UserAccounts.LastName,
+                    CommentReacts= item.QuestionCommentReacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts }).ToList()
+                });
+            }
+           return Ok(commentsInfo);
         }
         [HttpPost("AddPostComment")]
         public async Task<IActionResult> AddPostComment([FromForm] AddCommentRequest requestModel)
