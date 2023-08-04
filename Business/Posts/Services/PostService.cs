@@ -202,7 +202,7 @@ namespace Business.Posts.Services
         {
             var user = await _unitOfWork.UserAccounts.FindAsync(p=>p.Email ==userEmail);
             if (user == null) return false;
-            var newpostmodel = PostHelper.ConvertToPaths(postmodel, "PostPhoto", "PostVedios");
+            var newpostmodel = PostHelper.ConvertToPaths(postmodel, SharedFolderPaths.PostPhotos, SharedFolderPaths.PostVideos);
             var post = PreparePostModel(newpostmodel, user);
             await _unitOfWork.Post.AddAsync(post);
             var saveresult = _unitOfWork.Complete();
@@ -212,7 +212,7 @@ namespace Business.Posts.Services
         {
             var user = await _unitOfWork.UserAccounts.FindAsync(p=>p.Email==userEmail);
             if (user == null) return false;
-            var newpostmodel = PostHelper.ConvertToPaths(postmodel, "PostPhoto", "PostVedios");
+            var newpostmodel = PostHelper.ConvertToPaths(postmodel, SharedFolderPaths.QuestionPhotos, SharedFolderPaths.QuestionVideos);
             var post = PrepareQuestonPostModel(newpostmodel, user);
             await _unitOfWork.QuestionPost.AddAsync(post);
             var saveresult =  _unitOfWork.Complete();
@@ -385,75 +385,15 @@ namespace Business.Posts.Services
             post.Description = postmodel.Description;
             return post;
         }
-        private async Task AddNewPostPhotoAndVedio(UpdataPost postmodel )
-        {
-            switch (postmodel.Type)
-            {
-                case PostsTypes.Post:
-                    if(postmodel.NewPhotos!=null)
-                        foreach (var item in postmodel.NewPhotos)
-                        {
-                            var path = MediaUtilites.ConverIformToPath(item, "PostPhoto");
-                            var photo = new PostPhoto
-                            {
-                                Id = Guid.NewGuid(),
-                                PhotoPath = path,
-                            };
-                            var result = await _unitOfWork.PostPhoto.AddAsync(photo);
-                        }
-                    if(postmodel.NewVedios!=null)
-                        foreach (var item in postmodel.NewVedios)
-                        {
-                            var path = MediaUtilites.ConverIformToPath(item, "PostVedios");
-                            var vedio = new PostVedio
-                            {
-                                Id = Guid.NewGuid(),
-                                VedioPath = path,
-                            };
-                            await _unitOfWork.PostVedio.AddAsync(vedio);
-                        }
-                    break;
-                case PostsTypes.Question:
-                    if(postmodel.NewPhotos != null)
-                        foreach (var item in postmodel.NewPhotos)
-                        {
-                            var path = MediaUtilites.ConverIformToPath(item, "PostPhoto");
-                            var photo = new QuestionPhoto
-                            {
-                                Id = Guid.NewGuid(),
-                                PhotoPath = path,
-                            };
-                            await _unitOfWork.QuestionPhoto.AddAsync(photo);
-                        }
-                    if(postmodel.NewVedios != null)
-                        foreach (var item in postmodel.NewVedios)
-                        {
-                            var path = MediaUtilites.ConverIformToPath(item, "PostVedios");
-                            var vedio = new QuestionVedio
-                            {
-                                Id = Guid.NewGuid(),
-                                VedioPath = path,
-                            };
-                            await _unitOfWork.QuestionVedio.AddAsync(vedio);
-                        }
-                    break;
-                default: break;
-
-
-            }
-            _unitOfWork.Complete();
-        }
         private async Task<Post> AddNewPostPhotoAndVedioForPost(UpdataPost postmodel ,Post post)
         {
-            //string[] includes = { "Photos", "Vedios", "Reacts", "Comments", "UserAccounts" };
-            //var post = await _unitOfWork.Post.FindAsync(p => p.Id == postmodel.Id, includes);
             if (postmodel.NewPhotos != null)
             {
                 if (post.Photos == null)
                     post.Photos = new List<PostPhoto>();
                 foreach (var item in postmodel.NewPhotos)
                 {
-                    var path = MediaUtilites.ConverIformToPath(item, "PostPhoto");
+                    var path = MediaUtilites.ConverIformToPath(item, SharedFolderPaths.PostPhotos);
                     var photo = new PostPhoto
                     {
                         PhotoPath = path,
@@ -470,7 +410,7 @@ namespace Business.Posts.Services
                     post.Vedios = new List<PostVedio>();
                 foreach (var item in postmodel.NewVedios)
                 {
-                    var path = MediaUtilites.ConverIformToPath(item, "PostVedios");
+                    var path = MediaUtilites.ConverIformToPath(item, SharedFolderPaths.PostVideos);
                     var vedio = new PostVedio
                     {
                         VedioPath = path,
@@ -491,7 +431,7 @@ namespace Business.Posts.Services
                     questionPost.Photos = new List<QuestionPhoto>();
                 foreach (var item in postmodel.NewPhotos)
                 {
-                    var path = MediaUtilites.ConverIformToPath(item, "PostPhoto");
+                    var path = MediaUtilites.ConverIformToPath(item, SharedFolderPaths.QuestionPhotos);
                     var photo = new QuestionPhoto
                     {
                         PhotoPath = path,
@@ -508,7 +448,7 @@ namespace Business.Posts.Services
                     questionPost.Vedios = new List<QuestionVedio>();
                 foreach (var item in postmodel.NewVedios)
                 {
-                    var path = MediaUtilites.ConverIformToPath(item, "PostVedios");
+                    var path = MediaUtilites.ConverIformToPath(item,SharedFolderPaths.QuestionVideos);
                     var vedio = new QuestionVedio
                     {
 

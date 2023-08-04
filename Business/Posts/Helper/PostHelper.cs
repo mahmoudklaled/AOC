@@ -1,43 +1,10 @@
 ﻿using DataBase.Core.Models.Posts;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utilites;
 
 namespace Business.Posts.Helper
 {
     public static class PostHelper
     {
-        private static string FolderPath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())?.FullName, "StaticFiles");
-        
-        public static List<string> SaveFiles(List<IFormFile> files, string savePath ,AllPostsModel allPostsModel , ref List<string> photos , ref List<string> vedios)
-        {
-            List<string> filePaths = new List<string>();
-
-            if (files != null && files.Any())
-            {
-                foreach (var file in files)
-                {
-                    if (file.Length > 0)
-                    {
-                        string fileName = Path.GetFileName(file.FileName);
-                        string filePath = Path.Combine(savePath, fileName);
-
-                        using (var fileStream = new FileStream(filePath, FileMode.Create))
-                        {
-                            file.CopyTo(fileStream);
-                        }
-
-                        filePaths.Add(filePath);
-                    }
-                }
-            }
-
-            return filePaths;
-        }
         public static AllPostsModel ConvertToPaths(UploadPost post, string photoFolderPath, string videoFolderPath)
         {
             var model = mappingModel(post);
