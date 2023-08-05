@@ -116,7 +116,6 @@ namespace GAMAX.Services.Services
                 RefreshTokenExpiration = refreshToken.ExpiresOn
             };
         }
-
         private async Task AddProfileAccount(ApplicationUser user)
         {
             var isAlreadyUser = _unitOfWork.UserAccounts.Find(i => i.Id.ToString() == user.Id);
@@ -148,7 +147,6 @@ namespace GAMAX.Services.Services
             await _unitOfWork.UserAccounts.AddAsync(profile);
             _unitOfWork.Complete();
         }
-
         public async Task<AuthModel> LoginAndGetTokenAsync(TokenRequestModel model)
         {
             var authModel = new AuthModel();
@@ -245,7 +243,6 @@ namespace GAMAX.Services.Services
 
             return result.Succeeded ? string.Empty : "Sonething went wrong";
         }
-
         public async Task<AuthModel> RefreshTokenAsync(string token)
         {
             var authModel = new AuthModel();
@@ -284,7 +281,6 @@ namespace GAMAX.Services.Services
 
             return authModel;
         }
-
         public async Task<bool> RevokeTokenAsync(string token)
         {
             var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == token));
@@ -302,6 +298,17 @@ namespace GAMAX.Services.Services
             await _userManager.UpdateAsync(user);
 
             return true;
+        }
+        public async Task<bool> UpdateUserPassword(UpdateUserPassword updateUser)
+        {
+            var applicationUser = await _userManager.FindByEmailAsync(updateUser.Email);
+            if (applicationUser == null)
+                return false;
+            var result = await _userManager.ChangePasswordAsync(applicationUser,updateUser.OldPassword,updateUser.NewPassword);
+            if (result.Succeeded)
+                return true;
+            else
+                return false;
         }
 
         private RefreshToken GenerateRefreshToken()
@@ -453,5 +460,6 @@ namespace GAMAX.Services.Services
             return jwtSecurityToken;
         }
 
+        
     }
 }
