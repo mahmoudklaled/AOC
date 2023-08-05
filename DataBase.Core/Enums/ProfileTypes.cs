@@ -16,6 +16,6 @@ namespace DataBase.Core.Enums
     {
         Unknown,
         Male,
-        Femle
+        Female
     }
 }
