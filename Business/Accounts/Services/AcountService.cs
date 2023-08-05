@@ -102,7 +102,7 @@ namespace Business.Accounts.Services
             profileAccount.Country = profileUpdateModel.Country;
             profileAccount.Bio=profileUpdateModel.Bio;
             profileAccount.Birthdate = profileUpdateModel.Birthdate;
-            profileAccount.gender = profileAccount.gender;
+            profileAccount.gender = profileUpdateModel.gender;
              _unitOfWork.UserAccounts.Update(profileAccount);
             var UpdateResult = _unitOfWork.Complete();
             return await UpdateResult > 0;
