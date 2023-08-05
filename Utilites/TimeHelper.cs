@@ -29,7 +29,7 @@ namespace Utilites
                 return $"{time.Minutes} Minutes";
             if (time.Seconds > 0)
                 return $"{time.Seconds} S";
-            return "";
+            return "1 S";
         }
     }
 }
