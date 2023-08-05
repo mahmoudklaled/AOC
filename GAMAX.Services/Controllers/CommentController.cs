@@ -4,6 +4,7 @@ using DataBase.Core.Models.Reacts;
 using DataBase.Core.Models.VedioModels;
 using GAMAX.Services.Dto;
 using Microsoft.AspNetCore.Mvc;
+using Utilites;
 
 namespace GAMAX.Services.Controllers
 {
@@ -31,7 +32,7 @@ namespace GAMAX.Services.Controllers
                     comment = item.comment,
                     CommentPhoto = item.PostCommentPhoto,
                     CommentVedio = item.PostCommentVedio,
-                    Date = item.Date,
+                    Date = TimeHelper.ConvertTimeCreateToString(item.Date),
                     UserFirstName = item.UserAccounts.FirstName,
                     UserLastName = item.UserAccounts.LastName,
                     CommentReacts = item.PostCommentReacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts }).ToList()
@@ -52,7 +53,7 @@ namespace GAMAX.Services.Controllers
                     comment= item.comment,
                     CommentPhoto =item.QuestionCommentPhoto,
                     CommentVedio=item.QuestionCommentVedio,
-                    Date=item.Date,
+                    Date= TimeHelper.ConvertTimeCreateToString(item.Date),
                     UserFirstName=item.UserAccounts.FirstName,
                     UserLastName=item.UserAccounts.LastName,
                     CommentReacts= item.QuestionCommentReacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts }).ToList()
