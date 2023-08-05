@@ -198,7 +198,7 @@ namespace GAMAX.Services.Controllers
         public async Task<IActionResult> UpdateUserPassword([FromBody] UpdateUserPassword model)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
-            if (userInfo.Email != model.Email)
+            if (userInfo.Uid.ToString().ToLower() != model.Id.ToLower())
                 return Forbid();
             var result = await _authService.UpdateUserPassword(model);
             if (result)
