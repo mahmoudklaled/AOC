@@ -2,6 +2,7 @@
 using DataBase.Core;
 using DataBase.Core.Models.CommentModels;
 using DataBase.Core.Models.PhotoModels;
+using DataBase.Core.Models.Posts;
 using DataBase.Core.Models.VedioModels;
 using Utilites;
 
@@ -32,12 +33,12 @@ namespace Business.Posts.Services
             return await _unitOfWork.Complete()>0;
         }
 
-        public async Task<bool> AddPostCommentAsync(AddCommentRequest comment, string userEmail)
+        public async Task<(bool, Guid)> AddPostCommentAsync(AddCommentRequest comment, string userEmail)
         {
             var user = await _unitOfWork.UserAccounts.FindAsync(p=>p.Email== userEmail);
-            if (user == null) return false;
+            if (user == null) return (false, Guid.Empty);
             var post = await _unitOfWork.Post.FindAsync(p=>p.Id==comment.PostId);
-            if (post == null) return false;
+            if (post == null) return (false, Guid.Empty);
             var Newcomment = new PostComment()
             {
                 Id = Guid.NewGuid(),
@@ -69,7 +70,7 @@ namespace Business.Posts.Services
                 await _unitOfWork.PostCommentVedio.AddAsync(postCommentVedio);
             }
             var update = await _unitOfWork.Complete();
-            return update > 0;
+            return (update > 0, Newcomment.Id);
         }
 
         public async Task<bool> UpdatePostCommentAsync(CommentUpdateRequest comment, string userEmail)
@@ -129,12 +130,12 @@ namespace Business.Posts.Services
             return await _unitOfWork.Complete() > 0;
         }
 
-        public async Task<bool> AddQuestionCommentAsync(AddCommentRequest comment, string userEmail)
+        public async Task<(bool,Guid)> AddQuestionCommentAsync(AddCommentRequest comment, string userEmail)
         {
             var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
-            if (user == null) return false;
+            if (user == null) return (false,Guid.Empty);
             var post = await _unitOfWork.QuestionPost.FindAsync(p => p.Id == comment.PostId);
-            if (post == null) return false;
+            if (post == null) return (false, Guid.Empty);
             var Newcomment = new QuestionComment()
             {
                 Id = Guid.NewGuid(),
@@ -163,7 +164,8 @@ namespace Business.Posts.Services
                 };
             }
             await _unitOfWork.QuestionComment.AddAsync(Newcomment);
-            return  await _unitOfWork.Complete() > 0;
+            await _unitOfWork.Complete();
+            return (true, Newcomment.Id) ;
         }
 
         public async Task<bool> UpdateQuestionCommentAsync(CommentUpdateRequest comment, string userEmail)
@@ -220,6 +222,20 @@ namespace Business.Posts.Services
                 cntToSkip = 0;
             var result = await _unitOfWork.QuestionComment.FindAllAsync(p => p.QuestionPostId == postId, cntToSkip * 5, 5, includes);
             return result.ToList();
+        }
+
+        public async Task<PostComment> GetPostCommentByIdAsync(Guid commentId)
+        {
+            string[] includes = { "PostCommentPhoto", "PostCommentVedio", "PostCommentReacts", "UserAccounts" };
+            var comment = await _unitOfWork.PostComment.FindAsync(c=>c.Id == commentId, includes);
+            return comment;
+        }
+
+        public async Task<QuestionComment> GetQuestionCommentByIdAsync(Guid commentId)
+        {
+            string[] includes = { "QuestionCommentPhoto", "QuestionCommentVedio", "QuestionCommentReacts", "UserAccounts" };
+            var comment  = await _unitOfWork.QuestionComment.FindAsync(c=>c.Id== commentId ,includes);
+            return comment;
         }
     }
     

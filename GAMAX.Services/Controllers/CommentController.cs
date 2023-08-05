@@ -72,9 +72,23 @@ namespace GAMAX.Services.Controllers
                 Vedio = requestModel.Vedio,
                 PostId = requestModel.PostId,
             };
-            var result = await _commentServices.AddPostCommentAsync(cmmnt, userInfo.Email);
+            var (result,id) = await _commentServices.AddPostCommentAsync(cmmnt, userInfo.Email);
             if (result)
-                return Ok();
+            {
+                var comment = await _commentServices.GetPostCommentByIdAsync(id);
+                var commentDto = new CommentData
+                {
+                    Id = comment.Id,
+                    comment = comment.comment,
+                    CommentPhoto = comment.PostCommentPhoto,
+                    CommentVedio = comment.PostCommentVedio,
+                    Date = TimeHelper.ConvertTimeCreateToString(comment.Date),
+                    UserFirstName = comment.UserAccounts.FirstName,
+                    UserLastName = comment.UserAccounts.LastName,
+                    CommentReacts = comment.PostCommentReacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts }).ToList()
+                };
+                return Ok(commentDto);
+            }
 
             return BadRequest(new {
                 Message = "Fail"
@@ -91,9 +105,23 @@ namespace GAMAX.Services.Controllers
                 Vedio = requestModel.Vedio,
                 PostId = requestModel.PostId,
             };
-            var result = await _commentServices.AddQuestionCommentAsync(cmmnt, userInfo.Email);
+            var (result,id) = await _commentServices.AddQuestionCommentAsync(cmmnt, userInfo.Email);
             if (result)
-                return Ok();
+            {
+                var comment = await _commentServices.GetQuestionCommentByIdAsync(id); 
+                var commentDto = new CommentData
+                {
+                    Id = comment.Id,
+                    comment = comment.comment,
+                    CommentPhoto = comment.QuestionCommentPhoto,
+                    CommentVedio = comment.QuestionCommentVedio,
+                    Date = TimeHelper.ConvertTimeCreateToString(comment.Date),
+                    UserFirstName = comment.UserAccounts.FirstName,
+                    UserLastName = comment.UserAccounts.LastName,
+                    CommentReacts = comment.QuestionCommentReacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts }).ToList()
+                };
+                return Ok(commentDto);
+            }
 
             return BadRequest(new
             {
