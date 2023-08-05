@@ -301,7 +301,7 @@ namespace GAMAX.Services.Services
         }
         public async Task<bool> UpdateUserPassword(UpdateUserPassword updateUser)
         {
-            var applicationUser = await _userManager.FindByEmailAsync(updateUser.Id);
+            var applicationUser = await _userManager.FindByIdAsync(updateUser.Id);
             if (applicationUser == null)
                 return false;
             var result = await _userManager.ChangePasswordAsync(applicationUser,updateUser.OldPassword,updateUser.NewPassword);
