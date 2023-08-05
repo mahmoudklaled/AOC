@@ -311,7 +311,7 @@ namespace GAMAX.Services.Controllers
                                 Comments = post.Comments.Select(pp => new BaseComment { Id = pp.Id, comment = pp.comment, Date = pp.Date, UserAccountsId = pp.UserAccountsId }).ToList(),
                                 Reacts = post.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList(),
                             };
-                return Ok(post);
+                return Ok(postResult);
             }
             return BadRequest(result);
         }
