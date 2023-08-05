@@ -1,7 +1,6 @@
 ﻿using Business.Posts.Services;
-using DataBase.Core.Models.Reacts;
+using DomainModels.Models;
 using GAMAX.Services.Dto;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GAMAX.Services.Controllers

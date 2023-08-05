@@ -1,15 +1,15 @@
 ﻿using DataBase.Core.Enums;
-using DataBase.Core.Models.CommentModels;
 using DataBase.Core.Models.PhotoModels;
 using DataBase.Core.Models.Reacts;
 using DataBase.Core.Models.VedioModels;
+using Microsoft.AspNetCore.Http;
 
-namespace GAMAX.Services.Dto
+namespace DomainModels.DTO
 {
     #region Posts
     public record UpdateQuestion
     {
-        public Guid Id { get; set; } 
+        public Guid Id { get; set; }
         public List<Guid>? DeletedPhotoIds { get; set; }
         public List<Guid>? DeletedVedioIds { get; set; }
         public List<IFormFile>? Photos { get; set; }
@@ -43,77 +43,59 @@ namespace GAMAX.Services.Dto
         public string Question { get; set; }
         public string? Answer { get; set; }
     }
-    public record QuestionPost
+    public record QuestionPostDTO
     {
         public Guid Id { get; set; }
         public string Question { get; set; }
-        public string Answer { get; set; }
-        public string TimeCreated { get; set; } 
+        public string? Answer { get; set; }
+        public string TimeCreated { get; set; }
         public ICollection<BasePhoto> Photos { get; set; }
         public ICollection<BaseVedio> Vedios { get; set; }
-        public ICollection<BaseComment> Comments { get; set; }
+        public ICollection<CommentDTO> Comments { get; set; }
         public ICollection<BaseReact> Reacts { get; set; }
+        public int commentsCount { get; set; }
         public Guid UserAccountsId { get; set; }
         public string PostUserFirstName { get; set; }
         public string PostUserLastName { get; set; }
     }
-    public record Post
+    public record PostDTO
     {
         public Guid Id { get; set; }
         public string Description { get; set; }
         public string TimeCreated { get; set; }
         public ICollection<BasePhoto> Photos { get; set; }
         public ICollection<BaseVedio> Vedios { get; set; }
-        public ICollection<BaseComment> Comments { get; set; }
+        public ICollection<CommentDTO> Comments { get; set; }
         public ICollection<BaseReact> Reacts { get; set; }
+        public int commentsCount { get; set; }
         public Guid UserAccountsId { get; set; }
         public string PostUserFirstName { get; set; }
         public string PostUserLastName { get; set; }
+
     }
-    public record AllPost
+    public record AllPostDTO
     {
         public Guid Id { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public string TimeCreated { get; set; }
-        public string Question { get; set; }
-        public string Answer { get; set; }
+        public string? Question { get; set; }
+        public string? Answer { get; set; }
         public PostsTypes Type { get; set; }
         public ICollection<BasePhoto> Photos { get; set; }
         public ICollection<BaseVedio> Vedios { get; set; }
-        public ICollection<BaseComment> Comments { get; set; }
+        public ICollection<CommentDTO> Comments { get; set; }
         public ICollection<BaseReact> Reacts { get; set; }
+        public int commentsCount { get; set; }
         public Guid UserAccountsId { get; set; }
         public string PostUserFirstName { get; set; }
         public string PostUserLastName { get; set; }
     }
-    public record Photo { 
-        public Guid Id { get; set; } public string Path { get; set; }
-    }
-    public record Vedio
-    {
-        public Guid Id { get; set; }
-        public string Path { get; set; }
-    }
-    public record React
-    {
-        public Guid Id { get; set; }
-        public ReactsType react { get; set; }
-        public Guid UserAccountsId { get; set; }
-    }
-    public record Comment
-    {
-        public Guid Id { get; set; }
-        public string comment { get; set; }
-        public DateTime Date { get; set; }
-        public Photo Photo { get; set; }
-        public Vedio Vedio { get; set; }
-        public List<React> PostCommentReacts { get; set; }
-    }
+    
     #endregion
 
 
     #region comments
-    public record CommentUpdateRequest 
+    public record CommentUpdateRequest
     {
         public Guid Id { get; set; }
         public string? comment { get; set; }
@@ -121,7 +103,7 @@ namespace GAMAX.Services.Dto
         public IFormFile? Vedio { get; set; }
 
     }
-    public record AddCommentRequest 
+    public record AddCommentRequest
     {
         public string? comment { get; set; }
         public Guid PostId { get; set; }
@@ -129,13 +111,14 @@ namespace GAMAX.Services.Dto
         public IFormFile? Vedio { get; set; }
 
     }
-    public record CommentData
+    public record CommentDTO
     {
         public Guid Id { get; set; }
         public string? comment { get; set; }
-        public string Date { get; set; } 
+        public string Date { get; set; }
         public string UserFirstName { get; set; }
         public string UserLastName { get; set; }
+        public Guid UserId { get; set; }
         public BasePhoto? CommentPhoto { get; set; }
         public BaseVedio? CommentVedio { get; set; }
         public List<BaseReact> CommentReacts { get; set; }
@@ -170,7 +153,7 @@ namespace GAMAX.Services.Dto
         public string? Country { get; set; }
         public DateTime? Birthdate { get; set; }
         public string? gender { get; set; }
-        public string Type { get; set; } 
+        public string Type { get; set; }
     }
     public record ProfileUpdateModel
     {
@@ -184,5 +167,4 @@ namespace GAMAX.Services.Dto
         public string? gender { get; set; } = "Unknown";
     }
     #endregion
-
 }

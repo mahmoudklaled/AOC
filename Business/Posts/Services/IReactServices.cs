@@ -1,9 +1,5 @@
-﻿using DataBase.Core.Models.Reacts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DomainModels.Models;
+
 
 namespace Business.Posts.Services
 {
@@ -17,8 +13,6 @@ namespace Business.Posts.Services
         Task<bool> AddReactOnQuestionPostAsync(AddReactRequest reactRequest, string userEmail);
         Task<bool> AddReactOnPostCommentAsync(AddReactRequest reactRequest, string userEmail);
         Task<bool> AddReactOnQuestionPostCommentAsync(AddReactRequest reactRequest, string userEmail);
-        //Task<List<ReactResponse>> GetAllReactsOnPost(ReactRequest reactRequest);
-        //Task<List<ReactResponse>> GetAllReactsOnQuestionPost(ReactRequest reactRequest);
         Task<bool> UpdatePostReact(ReactUpdateRequest reactRequest, string userEmail);
         Task<bool> UpdateQuestionReact(ReactUpdateRequest reactRequest, string userEmail);
         Task<bool> UpdatePostCommentReact(ReactUpdateRequest reactRequest, string userEmail);

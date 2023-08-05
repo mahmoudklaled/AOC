@@ -1,4 +1,4 @@
-﻿using DataBase.Core.Models.Posts;
+﻿using DomainModels.Models;
 using Utilites;
 
 namespace Business.Posts.Helper

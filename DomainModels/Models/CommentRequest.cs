@@ -1,12 +1,11 @@
-﻿using DataBase.Core.Enums;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataBase.Core.Models.CommentModels
+namespace DomainModels.Models
 {
     public class CommentUpdateRequest
     {

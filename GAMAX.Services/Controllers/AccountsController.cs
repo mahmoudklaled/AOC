@@ -1,12 +1,8 @@
 ﻿using Business.Accounts.Services;
 using DataBase.Core.Enums;
-using DataBase.Core.Models.Accounts;
+using DomainModels.Models;
 using GAMAX.Services.Dto;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
-using Microsoft.CodeAnalysis.VisualBasic.Syntax;
-using System.Security.Claims;
 
 namespace GAMAX.Services.Controllers
 {
@@ -33,7 +29,7 @@ namespace GAMAX.Services.Controllers
                 {
                     message = "Account Not Found !"
                 });
-            var profileInfo = new Dto.UserAccounts
+            var profileInfo = new DomainModels.DTO.UserAccounts
             {
                 Id = accountProfile.Id,
                 Email = accountProfile.Email,
@@ -51,14 +47,14 @@ namespace GAMAX.Services.Controllers
         }
         
         [HttpPost("UpdateProfileAcountData")]
-        public async Task<IActionResult> UpdateProfileAcountData([FromBody] Dto.ProfileUpdateModel profileUpdateModel)
+        public async Task<IActionResult> UpdateProfileAcountData([FromBody] DomainModels.DTO.ProfileUpdateModel profileUpdateModel)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             if (userInfo.Uid != profileUpdateModel.Id)
                 return BadRequest();
             Gender type;
             Enum.TryParse(profileUpdateModel.gender, out type);
-            var updateModel = new DataBase.Core.Models.Accounts.ProfileUpdateModel
+            var updateModel = new DomainModels.Models.ProfileUpdateModel
             {
                 Id = profileUpdateModel.Id,
                 Bio = profileUpdateModel.Bio,

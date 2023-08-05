@@ -3,13 +3,11 @@ using Business.Posts.Helper;
 using DataBase.Core;
 using DataBase.Core.Consts;
 using DataBase.Core.Enums;
-using DataBase.Core.Models.CommentModels;
 using DataBase.Core.Models.PhotoModels;
 using DataBase.Core.Models.Posts;
-using DataBase.Core.Models.Reacts;
 using DataBase.Core.Models.VedioModels;
-using Microsoft.CodeAnalysis.Differencing;
-using Microsoft.Extensions.Hosting;
+using DomainModels;
+using DomainModels.Models;
 using System.Collections.ObjectModel;
 using Utilites;
 
@@ -17,187 +15,15 @@ namespace Business.Posts.Services
 {
     public class PostService : IPostService
     {
-        private readonly int _pageSize = 10;
+        private readonly int _pageSize = 5;
         private readonly IUnitOfWork _unitOfWork;
-        public PostService(IUnitOfWork unitOfWork)
+        private readonly ICommentServices _commentServices;
+        public PostService(IUnitOfWork unitOfWork , ICommentServices commentServices)
         {
             _unitOfWork = unitOfWork;
+            _commentServices = commentServices; 
         }
-
-        public async Task<List<Post>> GetPostAsync(int pageNumber )
-        {
-            int take, skip;
-            (take,skip) = GetTakeSkipValues(pageNumber);
-            string[] includes = { "Photos", "Vedios" , "Reacts" , "Comments" , "UserAccounts" };
-            var result = await _unitOfWork.Post.FindAllAsync(null,take, skip, includes ,p=>p.TimeCreated , OrderBy.Descending);
-            //foreach(var item in result)
-            //    item.TimeCreated = DateTime.MinValue +( (DateTime.UtcNow)-(item.TimeCreated));
-            
-            return result.ToList();
-        }
-        public async Task<List<QuestionPost>> GetQuestionPostAsync(int pageNumber)
-        {
-            int take, skip;
-            (take, skip) = GetTakeSkipValues(pageNumber);
-            string[] includes = { "Photos", "Vedios" , "Reacts" , "Comments" , "UserAccounts" };
-            var result = await _unitOfWork.QuestionPost.FindAllAsync(null, take, skip,  includes , p => p.TimeCreated, OrderBy.Descending);
-            //foreach (var item in result)
-            //    item.TimeCreated = DateTime.MinValue + ((DateTime.UtcNow) - (item.TimeCreated));
-            return  result.ToList();
-        }
-        public async Task<Post> GetPostByIDAsync(Guid id)
-        {
-            string[] includes = { "Photos", "Vedios", "Reacts", "Comments", "UserAccounts" };
-            var result = await _unitOfWork.Post.FindAsync(p=>p.Id==id, includes);
-            return result;
-        }
-        public async Task<QuestionPost> GetQuestionPostByIdAsync(Guid id)
-        {
-            string[] includes = { "Photos", "Vedios", "Reacts", "Comments", "UserAccounts" };
-            var result = await _unitOfWork.QuestionPost.FindAsync(p => p.Id == id, includes);
-            return result;
-        }
-        public async Task<List<AllPostsModel>> GetPostTypesAsync(int pageNumber)
-        {
-            
-            var posts = await GetPostAsync(pageNumber);
-            var questions = await GetQuestionPostAsync(pageNumber);
-
-            var allPostsModel = new List<AllPostsModel>();
-
-            List<PostPhoto> postPhotos = new List<PostPhoto>();
-            // Populate the postPhotos list with data
-
-            List<BasePhoto> basePhotos = postPhotos.Select(pp => new BasePhoto
-            {
-                Id = pp.Id,
-                PhotoPath = pp.PhotoPath
-            }).ToList();
-            // Add posts with type 'Post'
-            allPostsModel.AddRange(posts.Select(post => new AllPostsModel
-            {
-                Id = post.Id,
-                //Title = post.Title,
-                Description = post.Description,
-                TimeCreated = post.TimeCreated,
-                Photo = post.Photos.Select(pp => new BasePhoto{Id = pp.Id,PhotoPath = pp.PhotoPath}).ToList(),
-                Vedio = post.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
-                comments=post.Comments.Select(pp=> new BaseComment { Id = pp.Id ,comment = pp.comment ,Date=pp.Date,UserAccountsId=pp.UserAccountsId}).ToList(),
-                reacts=post.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts,  UserAccountsId = pp.UserAccountsId  }).ToList(),
-                Type = PostsTypes.Post,
-                Question = string.Empty, 
-                Answer = string.Empty ,
-                UserAccountsId=post.UserAccountsId,
-                PostUserFirstName= post.UserAccounts.FirstName,
-                PostUserLastName=post.UserAccounts.LastName,
-            }));
-
-            // Add questions with type 'Question' and populate Question and Answer properties
-            allPostsModel.AddRange(questions.Select(question => new AllPostsModel
-            {
-                Id = question.Id,
-                //Title = question.Title,
-                //Description = question.Description,
-                TimeCreated = question.TimeCreated,
-                Photo = question.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList().ToList(),
-                Vedio = question.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
-                comments = question.Comments.Select(pp => new BaseComment { Id = pp.Id, comment = pp.comment, Date = pp.Date, UserAccountsId = pp.UserAccountsId }).ToList(),
-                reacts = question.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList(),
-                Type = PostsTypes.Question,
-                Question = question.Question, // Set the Question property for questions
-                Answer = question.Answer, // Set the Answer property for questions
-                UserAccountsId = question.UserAccountsId,
-                PostUserFirstName = question.UserAccounts.FirstName,
-                PostUserLastName = question.UserAccounts.LastName,
-
-            }));
-
-            // Sort the combined list by TimeCreated in descending order
-            allPostsModel = allPostsModel.OrderByDescending(p => p.TimeCreated).ToList();
-
-            return allPostsModel;
-        }
-        public async Task<List<Post>> GetPersonalPostAsync(int pageNumber, Guid userID)
-        {
-            int take, skip;
-            (take, skip) = GetTakeSkipValues(pageNumber);
-            string[] includes = { "Photos", "Vedios", "Reacts", "Comments", "UserAccounts" };
-            var result = await _unitOfWork.Post.FindAllAsync(p=>p.UserAccountsId== userID, take, skip, includes, p => p.TimeCreated, OrderBy.Descending);
-            //foreach(var item in result)
-            //    item.TimeCreated = DateTime.MinValue +( (DateTime.UtcNow)-(item.TimeCreated));
-
-            return result.ToList();
-        }
-        public async Task<List<QuestionPost>> GetPersonalQuestionPostAsync(int pageNumber, Guid userID)
-        {
-            int take, skip;
-            (take, skip) = GetTakeSkipValues(pageNumber);
-            string[] includes = { "Photos", "Vedios", "Reacts", "Comments", "UserAccounts" };
-            var result = await _unitOfWork.QuestionPost.FindAllAsync(p => p.UserAccountsId == userID, take, skip, includes, p => p.TimeCreated, OrderBy.Descending);
-            //foreach (var item in result)
-            //    item.TimeCreated = DateTime.MinValue + ((DateTime.UtcNow) - (item.TimeCreated));
-            return result.ToList();
-        }
-        public async Task<List<AllPostsModel>> GetPersonalPostTypesAsync(int pageNumber, Guid userID)
-        {
-
-            var posts = await GetPersonalPostAsync(pageNumber,  userID);
-            var questions = await GetPersonalQuestionPostAsync(pageNumber,  userID);
-
-            var allPostsModel = new List<AllPostsModel>();
-
-            List<PostPhoto> postPhotos = new List<PostPhoto>();
-            // Populate the postPhotos list with data
-
-            List<BasePhoto> basePhotos = postPhotos.Select(pp => new BasePhoto
-            {
-                Id = pp.Id,
-                PhotoPath = pp.PhotoPath
-            }).ToList();
-            // Add posts with type 'Post'
-            allPostsModel.AddRange(posts.Select(post => new AllPostsModel
-            {
-                Id = post.Id,
-                //Title = post.Title,
-                Description = post.Description,
-                TimeCreated = post.TimeCreated,
-                Photo = post.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList(),
-                Vedio = post.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
-                comments = post.Comments.Select(pp => new BaseComment { Id = pp.Id, comment = pp.comment, Date = pp.Date, UserAccountsId = pp.UserAccountsId }).ToList(),
-                reacts = post.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList(),
-                Type = PostsTypes.Post,
-                Question = string.Empty,
-                Answer = string.Empty,
-                UserAccountsId = post.UserAccountsId,
-                PostUserFirstName = post.UserAccounts.FirstName,
-                PostUserLastName = post.UserAccounts.LastName,
-            }));
-
-            // Add questions with type 'Question' and populate Question and Answer properties
-            allPostsModel.AddRange(questions.Select(question => new AllPostsModel
-            {
-                Id = question.Id,
-                //Title = question.Title,
-                //Description = question.Description,
-                TimeCreated = question.TimeCreated,
-                Photo = question.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList().ToList(),
-                Vedio = question.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList(),
-                comments = question.Comments.Select(pp => new BaseComment { Id = pp.Id, comment = pp.comment, Date = pp.Date, UserAccountsId = pp.UserAccountsId }).ToList(),
-                reacts = question.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList(),
-                Type = PostsTypes.Question,
-                Question = question.Question, // Set the Question property for questions
-                Answer = question.Answer, // Set the Answer property for questions
-                UserAccountsId = question.UserAccountsId,
-                PostUserFirstName = question.UserAccounts.FirstName,
-                PostUserLastName = question.UserAccounts.LastName,
-
-            }));
-
-            // Sort the combined list by TimeCreated in descending order
-            allPostsModel = allPostsModel.OrderByDescending(p => p.TimeCreated).ToList();
-
-            return allPostsModel;
-        }
+        
         public async Task<(bool , Guid)> AddPostAsync(UploadPost postmodel, string userEmail)
         {
             var user = await _unitOfWork.UserAccounts.FindAsync(p=>p.Email ==userEmail);
@@ -424,7 +250,6 @@ namespace Business.Posts.Services
             }
             return post;
         }
-        
         private async Task<QuestionPost> AddNewPostPhotoAndVedioForQuestion(UpdataPost postmodel , QuestionPost questionPost)
         {
             if (postmodel.NewPhotos != null)
@@ -527,9 +352,104 @@ namespace Business.Posts.Services
             }
             var result = await  _unitOfWork.Complete();
         }
-        private (int take , int skip) GetTakeSkipValues(int pageNumber)
+        //ALL NEW HERE
+        public async Task<List<DomainModels.DTO.PostDTO>> GetPostAsync(int pageNumber)
         {
-            return (_pageSize,(pageNumber-1)*_pageSize);
+            var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
+            string[] includes = { "Photos", "Vedios", "Reacts", "UserAccounts" };
+            var posts = await _unitOfWork.Post.FindAllAsync(null, take, skip, includes, p => p.TimeCreated, OrderBy.Descending);
+            var PostsDTO = OMapper.Mapper.Map<List<DomainModels.DTO.PostDTO>>(posts);
+            foreach(var  post in PostsDTO) { 
+                var commentCount   = await  _commentServices.GetPostCommentCount(post.Id);
+                var CommentDtoList = await _commentServices.GetPostCommentsAsync(post.Id, 1);
+                post.commentsCount= commentCount;
+                post.Comments= CommentDtoList;
+            }
+            return PostsDTO;
+        }
+        public async Task<List<DomainModels.DTO.QuestionPostDTO>> GetQuestionPostAsync(int pageNumber)
+        {
+            var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber,_pageSize);
+            string[] includes = { "Photos", "Vedios", "Reacts", "UserAccounts" };
+            var posts = await _unitOfWork.QuestionPost.FindAllAsync(null, take, skip, includes, p => p.TimeCreated, OrderBy.Descending);
+            var QuestionPostsDTO = OMapper.Mapper.Map<List<DomainModels.DTO.QuestionPostDTO>>(posts);
+            foreach (var questionPost in QuestionPostsDTO)
+            {
+                var commentCount = await _commentServices.GetQuestionPostCommentCount(questionPost.Id);
+                var CommentDtoList = await _commentServices.GetQuestionCommentsAsync(questionPost.Id, 1);
+                questionPost.commentsCount = commentCount;
+                questionPost.Comments = CommentDtoList;
+            }
+            return QuestionPostsDTO;
+        }
+        public async Task<List<DomainModels.DTO.AllPostDTO>> GetPostTypesAsync(int pageNumber)
+        {
+            var posts = await GetPostAsync(pageNumber);
+            var QPosts = await GetPostAsync(pageNumber);
+            var AllPostDTO = OMapper.Mapper.Map<List<DomainModels.DTO.AllPostDTO>>(posts);
+            AllPostDTO.AddRange(OMapper.Mapper.Map<List<DomainModels.DTO.AllPostDTO>>(QPosts));
+            return AllPostDTO;
+        }
+        public async Task<DomainModels.DTO.PostDTO> GetPostByIDAsync(Guid id)
+        {
+            string[] includes = { "Photos", "Vedios", "Reacts", "UserAccounts" };
+            var post = await _unitOfWork.Post.FindAsync(p => p.Id == id, includes);
+            var PostDTO = OMapper.Mapper.Map<DomainModels.DTO.PostDTO>(post);
+            var commentCount = await _commentServices.GetPostCommentCount(post.Id);
+            var CommentDtoList = await _commentServices.GetPostCommentsAsync(post.Id, 1);
+            PostDTO.commentsCount = commentCount;
+            PostDTO.Comments = CommentDtoList;
+            return PostDTO;
+        }
+        public async Task<DomainModels.DTO.QuestionPostDTO> GetQuestionPostByIdAsync(Guid id)
+        {
+            string[] includes = { "Photos", "Vedios", "Reacts", "UserAccounts" };
+            var post = await _unitOfWork.QuestionPost.FindAsync(p => p.Id == id, includes);
+            var PostDTO = OMapper.Mapper.Map<DomainModels.DTO.QuestionPostDTO>(post);
+            var commentCount = await _commentServices.GetPostCommentCount(post.Id);
+            var CommentDtoList = await _commentServices.GetPostCommentsAsync(post.Id, 1);
+            PostDTO.commentsCount = commentCount;
+            PostDTO.Comments = CommentDtoList;
+            return PostDTO;
+        }
+        public async Task<List<DomainModels.DTO.PostDTO>> GetPersonalPostAsync(int pageNumber, Guid userID)
+        {
+            var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber,_pageSize);
+            string[] includes = { "Photos", "Vedios", "Reacts", "UserAccounts" };
+            var posts = await _unitOfWork.Post.FindAllAsync(p => p.UserAccountsId == userID, take, skip, includes, p => p.TimeCreated, OrderBy.Descending);
+            var PostsDTO = OMapper.Mapper.Map<List<DomainModels.DTO.PostDTO>>(posts);
+            foreach (var post in PostsDTO)
+            {
+                var commentCount = await _commentServices.GetPostCommentCount(post.Id);
+                var CommentDtoList = await _commentServices.GetPostCommentsAsync(post.Id, 1);
+                post.commentsCount = commentCount;
+                post.Comments = CommentDtoList;
+            }
+            return PostsDTO;
+        }
+        public async Task<List<DomainModels.DTO.QuestionPostDTO>> GetPersonalQuestionPostAsync(int pageNumber, Guid userID)
+        {
+            var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
+            string[] includes = { "Photos", "Vedios", "Reacts","UserAccounts" };
+            var posts = await _unitOfWork.QuestionPost.FindAllAsync(p => p.UserAccountsId == userID, take, skip, includes, p => p.TimeCreated, OrderBy.Descending);
+            var QuestionPostsDTO = OMapper.Mapper.Map<List<DomainModels.DTO.QuestionPostDTO>>(posts);
+            foreach (var questionPost in QuestionPostsDTO)
+            {
+                var commentCount = await _commentServices.GetQuestionPostCommentCount(questionPost.Id);
+                var CommentDtoList = await _commentServices.GetQuestionCommentsAsync(questionPost.Id, 1);
+                questionPost.commentsCount = commentCount;
+                questionPost.Comments = CommentDtoList;
+            }
+            return QuestionPostsDTO;
+        }
+        public async Task<List<DomainModels.DTO.AllPostDTO>> GetPersonalPostTypesAsync(int pageNumber, Guid userID)
+        {
+
+            var posts = await GetPersonalPostAsync(pageNumber, userID);
+            var questions = await GetPersonalQuestionPostAsync(pageNumber, userID);
+            var AllPostDTO = OMapper.Mapper.Map<List<DomainModels.DTO.AllPostDTO>>(posts);
+            AllPostDTO.AddRange(OMapper.Mapper.Map<List<DomainModels.DTO.AllPostDTO>>(questions));
+            return AllPostDTO;
         }
 
     }

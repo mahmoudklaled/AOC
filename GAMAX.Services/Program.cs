@@ -52,9 +52,11 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
      .AddEntityFrameworkStores<ApplicationDbContext>()
      .AddDefaultTokenProviders();
 
+//builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 builder.Services.AddTransient<IMailingService, MailingService>();
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAcountService, AcountService>();
 builder.Services.AddScoped<IPostService, PostService>();

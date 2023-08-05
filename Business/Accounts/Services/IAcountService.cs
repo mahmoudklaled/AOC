@@ -1,11 +1,6 @@
 ﻿using BDataBase.Core.Models.Accounts;
-using DataBase.Core.Models.Accounts;
+using DomainModels.Models;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Business.Accounts.Services
 {

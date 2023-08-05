@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataBase.Core.Models.Reacts
+namespace DomainModels.Models
 {
     public class ReactUpdateRequest
     {
@@ -17,5 +17,10 @@ namespace DataBase.Core.Models.Reacts
     {
         public Guid ObjectId { get; set; }
         public ReactsType ReactType { get; set; }
+    }
+    public class ReactResponse
+    {
+        public Guid Id { get; set; }
+        public ReactsType Type { get; set; }
     }
 }
