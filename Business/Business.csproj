@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataBase.Core\DataBase.Core.csproj" />
+    <ProjectReference Include="..\DomainModels\DomainModels.csproj" />
     <ProjectReference Include="..\SqlHelper\SqlHelper.csproj" />
     <ProjectReference Include="..\Utilites\Utilites.csproj" />
   </ItemGroup>

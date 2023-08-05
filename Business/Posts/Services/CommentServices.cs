@@ -1,9 +1,10 @@
-﻿using Business.Posts.Helper;
-using DataBase.Core;
+﻿using DataBase.Core;
 using DataBase.Core.Models.CommentModels;
 using DataBase.Core.Models.PhotoModels;
-using DataBase.Core.Models.Posts;
 using DataBase.Core.Models.VedioModels;
+using DomainModels;
+using DomainModels.Models;
+using System.Xml.Linq;
 using Utilites;
 
 namespace Business.Posts.Services
@@ -11,6 +12,8 @@ namespace Business.Posts.Services
     public class CommentServices:ICommentServices
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly int _pageSize = 5;
+
         public CommentServices(IUnitOfWork unitOfWork)
         {
             _unitOfWork= unitOfWork;
@@ -205,37 +208,49 @@ namespace Business.Posts.Services
             _unitOfWork.QuestionComment.Update(cmnt);
             return await _unitOfWork.Complete() > 0;
         }
-
-        public async Task<List<PostComment>> GetPostCommentsAsync(Guid postId, int cntToSkip)
-        {
-            string[] includes = { "PostCommentPhoto", "PostCommentVedio", "PostCommentReacts" , "UserAccounts" };
-            if (cntToSkip < 0)
-                cntToSkip = 0;
-            var result = await _unitOfWork.PostComment.FindAllAsync(p => p.PostId == postId, cntToSkip * 5, 5, includes);                   
-            return result.ToList();
-        }
-
-        public async Task<List<QuestionComment>> GetQuestionCommentsAsync(Guid postId, int cntToSkip)
-        {
-            string[] includes = { "QuestionCommentPhoto", "QuestionCommentVedio", "QuestionCommentReacts" , "UserAccounts" };
-            if (cntToSkip < 0)
-                cntToSkip = 0;
-            var result = await _unitOfWork.QuestionComment.FindAllAsync(p => p.QuestionPostId == postId, cntToSkip * 5, 5, includes);
-            return result.ToList();
-        }
-
-        public async Task<PostComment> GetPostCommentByIdAsync(Guid commentId)
+        // ALL NEW HERE
+        public async Task<List<DomainModels.DTO.CommentDTO>> GetPostCommentsAsync(Guid postId, int pageNumber)
         {
             string[] includes = { "PostCommentPhoto", "PostCommentVedio", "PostCommentReacts", "UserAccounts" };
-            var comment = await _unitOfWork.PostComment.FindAsync(c=>c.Id == commentId, includes);
-            return comment;
+            var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
+            var comments = await _unitOfWork.PostComment.FindAllAsync(p => p.PostId == postId, take,skip, includes);
+            var CommentsDTO = OMapper.Mapper.Map<IEnumerable<DomainModels.DTO.CommentDTO>>(comments);
+            return CommentsDTO.ToList();
         }
 
-        public async Task<QuestionComment> GetQuestionCommentByIdAsync(Guid commentId)
+        public async Task<List<DomainModels.DTO.CommentDTO>> GetQuestionCommentsAsync(Guid postId, int pageNumber)
         {
             string[] includes = { "QuestionCommentPhoto", "QuestionCommentVedio", "QuestionCommentReacts", "UserAccounts" };
-            var comment  = await _unitOfWork.QuestionComment.FindAsync(c=>c.Id== commentId ,includes);
-            return comment;
+            var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
+            var comments = await _unitOfWork.QuestionComment.FindAllAsync(p => p.QuestionPostId == postId, take, skip, includes);
+            var CommentsDTO = OMapper.Mapper.Map<IEnumerable<DomainModels.DTO.CommentDTO>>(comments);
+            return CommentsDTO.ToList();
+        }
+        public async Task<DomainModels.DTO.CommentDTO> GetPostCommentByIdAsync(Guid commentId)
+        {
+            string[] includes = { "PostCommentPhoto", "PostCommentVedio", "PostCommentReacts", "UserAccounts" };
+            var comment = await _unitOfWork.PostComment.FindAsync(c => c.Id == commentId, includes);
+            var CommentsDTO = OMapper.Mapper.Map<DomainModels.DTO.CommentDTO>(comment);
+            return CommentsDTO;
+        }
+
+        public async Task<DomainModels.DTO.CommentDTO> GetQuestionCommentByIdAsync(Guid commentId)
+        {
+            string[] includes = { "QuestionCommentPhoto", "QuestionCommentVedio", "QuestionCommentReacts", "UserAccounts" };
+            var comment = await _unitOfWork.QuestionComment.FindAsync(c => c.Id == commentId, includes);
+            var CommentsDTO = OMapper.Mapper.Map<DomainModels.DTO.CommentDTO>(comment);
+            return CommentsDTO;
+        }
+
+        public async Task<int>GetPostCommentCount(Guid postId)
+        {
+            var CommentCount = await _unitOfWork.PostComment.CountAsync(C=>C.PostId== postId);
+            return CommentCount;
+        }
+        public async Task<int> GetQuestionPostCommentCount(Guid postId)
+        {
+            var CommentCount = await _unitOfWork.QuestionComment.CountAsync(C => C.QuestionPostId == postId);
+            return CommentCount;
         }
     }
     

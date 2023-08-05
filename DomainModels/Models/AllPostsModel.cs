@@ -7,12 +7,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataBase.Core.Models.Posts
+namespace DomainModels.Models
 {
     public class AllPostsModel
     {
@@ -27,8 +26,8 @@ namespace DataBase.Core.Models.Posts
         public List<BaseComment> comments { get; set; }
         public List<BaseReact> reacts { get; set; }
         public PostsTypes Type { get; set; }
-        public string Question { get; set; } 
-        public string Answer { get; set; } 
+        public string Question { get; set; }
+        public string Answer { get; set; }
         public Guid UserAccountsId { get; set; }
         public string PostUserFirstName { get; set; }
         public string PostUserLastName { get; set; }
@@ -47,8 +46,8 @@ namespace DataBase.Core.Models.Posts
         public List<IFormFile>? Photos { get; set; }
         public List<IFormFile>? Vedios { get; set; }
         public PostsTypes Type { get; set; }
-        public string Question { get; set; } 
-        public string? Answer { get; set; } 
+        public string Question { get; set; }
+        public string? Answer { get; set; }
 
     }
     public class UpdataPost
@@ -65,6 +64,4 @@ namespace DataBase.Core.Models.Posts
         public string Answer { get; set; } // Additional property for QuestionPost
 
     }
-
-
 }

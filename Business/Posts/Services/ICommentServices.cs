@@ -1,10 +1,4 @@
-﻿using DataBase.Core.Enums;
-using DataBase.Core.Models.CommentModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DomainModels.Models;
 
 namespace Business.Posts.Services
 {
@@ -16,9 +10,11 @@ namespace Business.Posts.Services
         Task<bool> DeleteQuestionCommentAsync(Guid commentId, string userEmail);
         Task<(bool, Guid)> AddQuestionCommentAsync(AddCommentRequest comment, string userEmail);
         Task<bool> UpdateQuestionCommentAsync(CommentUpdateRequest comment, string userEmail);
-        Task<List<PostComment>> GetPostCommentsAsync(Guid postId ,int cntToSkip);
-        Task<List<QuestionComment>> GetQuestionCommentsAsync(Guid postId,  int cntToSkip);
-        Task<PostComment> GetPostCommentByIdAsync(Guid commentId);
-        Task<QuestionComment> GetQuestionCommentByIdAsync(Guid commentId);
+        Task<List<DomainModels.DTO.CommentDTO>> GetPostCommentsAsync(Guid postId ,int pageNumber);
+        Task<List<DomainModels.DTO.CommentDTO>> GetQuestionCommentsAsync(Guid postId,  int pageNumber);
+        Task<DomainModels.DTO.CommentDTO> GetPostCommentByIdAsync(Guid commentId);
+        Task<DomainModels.DTO.CommentDTO> GetQuestionCommentByIdAsync(Guid commentId);
+        Task<int> GetPostCommentCount(Guid postId);
+        Task<int> GetQuestionPostCommentCount(Guid postId);
     }
 }
