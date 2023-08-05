@@ -133,7 +133,7 @@ namespace GAMAX.Services.Dto
     {
         public Guid Id { get; set; }
         public string? comment { get; set; }
-        public DateTime Date { get; set; } 
+        public string Date { get; set; } 
         public string UserFirstName { get; set; }
         public string UserLastName { get; set; }
         public BasePhoto? CommentPhoto { get; set; }
