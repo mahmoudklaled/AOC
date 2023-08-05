@@ -10,10 +10,12 @@ namespace GAMAX.Services.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService , IHttpContextAccessor httpContextAccessor)
         {
             _authService = authService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpPost("register")]
@@ -185,6 +187,20 @@ namespace GAMAX.Services.Controllers
             var Email = security.Decrypt(model.Email);
             model.Email = Email;
             var result = await _authService.ResetPassword(model);
+            if (result)
+                return Ok(result);
+            return BadRequest(new
+            {
+                Message = "your data is wrong!"
+            });
+        }
+        [HttpPost("UpdateUserPassword")]
+        public async Task<IActionResult> UpdateUserPassword([FromBody] UpdateUserPassword model)
+        {
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            if (userInfo.Email != model.Email)
+                return Forbid();
+            var result = await _authService.UpdateUserPassword(model);
             if (result)
                 return Ok(result);
             return BadRequest(new

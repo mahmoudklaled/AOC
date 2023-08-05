@@ -12,4 +12,10 @@ namespace DataBase.Core.Models.Authentication
         public string Password { get; set; }
         public string Token { get; set; }
     }
+    public class UpdateUserPassword
+    {
+        public string Email { get; set; }
+        public string OldPassword { get; set; }
+        public string NewPassword { get; set; }
+    }
 }
