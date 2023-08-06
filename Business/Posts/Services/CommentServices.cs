@@ -86,33 +86,41 @@ namespace Business.Posts.Services
                 return false;
             if (cmnt.UserAccountsId != user.Id) return false;
             cmnt.comment = comment.comment;
+            _unitOfWork.PostComment.Update(cmnt);
+            if (comment.DeletedVideoId != null)
+            {
+                 _unitOfWork.PostCommentVedio.Delete(cmnt.PostCommentVedio);
+                 //await _unitOfWork.Complete();
+            }
+            if (comment.DeletedPhotoId != null)
+            {
+                _unitOfWork.PostCommentPhoto.Delete(cmnt.PostCommentPhoto);
+                //await _unitOfWork.Complete();
+            }
             if (comment.Photo != null)
             {
-                if (cmnt.PostCommentPhoto != null)
-                {
-                    _unitOfWork.PostCommentPhoto.Delete(cmnt.PostCommentPhoto);
-                }
-                cmnt.PostCommentPhoto = new PostCommentPhoto()
+                
+                var postCommentPhoto = new PostCommentPhoto()
                 {
                     Id = Guid.NewGuid(),
                     PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, SharedFolderPaths.CommentsPhotos),
                     PostCommentId = cmnt.Id
                 };
+                await _unitOfWork.PostCommentPhoto.AddAsync(postCommentPhoto);
+
             }
             if (comment.Vedio != null)
             {
-                if (cmnt.PostCommentVedio != null)
-                {
-                    _unitOfWork.PostCommentVedio.Delete(cmnt.PostCommentVedio);
-                }
-                cmnt.PostCommentVedio = new PostCommentVedio()
+                
+                var postCommentVedio = new PostCommentVedio()
                 {
                     Id = Guid.NewGuid(),
                     VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, SharedFolderPaths.CommentsVideos),
                     PostCommentId = cmnt.Id
                 };
+                await _unitOfWork.PostCommentVedio.AddAsync(postCommentVedio);
             }
-            _unitOfWork.PostComment.Update(cmnt);
+            
             return await _unitOfWork.Complete() > 0;
         }
 
@@ -181,32 +189,36 @@ namespace Business.Posts.Services
                 return false;
             if (cmnt.UserAccountsId != user.Id) return false;
             cmnt.comment = comment.comment;
+            _unitOfWork.QuestionComment.Update(cmnt);
+            if (comment.DeletedVideoId != null)
+            {
+                _unitOfWork.QuestionCommentVedio.Delete(cmnt.QuestionCommentVedio);
+            }
+            if (comment.DeletedPhotoId != null)
+            {
+                _unitOfWork.QuestionCommentPhoto.Delete(cmnt.QuestionCommentPhoto);
+            }
             if (comment.Photo != null)
             {
-                if(cmnt.QuestionCommentPhoto != null) {
-                    _unitOfWork.QuestionCommentPhoto.Delete(cmnt.QuestionCommentPhoto);
-                }
-                cmnt.QuestionCommentPhoto = new QuestionCommentPhoto()
+                var questionCommentPhoto = new QuestionCommentPhoto()
                 {
                     Id = Guid.NewGuid(),
                     PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, SharedFolderPaths.CommentsPhotos),
                     QuestionCommentId = cmnt.Id
                 };
+                await _unitOfWork.QuestionCommentPhoto.AddAsync(questionCommentPhoto);
             }
             if (comment.Vedio != null)
             {
-                if (cmnt.QuestionCommentVedio != null)
-                {
-                    _unitOfWork.QuestionCommentVedio.Delete(cmnt.QuestionCommentVedio);
-                }
-                cmnt.QuestionCommentVedio = new QuestionCommentVedio()
+                var questionCommentVedio = new QuestionCommentVedio()
                 {
                     Id = Guid.NewGuid(),
                     VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, SharedFolderPaths.CommentsVideos),
                     QuestionCommentId = cmnt.Id
                 };
+                await _unitOfWork.QuestionCommentVedio.AddAsync(questionCommentVedio);
             }
-            _unitOfWork.QuestionComment.Update(cmnt);
+            
             return await _unitOfWork.Complete() > 0;
         }
         // ALL NEW HERE

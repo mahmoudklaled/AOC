@@ -30,7 +30,7 @@ SharedFolderPaths.PostVideos = builder.Configuration.GetValue<string>("SharedFol
 SharedFolderPaths.QuestionVideos = builder.Configuration.GetValue<string>("SharedFolder:QuestionVideos");
 SharedFolderPaths.QuestionPhotos = builder.Configuration.GetValue<string>("SharedFolder:QuestionPhotos");
 SharedFolderPaths.CommentsPhotos = builder.Configuration.GetValue<string>("SharedFolder:CommentsPhotos");
-SharedFolderPaths.CommentsVideos = builder.Configuration.GetValue<string>("SharedFolder:CommentsVedio");
+SharedFolderPaths.CommentsVideos = builder.Configuration.GetValue<string>("SharedFolder:CommentsVideos");
 
 
 

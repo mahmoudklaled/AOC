@@ -13,6 +13,8 @@ namespace DomainModels.Models
         public string? comment { get; set; }
         public IFormFile? Photo { get; set; }
         public IFormFile? Vedio { get; set; }
+        public Guid? DeletedPhotoId { get; set; }
+        public Guid? DeletedVideoId { get; set; }
 
     }
     public class AddCommentRequest

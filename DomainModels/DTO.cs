@@ -105,6 +105,8 @@ namespace DomainModels.DTO
         public string? comment { get; set; }
         public IFormFile? Photo { get; set; }
         public IFormFile? Vedio { get; set; }
+        public Guid? DeletedPhotoId { get; set; }
+        public Guid? DeletedVedioId { get; set; }
 
     }
     public record AddCommentRequest
