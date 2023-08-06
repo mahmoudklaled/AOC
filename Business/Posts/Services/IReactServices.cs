@@ -17,5 +17,10 @@ namespace Business.Posts.Services
         Task<bool> UpdateQuestionReact(ReactUpdateRequest reactRequest, string userEmail);
         Task<bool> UpdatePostCommentReact(ReactUpdateRequest reactRequest, string userEmail);
         Task<bool> UpdateQuestionCommentReact(ReactUpdateRequest reactRequest, string userEmail);
+        Task<List<DomainModels.DTO.ReactsDTO>> GetPostCommentReacts(Guid postCommentId);
+        Task<List<DomainModels.DTO.ReactsDTO>> GetQuestionCommentReacts(Guid questionPostCommentId);
+        Task<List<DomainModels.DTO.ReactsDTO>> GetPostReacts(Guid postId);
+        Task<List<DomainModels.DTO.ReactsDTO>> GetQuestionReacts(Guid questionId);
+
     }
 }

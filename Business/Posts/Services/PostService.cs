@@ -385,10 +385,11 @@ namespace Business.Posts.Services
         public async Task<List<DomainModels.DTO.AllPostDTO>> GetPostTypesAsync(int pageNumber)
         {
             var posts = await GetPostAsync(pageNumber);
-            var QPosts = await GetPostAsync(pageNumber);
+            var QPosts = await GetQuestionPostAsync(pageNumber);
             var AllPostDTO = OMapper.Mapper.Map<List<DomainModels.DTO.AllPostDTO>>(posts);
-            AllPostDTO.AddRange(OMapper.Mapper.Map<List<DomainModels.DTO.AllPostDTO>>(QPosts));
-            return AllPostDTO;
+            var AllQuestionDTO = OMapper.Mapper.Map<List<DomainModels.DTO.AllPostDTO>>(QPosts);
+            AllPostDTO.AddRange(AllQuestionDTO);
+            return AllPostDTO.OrderByDescending(p => p.Time).ToList();
         }
         public async Task<DomainModels.DTO.PostDTO> GetPostByIDAsync(Guid id)
         {
@@ -448,8 +449,9 @@ namespace Business.Posts.Services
             var posts = await GetPersonalPostAsync(pageNumber, userID);
             var questions = await GetPersonalQuestionPostAsync(pageNumber, userID);
             var AllPostDTO = OMapper.Mapper.Map<List<DomainModels.DTO.AllPostDTO>>(posts);
-            AllPostDTO.AddRange(OMapper.Mapper.Map<List<DomainModels.DTO.AllPostDTO>>(questions));
-            return AllPostDTO;
+            var AllQuestionDTO = OMapper.Mapper.Map<List<DomainModels.DTO.AllPostDTO>>(questions);
+            AllPostDTO.AddRange(AllQuestionDTO);
+            return AllPostDTO.OrderByDescending(p => p.Time).ToList();
         }
 
     }
