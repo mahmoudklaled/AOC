@@ -3,6 +3,7 @@ using DataBase.Core.Models.PhotoModels;
 using DataBase.Core.Models.Reacts;
 using DataBase.Core.Models.VedioModels;
 using Microsoft.AspNetCore.Http;
+using System.Data;
 
 namespace DomainModels.DTO
 {
@@ -57,6 +58,7 @@ namespace DomainModels.DTO
         public Guid UserAccountsId { get; set; }
         public string PostUserFirstName { get; set; }
         public string PostUserLastName { get; set; }
+        public DateTime Time { get; set; }
     }
     public record PostDTO
     {
@@ -71,6 +73,7 @@ namespace DomainModels.DTO
         public Guid UserAccountsId { get; set; }
         public string PostUserFirstName { get; set; }
         public string PostUserLastName { get; set; }
+        public DateTime Time { get; set; }
 
     }
     public record AllPostDTO
@@ -89,6 +92,7 @@ namespace DomainModels.DTO
         public Guid UserAccountsId { get; set; }
         public string PostUserFirstName { get; set; }
         public string PostUserLastName { get; set; }
+        public DateTime Time { get; set; }
     }
     
     #endregion
@@ -138,6 +142,15 @@ namespace DomainModels.DTO
 
 
     #region React
+    public record ReactsDTO
+    {
+        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
+        public string UserFirstName { get; set; }
+        public string UserLastName { get; set; }
+        public ReactsType react { get; set; }
+
+    }
     #endregion
 
     #region UserProfile

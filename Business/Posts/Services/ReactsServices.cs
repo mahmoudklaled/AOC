@@ -1,5 +1,8 @@
 ﻿using DataBase.Core;
+using DataBase.Core.Models.CommentModels;
 using DataBase.Core.Models.Reacts;
+using DomainModels;
+using DomainModels.DTO;
 using DomainModels.Models;
 
 namespace Business.Posts.Services
@@ -110,6 +113,38 @@ namespace Business.Posts.Services
                 return false;
             _unitOfWork.QuestionReact.Delete(react);
             return await _unitOfWork.Complete() > 0;
+        }
+
+        public async Task<List<ReactsDTO>> GetPostCommentReacts(Guid postCommentId)
+        {
+            string[] includes = { "UserAccounts" };
+            var reacts = _unitOfWork.PostCommentReact.FindAllAsync(r => r.PostCommentId == postCommentId, includes);
+            var reactDTO = OMapper.Mapper.Map<List<ReactsDTO>>(reacts);
+            return reactDTO;
+        }
+
+        public async Task<List<ReactsDTO>> GetPostReacts(Guid postId)
+        {
+            string[] includes = { "UserAccounts" };
+            var reacts = _unitOfWork.Post.FindAllAsync(r => r.Id == postId, includes);
+            var reactDTO = OMapper.Mapper.Map<List<ReactsDTO>>(reacts);
+            return reactDTO;
+        }
+
+        public async Task<List<ReactsDTO>> GetQuestionCommentReacts(Guid questionPostCommentId)
+        {
+            string[] includes = { "UserAccounts" };
+            var reacts = _unitOfWork.QuestionCommentReact.FindAllAsync(r => r.QuestionCommentId == questionPostCommentId, includes);
+            var reactDTO = OMapper.Mapper.Map<List<ReactsDTO>>(reacts);
+            return reactDTO;
+        }
+
+        public async Task<List<ReactsDTO>> GetQuestionReacts(Guid questionId)
+        {
+            string[] includes = { "UserAccounts" };
+            var reacts = _unitOfWork.QuestionPost.FindAllAsync(r => r.Id == questionId, includes);
+            var reactDTO = OMapper.Mapper.Map<List<ReactsDTO>>(reacts);
+            return reactDTO;
         }
 
         public async Task<bool> UpdatePostCommentReact(ReactUpdateRequest reactRequest, string userEmail)

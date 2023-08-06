@@ -1,4 +1,5 @@
 ﻿using DataBase.Core;
+using DataBase.Core.Consts;
 using DataBase.Core.Models.CommentModels;
 using DataBase.Core.Models.PhotoModels;
 using DataBase.Core.Models.VedioModels;
@@ -213,7 +214,7 @@ namespace Business.Posts.Services
         {
             string[] includes = { "PostCommentPhoto", "PostCommentVedio", "PostCommentReacts", "UserAccounts" };
             var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
-            var comments = await _unitOfWork.PostComment.FindAllAsync(p => p.PostId == postId, take,skip, includes);
+            var comments = await _unitOfWork.PostComment.FindAllAsync(p => p.PostId == postId, take,skip, includes , p => p.Date, OrderBy.Ascending);
             var CommentsDTO = OMapper.Mapper.Map<IEnumerable<DomainModels.DTO.CommentDTO>>(comments);
             return CommentsDTO.ToList();
         }
@@ -222,7 +223,7 @@ namespace Business.Posts.Services
         {
             string[] includes = { "QuestionCommentPhoto", "QuestionCommentVedio", "QuestionCommentReacts", "UserAccounts" };
             var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
-            var comments = await _unitOfWork.QuestionComment.FindAllAsync(p => p.QuestionPostId == postId, take, skip, includes);
+            var comments = await _unitOfWork.QuestionComment.FindAllAsync(p => p.QuestionPostId == postId, take, skip, includes, p => p.Date, OrderBy.Ascending);
             var CommentsDTO = OMapper.Mapper.Map<IEnumerable<DomainModels.DTO.CommentDTO>>(comments);
             return CommentsDTO.ToList();
         }
