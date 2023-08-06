@@ -107,6 +107,8 @@ namespace GAMAX.Services.Controllers
                 Photo = requestModel.Photo,
                 Vedio = requestModel.Vedio,
                 Id= requestModel.Id,
+                DeletedPhotoId= requestModel.DeletedPhotoId,
+                DeletedVideoId=requestModel.DeletedVedioId
                 
             };
             var result = await _commentServices.UpdatePostCommentAsync(cmmnt, userInfo.Email);
@@ -131,6 +133,8 @@ namespace GAMAX.Services.Controllers
                 Photo = requestModel.Photo,
                 Vedio = requestModel.Vedio,
                 Id = requestModel.Id,
+                DeletedPhotoId = requestModel.DeletedPhotoId,
+                DeletedVideoId = requestModel.DeletedVedioId
 
             };
             var result = await _commentServices.UpdateQuestionCommentAsync(cmmnt, userInfo.Email);
