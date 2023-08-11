@@ -93,8 +93,8 @@ namespace GAMAX.Services.Controllers
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _reactServices.AddReactOnPostAsync(reactRequest, userInfo.Email);
-            if (result)
-                return Ok(result);
+            if (result.Item1)
+                return Ok(await _reactServices.GetReactByIdOnPost(result.Item2));
             return BadRequest(new
             {
                 Message = "Fail"
@@ -105,8 +105,8 @@ namespace GAMAX.Services.Controllers
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _reactServices.AddReactOnQuestionPostAsync(reactRequest, userInfo.Email);
-            if (result)
-                return Ok(result);
+            if (result.Item1)
+                return Ok(await _reactServices.GetReactByIdOnQuestionPost(result.Item2));
             return BadRequest(new
             {
                 Message = "Fail"
@@ -117,8 +117,8 @@ namespace GAMAX.Services.Controllers
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _reactServices.AddReactOnPostCommentAsync(reactRequest, userInfo.Email);
-            if (result)
-                return Ok(result);
+            if (result.Item1)
+                return Ok(await _reactServices.GetReactByIdOnPostComment(result.Item2));
             return BadRequest(new
             {
                 Message = "Fail"
@@ -129,8 +129,8 @@ namespace GAMAX.Services.Controllers
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _reactServices.AddReactOnQuestionPostCommentAsync(reactRequest, userInfo.Email);
-            if (result)
-                return Ok(result);
+            if (result.Item1)
+                return Ok(await _reactServices.GetReactByIdOnQuestionComment(result.Item2));
             return BadRequest(new
             {
                 Message = "Fail"
