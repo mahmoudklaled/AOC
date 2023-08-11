@@ -1,4 +1,5 @@
-﻿using DataBase.Core;
+﻿using BDataBase.Core.Models.Accounts;
+using DataBase.Core;
 using DataBase.Core.Models.CommentModels;
 using DataBase.Core.Models.Reacts;
 using DomainModels;
@@ -24,7 +25,8 @@ namespace Business.Posts.Services
             {
                 Id = Guid.NewGuid(),
                 PostId = post.Id,
-                reacts = reactRequest.ReactType
+                reacts = reactRequest.ReactType,
+                UserAccountsId = user.Id
             };
             await _unitOfWork.PostReact.AddAsync(react);
             return await _unitOfWork.Complete() > 0;
@@ -39,7 +41,8 @@ namespace Business.Posts.Services
             {
                 Id = Guid.NewGuid(),
                 PostCommentId = Comment.Id,
-                reacts = reactRequest.ReactType
+                reacts = reactRequest.ReactType,
+                UserAccountsId = user.Id
             };
             await _unitOfWork.PostCommentReact.AddAsync(react);
             return await _unitOfWork.Complete() > 0;
@@ -54,7 +57,8 @@ namespace Business.Posts.Services
             {
                 Id = Guid.NewGuid(),
                 QuestionPostId = post.Id,
-                reacts = reactRequest.ReactType
+                reacts = reactRequest.ReactType,
+                UserAccountsId = user.Id
             };
             await _unitOfWork.QuestionReact.AddAsync(react);
             return await _unitOfWork.Complete() > 0;
@@ -69,7 +73,8 @@ namespace Business.Posts.Services
             {
                 Id = Guid.NewGuid(),
                 QuestionCommentId = Comment.Id,
-                reacts = reactRequest.ReactType
+                reacts = reactRequest.ReactType,
+                UserAccountsId= user.Id
             };
             await _unitOfWork.QuestionCommentReact.AddAsync(react);
             return await _unitOfWork.Complete() > 0;
