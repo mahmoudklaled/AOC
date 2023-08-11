@@ -64,7 +64,7 @@ namespace GAMAX.Services.Controllers
                 Message = "Fail"
             });
         }
-        [HttpPost(" AddReactOnPost")]
+        [HttpPost("AddReactOnPost")]
         public async Task<IActionResult> AddReactOnPost(AddReactRequest reactRequest)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
@@ -76,7 +76,7 @@ namespace GAMAX.Services.Controllers
                 Message = "Fail"
             });
         }
-        [HttpPost(" AddReactOnQuestionPost")]
+        [HttpPost("AddReactOnQuestionPost")]
         public async Task<IActionResult> AddReactOnQuestionPost(AddReactRequest reactRequest)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
@@ -88,7 +88,7 @@ namespace GAMAX.Services.Controllers
                 Message = "Fail"
             });
         }
-        [HttpPost(" AddReactOnPostComment")]
+        [HttpPost("AddReactOnPostComment")]
         public async Task<IActionResult> AddReactOnPostComment(AddReactRequest reactRequest)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
@@ -100,7 +100,7 @@ namespace GAMAX.Services.Controllers
                 Message = "Fail"
             });
         }
-        [HttpPost(" AddReactOnQuestionPostComment")]
+        [HttpPost("AddReactOnQuestionPostComment")]
         public async Task<IActionResult> AddReactOnQuestionPostComment(AddReactRequest reactRequest)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
@@ -112,7 +112,7 @@ namespace GAMAX.Services.Controllers
                 Message = "Fail"
             });
         }
-        [HttpPost(" UpdatePostReact")]
+        [HttpPost("UpdatePostReact")]
         public async Task<IActionResult> UpdatePostReact(ReactUpdateRequest reactRequest)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
@@ -124,7 +124,7 @@ namespace GAMAX.Services.Controllers
                 Message = "Fail"
             });
         }
-        [HttpPost(" UpdateQuestionReact")]
+        [HttpPost("UpdateQuestionReact")]
         public async Task<IActionResult> UpdateQuestionReact(ReactUpdateRequest reactRequest)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
@@ -136,7 +136,7 @@ namespace GAMAX.Services.Controllers
                 Message = "Fail"
             });
         }
-        [HttpPost(" UpdatePostCommentReact")]
+        [HttpPost("UpdatePostCommentReact")]
         public async Task<IActionResult> UpdatePostCommentReact(ReactUpdateRequest reactRequest)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
@@ -148,7 +148,7 @@ namespace GAMAX.Services.Controllers
                 Message = "Fail"
             });
         }
-        [HttpPost(" UpdateQuestionCommentReact")]
+        [HttpPost("UpdateQuestionCommentReact")]
         public async Task<IActionResult> UpdateQuestionCommentReact(ReactUpdateRequest reactRequest)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
