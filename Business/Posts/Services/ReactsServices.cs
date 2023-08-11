@@ -123,7 +123,7 @@ namespace Business.Posts.Services
         public async Task<List<ReactsDTO>> GetPostCommentReacts(Guid postCommentId)
         {
             string[] includes = { "UserAccounts" };
-            var reacts = _unitOfWork.PostCommentReact.FindAllAsync(r => r.PostCommentId == postCommentId, includes);
+            var reacts = await _unitOfWork.PostCommentReact.FindAllAsync(r => r.PostCommentId == postCommentId, includes);
             var reactDTO = OMapper.Mapper.Map<List<ReactsDTO>>(reacts);
             return reactDTO;
         }
@@ -131,7 +131,7 @@ namespace Business.Posts.Services
         public async Task<List<ReactsDTO>> GetPostReacts(Guid postId)
         {
             string[] includes = { "UserAccounts" };
-            var reacts = _unitOfWork.Post.FindAllAsync(r => r.Id == postId, includes);
+            var reacts = await _unitOfWork.Post.FindAllAsync(r => r.Id == postId, includes);
             var reactDTO = OMapper.Mapper.Map<List<ReactsDTO>>(reacts);
             return reactDTO;
         }
@@ -139,7 +139,7 @@ namespace Business.Posts.Services
         public async Task<List<ReactsDTO>> GetQuestionCommentReacts(Guid questionPostCommentId)
         {
             string[] includes = { "UserAccounts" };
-            var reacts = _unitOfWork.QuestionCommentReact.FindAllAsync(r => r.QuestionCommentId == questionPostCommentId, includes);
+            var reacts = await _unitOfWork.QuestionCommentReact.FindAllAsync(r => r.QuestionCommentId == questionPostCommentId, includes);
             var reactDTO = OMapper.Mapper.Map<List<ReactsDTO>>(reacts);
             return reactDTO;
         }
@@ -147,7 +147,7 @@ namespace Business.Posts.Services
         public async Task<List<ReactsDTO>> GetQuestionReacts(Guid questionId)
         {
             string[] includes = { "UserAccounts" };
-            var reacts = _unitOfWork.QuestionPost.FindAllAsync(r => r.Id == questionId, includes);
+            var reacts = await _unitOfWork.QuestionPost.FindAllAsync(r => r.Id == questionId, includes);
             var reactDTO = OMapper.Mapper.Map<List<ReactsDTO>>(reacts);
             return reactDTO;
         }

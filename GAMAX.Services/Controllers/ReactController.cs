@@ -16,6 +16,30 @@ namespace GAMAX.Services.Controllers
             _httpContextAccessor = httpContextAccessor;
             _reactServices = reactServices;
         }
+        [HttpPost("GetPostReacts")]
+        public async Task<IActionResult> GetPostReacts(Guid postId)
+        {
+            var result = await _reactServices.GetPostReacts(postId);
+            return Ok(result);
+        }
+        [HttpPost("GetQuestionPostReacts")]
+        public async Task<IActionResult> GetQuestionPostReacts(Guid postId)
+        {
+            var result = await _reactServices.GetQuestionReacts(postId);
+            return Ok(result);
+        }
+        [HttpPost("GetPostCommentReacts")]
+        public async Task<IActionResult> GetPostCommentReacts(Guid CommentId)
+        {
+            var result = await _reactServices.GetPostCommentReacts(CommentId);
+            return Ok(result);
+        }
+        [HttpPost("GetQuestionCommentReacts")]
+        public async Task<IActionResult> GetQuestionCommentReacts(Guid CommentId)
+        {
+            var result = await _reactServices.GetQuestionCommentReacts(CommentId);
+            return Ok(result);
+        }
         [HttpPost("DeletePostReact")]
         public async  Task<IActionResult> DeletePostReact(Guid reactId)
         {
@@ -89,7 +113,7 @@ namespace GAMAX.Services.Controllers
             });
         }
         [HttpPost("AddReactOnPostComment")]
-        public async Task<IActionResult> AddReactOnPostComment(AddReactRequest reactRequest)
+        public async Task<IActionResult> AddReactOnPostComment([FromForm]AddReactRequest reactRequest)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _reactServices.AddReactOnPostCommentAsync(reactRequest, userInfo.Email);
@@ -160,6 +184,6 @@ namespace GAMAX.Services.Controllers
                 Message = "Fail"
             });
         }
-        
+         
     }
 }
