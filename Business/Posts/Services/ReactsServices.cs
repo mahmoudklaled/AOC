@@ -155,28 +155,28 @@ namespace Business.Posts.Services
         public async Task<ReactsDTO> GetReactByIdOnQuestionPost(Guid reactId)
         {
             string[] includes = { "UserAccounts" };
-            var react = await _unitOfWork.QuestionReact.FindAllAsync(r => r.Id == reactId, includes);
+            var react = await _unitOfWork.QuestionReact.FindAsync(r => r.Id == reactId, includes);
             var reactDTO = OMapper.Mapper.Map<ReactsDTO>(react);
             return reactDTO;
         }
         public async Task<ReactsDTO> GetReactByIdOnPost(Guid reactId)
         {
             string[] includes = { "UserAccounts" };
-            var react = await _unitOfWork.PostReact.FindAllAsync(r => r.Id == reactId, includes);
+            var react = await _unitOfWork.PostReact.FindAsync(r => r.Id == reactId, includes);
             var reactDTO = OMapper.Mapper.Map<ReactsDTO>(react);
             return reactDTO;
         }
         public async Task<ReactsDTO> GetReactByIdOnPostComment(Guid reactId)
         {
             string[] includes = { "UserAccounts" };
-            var react = await _unitOfWork.PostCommentReact.FindAllAsync(r => r.Id == reactId, includes);
+            var react = await _unitOfWork.PostCommentReact.FindAsync(r => r.Id == reactId, includes);
             var reactDTO = OMapper.Mapper.Map<ReactsDTO>(react);
             return reactDTO;
         }
         public async Task<ReactsDTO> GetReactByIdOnQuestionComment(Guid reactId)
         {
             string[] includes = { "UserAccounts" };
-            var react = await _unitOfWork.QuestionCommentReact.FindAllAsync(r => r.Id == reactId, includes);
+            var react = await _unitOfWork.QuestionCommentReact.FindAsync(r => r.Id == reactId, includes);
             var reactDTO = OMapper.Mapper.Map<ReactsDTO>(react);
             return reactDTO;
         }
