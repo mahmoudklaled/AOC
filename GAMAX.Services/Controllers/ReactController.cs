@@ -7,11 +7,11 @@ namespace GAMAX.Services.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RaectController : ControllerBase
+    public class ReactController : ControllerBase
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IReactServices _reactServices;
-        public RaectController(IHttpContextAccessor httpContextAccessor, IReactServices reactServices)
+        public ReactController(IHttpContextAccessor httpContextAccessor, IReactServices reactServices)
         {
             _httpContextAccessor = httpContextAccessor;
             _reactServices = reactServices;
