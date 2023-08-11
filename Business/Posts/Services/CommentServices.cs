@@ -1,159 +1,276 @@
-﻿using Business.Enums;
-using Business.Posts.Helper;
-using Business.Posts.Models;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DataBase.Core;
+using DataBase.Core.Consts;
+using DataBase.Core.Models.CommentModels;
+using DataBase.Core.Models.PhotoModels;
+using DataBase.Core.Models.VedioModels;
+using DomainModels;
+using DomainModels.Models;
+using System.Xml.Linq;
+using Utilites;
 
 namespace Business.Posts.Services
 {
     public class CommentServices:ICommentServices
     {
-        private readonly ApplicationDbContext _dbContext;
-        public CommentServices(ApplicationDbContext dbContext)
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly int _pageSize = 5;
+
+        public CommentServices(IUnitOfWork unitOfWork)
         {
-            _dbContext = dbContext;
+            _unitOfWork= unitOfWork;
         }
-        public async Task<bool> DeleteCommentAsync(Guid commentId, string userEmail)
+        public async Task<bool> DeletePostCommentAsync(Guid commentId, string userEmail)
         {
-            var user = await _dbContext.ProfileAccounts.FindAsync(userEmail);
-            var comment = await _dbContext.Comments.FindAsync(commentId);
+            string[] includes = { "PostCommentPhoto", "PostCommentVedio", "PostCommentReacts" };
+            var user = await _unitOfWork.UserAccounts.FindAsync(p=>p.Email==userEmail);
+            var comment = await _unitOfWork.PostComment.FindAsync(p=>p.Id ==commentId, includes);
             if (comment == null || user == null)
                 return false;
-            if (comment.ProfileAccountId != user.Id) return false;
-
-            _dbContext.Comments.Remove(comment);
-            await _dbContext.SaveChangesAsync();
-
-            return true;
-
+            if (comment.UserAccountsId != user.Id) return false;
+            if (comment.PostCommentPhoto != null)
+                _unitOfWork.PostCommentPhoto.Delete(comment.PostCommentPhoto);
+            if (comment.PostCommentVedio != null)
+                _unitOfWork.PostCommentVedio.Delete(comment.PostCommentVedio);
+            if (comment.PostCommentReacts != null)
+                _unitOfWork.PostCommentReact.DeleteRange(comment.PostCommentReacts);
+            _unitOfWork.PostComment.Delete(comment);
+            return await _unitOfWork.Complete()>0;
         }
-        public async Task<bool> AddCommentAsync(CommentRequest comment, string userEmail)
-        {
-            switch (comment.PostsType)
-            {
-                case PostsTypes.Post:
-                    return await AddPostComment(comment, userEmail);
-                case PostsTypes.Question:
-                    return await AddQuestionComment(comment, userEmail);
-                default: break;
-            }
-            return false;
-        }
-        public async Task<List<Comment>> GetCommentsAsync(Guid postId, PostsTypes postsType, int cntToSkip)
-        {
-            switch (postsType)
-            {
-                case PostsTypes.Post:
-                    return await GetPostComment(postId, cntToSkip);
-                case PostsTypes.Question:
-                    return await GetQuestionComment(postId, cntToSkip);
-                default: break;
-            }
-            return new List<Comment>();
 
-        }
-        private async Task<bool> AddPostComment(CommentRequest comment, string userEmail)
+        public async Task<(bool, Guid)> AddPostCommentAsync(AddCommentRequest comment, string userEmail)
         {
-            var user = await _dbContext.ProfileAccounts.FindAsync(userEmail);
-            if (user == null) return false;
-            var post = await _dbContext.Posts.FindAsync(comment.PostId);
-            if (post == null) return false;
-            var Newcomment = new Comment()
+            var user = await _unitOfWork.UserAccounts.FindAsync(p=>p.Email== userEmail);
+            if (user == null) return (false, Guid.Empty);
+            var post = await _unitOfWork.Post.FindAsync(p=>p.Id==comment.PostId);
+            if (post == null) return (false, Guid.Empty);
+            var Newcomment = new PostComment()
             {
-                Id = new Guid(),
-                ProfileAccount = user,
-                ProfileAccountId = user.Id,
+                Id = Guid.NewGuid(),
+                UserAccounts = user,
+                UserAccountsId = user.Id,
                 PostId = comment.PostId,
                 Post = post,
                 comment = comment.comment
             };
+            await _unitOfWork.PostComment.AddAsync(Newcomment);
             if (comment.Photo != null)
             {
-                Newcomment.Photo = new Photo()
-                {
-                    Id = new Guid(),
-                    PhotoPath = PostHelper.ConverIformToPath(comment.Photo, "CommentsPhoto"),
-                    CommentId = Newcomment.Id
-                };
+                var postComentPhoto = new PostCommentPhoto()
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, SharedFolderPaths.CommentsPhotos),
+                                        PostCommentId = Newcomment.Id
+                                    };
+                await _unitOfWork.PostCommentPhoto.AddAsync(postComentPhoto);
             }
             if (comment.Vedio != null)
             {
-                Newcomment.Vedio = new Vedio()
+                var postCommentVedio = new PostCommentVedio()
                 {
-                    Id = new Guid(),
-                    VedioPath = PostHelper.ConverIformToPath(comment.Photo, "CommentsVedio"),
-                    CommentId = Newcomment.Id
+                    Id = Guid.NewGuid(),
+                    VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, SharedFolderPaths.CommentsVideos),
+                    PostCommentId = Newcomment.Id
                 };
+                await _unitOfWork.PostCommentVedio.AddAsync(postCommentVedio);
             }
-            await _dbContext.Comments.AddAsync(Newcomment);
-            var result = await _dbContext.SaveChangesAsync();
-            return result > 0;
-
+            var update = await _unitOfWork.Complete();
+            return (update > 0, Newcomment.Id);
         }
-        private async Task<bool> AddQuestionComment(CommentRequest comment, string userEmail)
+
+        public async Task<bool> UpdatePostCommentAsync(CommentUpdateRequest comment, string userEmail)
         {
-            var user = await _dbContext.ProfileAccounts.FindAsync(userEmail);
-            if (user == null) return false;
-            var post = await _dbContext.QuestionPosts.FindAsync(comment.PostId);
-            if (post == null) return false;
-            var Newcomment = new Comment()
+            string[] includes = { "PostCommentPhoto", "PostCommentVedio"};
+            var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
+            var cmnt = await _unitOfWork.PostComment.FindAsync(p => p.Id == comment.Id, includes);
+            if (cmnt == null || user == null)
+                return false;
+            if (cmnt.UserAccountsId != user.Id) return false;
+            cmnt.comment = comment.comment;
+            _unitOfWork.PostComment.Update(cmnt);
+            if (comment.DeletedVideoId != null)
             {
-                Id = new Guid(),
-                ProfileAccount = user,
-                ProfileAccountId = user.Id,
+                 _unitOfWork.PostCommentVedio.Delete(cmnt.PostCommentVedio);
+                 //await _unitOfWork.Complete();
+            }
+            if (comment.DeletedPhotoId != null)
+            {
+                _unitOfWork.PostCommentPhoto.Delete(cmnt.PostCommentPhoto);
+                //await _unitOfWork.Complete();
+            }
+            if (comment.Photo != null)
+            {
+                
+                var postCommentPhoto = new PostCommentPhoto()
+                {
+                    Id = Guid.NewGuid(),
+                    PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, SharedFolderPaths.CommentsPhotos),
+                    PostCommentId = cmnt.Id
+                };
+                await _unitOfWork.PostCommentPhoto.AddAsync(postCommentPhoto);
+
+            }
+            if (comment.Vedio != null)
+            {
+                
+                var postCommentVedio = new PostCommentVedio()
+                {
+                    Id = Guid.NewGuid(),
+                    VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, SharedFolderPaths.CommentsVideos),
+                    PostCommentId = cmnt.Id
+                };
+                await _unitOfWork.PostCommentVedio.AddAsync(postCommentVedio);
+            }
+            
+            return await _unitOfWork.Complete() > 0;
+        }
+
+        public async Task<bool> DeleteQuestionCommentAsync(Guid commentId, string userEmail)
+        {
+            string[] includes = { "QuestionCommentPhoto", "QuestionCommentVedio", "QuestionCommentReacts" };
+            var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
+            var comment = await _unitOfWork.QuestionComment.FindAsync(p => p.Id == commentId , includes);
+            if (comment == null || user == null)
+                return false;
+            if (comment.UserAccountsId != user.Id) return false;
+            if (comment.QuestionCommentPhoto != null)
+               _unitOfWork.QuestionCommentPhoto.Delete(comment.QuestionCommentPhoto);
+            if (comment.QuestionCommentVedio != null)
+                _unitOfWork.QuestionCommentVedio.Delete(comment.QuestionCommentVedio);
+            if (comment.QuestionCommentReacts != null)
+                _unitOfWork.QuestionCommentReact.DeleteRange(comment.QuestionCommentReacts);
+            _unitOfWork.QuestionComment.Delete(comment);
+            return await _unitOfWork.Complete() > 0;
+        }
+
+        public async Task<(bool,Guid)> AddQuestionCommentAsync(AddCommentRequest comment, string userEmail)
+        {
+            var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
+            if (user == null) return (false,Guid.Empty);
+            var post = await _unitOfWork.QuestionPost.FindAsync(p => p.Id == comment.PostId);
+            if (post == null) return (false, Guid.Empty);
+            var Newcomment = new QuestionComment()
+            {
+                Id = Guid.NewGuid(),
+                UserAccounts = user,
+                UserAccountsId = user.Id,
                 QuestionPostId = comment.PostId,
                 QuestionPost = post,
                 comment = comment.comment
             };
             if (comment.Photo != null)
             {
-                Newcomment.Photo = new Photo()
+                Newcomment.QuestionCommentPhoto = new QuestionCommentPhoto()
                 {
-                    Id = new Guid(),
-                    PhotoPath = PostHelper.ConverIformToPath(comment.Photo, "CommentsPhoto"),
-                    CommentId = Newcomment.Id
+                    Id = Guid.NewGuid(),
+                    PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, SharedFolderPaths.CommentsPhotos),
+                    QuestionCommentId = Newcomment.Id
                 };
             }
             if (comment.Vedio != null)
             {
-                Newcomment.Vedio = new Vedio()
+                Newcomment.QuestionCommentVedio = new QuestionCommentVedio()
                 {
-                    Id = new Guid(),
-                    VedioPath = PostHelper.ConverIformToPath(comment.Photo, "CommentsVedio"),
-                    CommentId = Newcomment.Id
+                    Id = Guid.NewGuid(),
+                    VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, SharedFolderPaths.CommentsVideos),
+                    QuestionCommentId = Newcomment.Id
                 };
             }
-            await _dbContext.Comments.AddAsync(Newcomment);
-            var result = await _dbContext.SaveChangesAsync();
-            return result > 0;
-
+            await _unitOfWork.QuestionComment.AddAsync(Newcomment);
+            await _unitOfWork.Complete();
+            return (true, Newcomment.Id) ;
         }
-        private async Task<List<Comment>> GetQuestionComment(Guid QuestionPostId, int cntToSkip)
-        {
-            if (cntToSkip < 0)
-                cntToSkip = 0;
-            var result = await _dbContext.Comments
-                                    .Where(p => p.QuestionPostId == QuestionPostId)
-                                    .Skip(cntToSkip * 5)
-                                    .Take(5)
-                                    .ToListAsync();
-            return result;
 
-        }
-        private async Task<List<Comment>> GetPostComment(Guid PostId, int cntToSkip)
+        public async Task<bool> UpdateQuestionCommentAsync(CommentUpdateRequest comment, string userEmail)
         {
-            if (cntToSkip < 0)
-                cntToSkip = 0;
-            var result = await _dbContext.Comments
-                                    .Where(p => p.PostId == PostId)
-                                    .Skip(cntToSkip * 5)
-                                    .Take(5)
-                                    .ToListAsync();
-            return result;
+            string[] includes = { "QuestionCommentPhoto", "QuestionCommentVedio" };
+            var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
+            var cmnt = await _unitOfWork.QuestionComment.FindAsync(p => p.Id == comment.Id, includes);
+            if (cmnt == null || user == null)
+                return false;
+            if (cmnt.UserAccountsId != user.Id) return false;
+            cmnt.comment = comment.comment;
+            _unitOfWork.QuestionComment.Update(cmnt);
+            if (comment.DeletedVideoId != null)
+            {
+                _unitOfWork.QuestionCommentVedio.Delete(cmnt.QuestionCommentVedio);
+            }
+            if (comment.DeletedPhotoId != null)
+            {
+                _unitOfWork.QuestionCommentPhoto.Delete(cmnt.QuestionCommentPhoto);
+            }
+            if (comment.Photo != null)
+            {
+                var questionCommentPhoto = new QuestionCommentPhoto()
+                {
+                    Id = Guid.NewGuid(),
+                    PhotoPath = MediaUtilites.ConverIformToPath(comment.Photo, SharedFolderPaths.CommentsPhotos),
+                    QuestionCommentId = cmnt.Id
+                };
+                await _unitOfWork.QuestionCommentPhoto.AddAsync(questionCommentPhoto);
+            }
+            if (comment.Vedio != null)
+            {
+                var questionCommentVedio = new QuestionCommentVedio()
+                {
+                    Id = Guid.NewGuid(),
+                    VedioPath = MediaUtilites.ConverIformToPath(comment.Vedio, SharedFolderPaths.CommentsVideos),
+                    QuestionCommentId = cmnt.Id
+                };
+                await _unitOfWork.QuestionCommentVedio.AddAsync(questionCommentVedio);
+            }
+            
+            return await _unitOfWork.Complete() > 0;
+        }
+        // ALL NEW HERE
+        public async Task<List<DomainModels.DTO.CommentDTO>> GetPostCommentsAsync(Guid postId, DateTime? Time)
+        {
+
+            string[] includes = { "PostCommentPhoto", "PostCommentVedio", "PostCommentReacts", "UserAccounts" };
+            //var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
+            IEnumerable<PostComment> comments ;
+            if(Time==null)
+                comments =await _unitOfWork.PostComment.FindAllAsync(p => p.PostId == postId, _pageSize,0, includes , p => p.Date, OrderBy.Ascending);
+            else
+                comments = await _unitOfWork.PostComment.FindAllAsync(p => p.PostId == postId && p.Date>Time, _pageSize, 0, includes, p => p.Date, OrderBy.Ascending);
+            
+            var CommentsDTO = OMapper.Mapper.Map<IEnumerable<DomainModels.DTO.CommentDTO>>(comments);
+            return CommentsDTO.ToList();
+        }
+        public async Task<List<DomainModels.DTO.CommentDTO>> GetQuestionCommentsAsync(Guid postId, DateTime? Time)
+        {
+            string[] includes = { "QuestionCommentPhoto", "QuestionCommentVedio", "QuestionCommentReacts", "UserAccounts" };
+            //var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
+            IEnumerable<QuestionComment> comments;
+            if(Time==null)
+                comments = await _unitOfWork.QuestionComment.FindAllAsync(p => p.QuestionPostId == postId, _pageSize, 0, includes, p => p.Date, OrderBy.Ascending);
+            else
+                comments = await _unitOfWork.QuestionComment.FindAllAsync(p => p.QuestionPostId == postId && p.Date>Time, _pageSize, 0, includes, p => p.Date, OrderBy.Ascending);
+            var CommentsDTO = OMapper.Mapper.Map<IEnumerable<DomainModels.DTO.CommentDTO>>(comments);
+            return CommentsDTO.ToList();
+        }
+        public async Task<DomainModels.DTO.CommentDTO> GetPostCommentByIdAsync(Guid commentId)
+        {
+            string[] includes = { "PostCommentPhoto", "PostCommentVedio", "PostCommentReacts", "UserAccounts" };
+            var comment = await _unitOfWork.PostComment.FindAsync(c => c.Id == commentId, includes);
+            var CommentsDTO = OMapper.Mapper.Map<DomainModels.DTO.CommentDTO>(comment);
+            return CommentsDTO;
+        }
+        public async Task<DomainModels.DTO.CommentDTO> GetQuestionCommentByIdAsync(Guid commentId)
+        {
+            string[] includes = { "QuestionCommentPhoto", "QuestionCommentVedio", "QuestionCommentReacts", "UserAccounts" };
+            var comment = await _unitOfWork.QuestionComment.FindAsync(c => c.Id == commentId, includes);
+            var CommentsDTO = OMapper.Mapper.Map<DomainModels.DTO.CommentDTO>(comment);
+            return CommentsDTO;
+        }
+        public async Task<int>GetPostCommentCount(Guid postId)
+        {
+            var CommentCount = await _unitOfWork.PostComment.CountAsync(C=>C.PostId== postId);
+            return CommentCount;
+        }
+        public async Task<int> GetQuestionPostCommentCount(Guid postId)
+        {
+            var CommentCount = await _unitOfWork.QuestionComment.CountAsync(C => C.QuestionPostId == postId);
+            return CommentCount;
         }
     }
     

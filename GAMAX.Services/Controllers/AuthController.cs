@@ -1,4 +1,5 @@
-﻿using Business.Authentication.Models;
+﻿using DataBase.Core.Models.Authentication;
+using GAMAX.Services.Dto;
 using GAMAX.Services.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,12 +10,14 @@ namespace GAMAX.Services.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService , IHttpContextAccessor httpContextAccessor)
         {
             _authService = authService;
+            _httpContextAccessor = httpContextAccessor;
         }
-        
+
         [HttpPost("register")]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterModel model)
         {
@@ -22,18 +25,18 @@ namespace GAMAX.Services.Controllers
                 return BadRequest(ModelState);
 
             var result = await _authService.RegisterAsync(model);
-            if(result!= "verification  send yo your mail")
+            if (result != "verification  send To your mail")
                 return BadRequest(new { Message = result });
             return Ok(new { Message = result });
         }
 
         [HttpGet("verify")]
-        public async Task<IActionResult> Verify(string Email , string verificationCode)
+        public async Task<IActionResult> Verify(string Email, string verificationCode)
         {
             VerificationModel model = new VerificationModel();
             model.VerificationCode = verificationCode;
             model.Email = Email;
-            if (Email==null && verificationCode ==null)
+            if (Email == null && verificationCode == null)
                 return BadRequest(new { Message = "wrong params" });
 
             var result = await _authService.VerifyAsync(model);
@@ -41,35 +44,46 @@ namespace GAMAX.Services.Controllers
             if (!result.IsAuthenticated)
                 return BadRequest(new { Message = result.Message });
 
-            //SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+            SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
             string redirectUrl = "http://localhost:3000/login?verfiy=true";
+            //return Ok();
             return Redirect(redirectUrl);
-            
+
         }
 
         [HttpPost("token")]
-        public async Task<IActionResult> GetTokenAsync([FromBody]string ? refreshToken)
+        public async Task<IActionResult> GetTokenAsync()
         {
             var refreshTokenFromCookies = Request.Cookies["RefreshToken"];
-            if (refreshTokenFromCookies == null && refreshToken == null)
+            if (refreshTokenFromCookies == null)
             {
-                return BadRequest(new { Message = "Refresh Token Requird" });
+                return BadRequest(new AuthResponse
+                {
+                    Message = "Refresh Token Required",
+                    IsAuthenticated = false,
+                    IsInvaliedAccessToken = true,
+                    IsInvalidRefreshToken = true
+                });
             }
-            string NeededRefreshToken;
-            if (refreshTokenFromCookies != null)
-                  NeededRefreshToken = refreshTokenFromCookies;
-            else
-                NeededRefreshToken = refreshToken;
 
-            var result = await _authService.GetTokenAsync(NeededRefreshToken);
+            var result = await _authService.GetTokenAsync(refreshTokenFromCookies);
 
             if (!result.IsAuthenticated)
-                return Unauthorized(new { Message = result.Message });
+                return Unauthorized(new AuthResponse
+                {
+                    Message = result.Message,
+                    IsAuthenticated = false,
+                    IsInvaliedAccessToken = true,
+                    IsInvalidRefreshToken = true
+                });
 
             if (!string.IsNullOrEmpty(result.RefreshToken))
-                SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+            {
+                //SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+                SetAccessToken(result.Token,result.ExpiresOn);
+            }
 
-            return Ok(result);
+            return Ok();
         }
         
         [HttpPost("login")]
@@ -82,12 +96,21 @@ namespace GAMAX.Services.Controllers
             var result = await _authService.LoginAndGetTokenAsync(model);
 
             if (!result.IsAuthenticated)
-                return BadRequest(new { Message = "Wrong Email Or Password"});
+                return Unauthorized(new AuthResponse
+                {
+                    Message = result.Message,
+                    IsAuthenticated = false,
+                    IsInvaliedAccessToken = true,
+                    IsInvalidRefreshToken = true
+                });
 
             if (!string.IsNullOrEmpty(result.RefreshToken))
+            {
                 SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
-
-            return Ok(result);
+                SetAccessToken(result.Token, result.ExpiresOn);
+            }
+            //return RedirectToActionPermanent("GetProfileAcountData", "Accounts");
+            return Ok();
         }
 
         [HttpPost("addRole")]
@@ -110,46 +133,34 @@ namespace GAMAX.Services.Controllers
             });
         }
 
-        //[HttpGet("refreshToken")]
-        //public async Task<IActionResult> RefreshToken()
-        //{
-        //    var refreshToken = Request.Cookies["RefreshToken"];
-        //    if (refreshToken == null)
-        //        return BadRequest(new { Message = "Refresh Token Needed in Cookies" });
-
-        //    var result = await _authService.RefreshTokenAsync(refreshToken);
-
-        //    if (!result.IsAuthenticated)
-        //        return BadRequest(result);
-
-        //    SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
-
-        //    return Ok(result);
-        //}
-
-        [HttpPost("revokeToken")]
-        public async Task<IActionResult> RevokeToken([FromBody] RevokeToken model)
+        [HttpPost("revokeTokens")]
+        public async Task<IActionResult> RevokeToken()
         {
-            var token = Request.Cookies["RefreshToken"] ?? model.Token  ;
+            var Refreshtoken = Request.Cookies["RefreshToken"] ;
 
-            if (string.IsNullOrEmpty(token))
-                return BadRequest(new { Message ="Token is required!" });
+            if (string.IsNullOrEmpty(Refreshtoken))
+                return BadRequest(new { Message = "Refresh Token is required!" });
 
-            var result = await _authService.RevokeTokenAsync(token);
-            
+            var result = await _authService.RevokeTokenAsync(Refreshtoken);
+
             if (!result)
-                return BadRequest(new { Message = "Token is invalid!" });
+                return BadRequest(new { Message = "Refresh Token is invalid!" });
 
-            RemoveRefreshTokenFromCookie();
+            var accessToken = Request.Cookies["Authorization"];
+            if (accessToken != null)
+            {
+                RemoveTokenFromCookie("Authorization");
+            }
+
+            RemoveTokenFromCookie("RefreshToken");
             return Ok();
         }
-        
+
         [HttpPost("ResendConfirmMail")]
         public async Task<IActionResult> ResendConfirmMail(string Email)
         {
-            
             var result = await _authService.SendNewConfirmMail(Email);
-            if(result!= "verification  send yo your mail")
+            if (result != "verification  send to your mail")
                 return BadRequest(new
                 {
                     Message = result
@@ -161,7 +172,7 @@ namespace GAMAX.Services.Controllers
         public async Task<IActionResult> ResetPasswordCode(string Email)
         {
             var result = await _authService.SendResetPasswordMail(Email);
-            if(result!= "reset Password Code Semd to your mail")
+            if (result != "reset Password Code Send to your mail")
                 return BadRequest(new
                 {
                     Message = result
@@ -172,21 +183,34 @@ namespace GAMAX.Services.Controllers
         [HttpPost("UpdatePassword")]
         public async Task<IActionResult> UpdatePassword([FromBody] RessetPassword model)
         {
-            var encrypt = new Secuirty.AES_Security();
-            var Email = encrypt.Decrypt(model.Email);
+            var security = new Secuirty.AES_Security();
+            var Email = security.Decrypt(model.Email);
             model.Email = Email;
-            //model.Token = decodedToken;
             var result = await _authService.ResetPassword(model);
-            if(result)
+            if (result)
                 return Ok(result);
             return BadRequest(new
             {
                 Message = "your data is wrong!"
             });
         }
-
+        [HttpPost("UpdateUserPassword")]
+        public async Task<IActionResult> UpdateUserPassword([FromBody] UpdateUserPassword model)
+        {
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            if (userInfo.Uid.ToString().ToLower() != model.Id.ToLower())
+                return Forbid();
+            var result = await _authService.UpdateUserPassword(model);
+            if (result)
+                return Ok(result);
+            return BadRequest(new
+            {
+                Message = "your data is wrong!"
+            });
+        }
         private void SetRefreshTokenInCookie(string refreshToken, DateTime expires)
         {
+            RemoveTokenFromCookie("RefreshToken");
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
@@ -198,11 +222,26 @@ namespace GAMAX.Services.Controllers
 
             Response.Cookies.Append("RefreshToken", refreshToken, cookieOptions);
         }
-        private void RemoveRefreshTokenFromCookie()
+        private void SetAccessToken(string token , DateTime expires)
         {
-            if (Request.Cookies.TryGetValue("RefreshToken", out string refreshToken))
+            RemoveTokenFromCookie("Authorization");
+            var cookieOptions = new CookieOptions
             {
-                Response.Cookies.Delete("RefreshToken");
+                HttpOnly = true,
+                Expires = expires.ToLocalTime(),
+                Secure = true,
+                IsEssential = true,
+                SameSite = SameSiteMode.None
+            };
+
+            Response.Cookies.Append("Authorization", token, cookieOptions);
+        }
+        private void RemoveTokenFromCookie(string tokenName)
+        {
+            //RefreshToken //Authorization
+            if (Request.Cookies.TryGetValue(tokenName, out string refreshToken))
+            {
+                Response.Cookies.Delete(tokenName);
             }
         }
 

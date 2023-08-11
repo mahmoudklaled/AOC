@@ -1,4 +1,3 @@
-using Business;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NETCore.MailKit.Extensions;
@@ -9,15 +8,41 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using GAMAX.Services.MiddleWare;
-using Business.Authentication.Models;
 using Microsoft.Extensions.FileProviders;
 using Business.Accounts.Services;
 using Business.Posts.Services;
+using DataBase.Core;
+using DataBase.EF;
+using DataBase.Core.Models.Authentication;
+using Business;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+SharedFolderPaths.ProfilePhotos = builder.Configuration.GetValue<string>("SharedFolder:ProfilePhotos");
+SharedFolderPaths.CoverPhotos = builder.Configuration.GetValue<string>("SharedFolder:CoverPhotos");
+SharedFolderPaths.PostPhotos = builder.Configuration.GetValue<string>("SharedFolder:PostPhotos");
+SharedFolderPaths.PostVideos = builder.Configuration.GetValue<string>("SharedFolder:PostVideos");
+SharedFolderPaths.QuestionVideos = builder.Configuration.GetValue<string>("SharedFolder:QuestionVideos");
+SharedFolderPaths.QuestionPhotos = builder.Configuration.GetValue<string>("SharedFolder:QuestionPhotos");
+SharedFolderPaths.CommentsPhotos = builder.Configuration.GetValue<string>("SharedFolder:CommentsPhotos");
+SharedFolderPaths.CommentsVideos = builder.Configuration.GetValue<string>("SharedFolder:CommentsVideos");
+
+
+
+
+
+
+
+builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddNewtonsoftJson(options =>
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
 
 
 
@@ -27,11 +52,16 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
      .AddEntityFrameworkStores<ApplicationDbContext>()
      .AddDefaultTokenProviders();
 
+//builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 builder.Services.AddTransient<IMailingService, MailingService>();
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAcountService, AcountService>();
 builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<ICommentServices, CommentServices>();
+builder.Services.AddScoped<IReactServices, ReactsServices>();
 
 builder.Services.AddMailKit(config =>
 {
@@ -61,38 +91,17 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-builder.Services.AddControllers();
-
-
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSwaggerUI",
-        builder =>
-        {
-            builder.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
-        });
     options.AddPolicy("AllowAnyOrigin",
         builder =>
         {
-            builder.AllowAnyOrigin()
+            builder.WithOrigins("http://localhost:3000")
                    .AllowAnyMethod()
-                   .AllowAnyHeader();
+                   .AllowAnyHeader()
+                   .AllowCredentials();
         });
 });
-
-
-
-
-
-
-// Retrieve the configuration from the builder
-var configuration = builder.Configuration;
-
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-
 
 
 
@@ -109,6 +118,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+//TODO What is this ?
 var apiProjectPath = Directory.GetCurrentDirectory();
 var solutionPath = Directory.GetParent(apiProjectPath)?.FullName;
 var photosFolderPath = Path.Combine(solutionPath, "StaticFiles");
@@ -117,12 +127,12 @@ var photosFolderPath = Path.Combine(solutionPath, "StaticFiles");
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(photosFolderPath),
-    RequestPath = "/Photos"
+    RequestPath = "/ProfilePhotos"
 });
 
 // Define the routes that should skip token validation
 var routesToSkipTokenValidation = new List<string>
-{ 
+{
     "/api/Auth/register",
     "/api/Auth/verify",
     "/api/Auth/token",
@@ -132,7 +142,9 @@ var routesToSkipTokenValidation = new List<string>
     "/api/Auth/ResendConfirmMail",
     "/api/Auth/ResetPasswordCode",
     "/api/Auth/UpdatePassword",
-    "/api/StaticFiles/download"
+    "/api/StaticFiles/download",
+    "/api/StaticFiles/downloadProfilePhoto",
+    "/api/StaticFiles/downloadCoverPhoto"
 };
 
 // Configure the HTTP request pipeline.
@@ -144,31 +156,15 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
+app.UseCors("AllowAnyOrigin");
 app.UseWhen(context => !routesToSkipTokenValidation.Contains(context.Request.Path.Value), builder =>
 {
     builder.UseMiddleware<TokenValidationMiddleware>();
 });
-//app.UseWhen(context =>
-//    !context.Request.Path.StartsWithSegments("/Photos") &&
-//    !context.Request.Path.StartsWithSegments("/StaticFiles"), builder =>
-//    {
-//        builder.UseMiddleware<TokenValidationMiddleware>();
-//    });
-app.UseCors(builder =>
-{
-    builder.WithOrigins("*")
-        .AllowAnyOrigin()
-        .AllowAnyMethod()
-        .AllowAnyHeader();
-});
+
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
 app.MapControllers();
 
 app.Run();

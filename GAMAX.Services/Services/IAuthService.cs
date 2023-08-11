@@ -1,4 +1,4 @@
-﻿using Business.Authentication.Models;
+﻿using DataBase.Core.Models.Authentication;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace GAMAX.Services.Services
@@ -15,6 +15,7 @@ namespace GAMAX.Services.Services
         Task<string> SendNewConfirmMail(string email);
         Task<string> SendResetPasswordMail(string email);
         Task<bool> ResetPassword(RessetPassword user);
+        Task<bool> UpdateUserPassword(UpdateUserPassword updateUser);
     }
     
 }

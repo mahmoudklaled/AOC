@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using GAMAX.Services.Dto;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
@@ -18,31 +19,26 @@ namespace GAMAX.Services.MiddleWare
 
         public async Task InvokeAsync(HttpContext context)
         {
-            // Retrieve the access token from the request headers
-            string accessToken = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-
+            string accessToken = context.Request.Cookies["Authorization"];
             if (!string.IsNullOrEmpty(accessToken))
             {
                 try
                 {
-                    // Validate the access token
                     var tokenHandler = new JwtSecurityTokenHandler();
                     var validationParameters = GetTokenValidationParameters();
-
-                    // Validate the token
                     ClaimsPrincipal claimsPrincipal = tokenHandler.ValidateToken(accessToken, validationParameters, out SecurityToken validatedToken);
-
-                    // Set the validated claims principal on the current request
                     context.User= claimsPrincipal;
-
-                    // Get the roles from the token and set them in the context
                     var roles = claimsPrincipal.FindAll("roles").Select(c => c.Value).ToList();
                     context.Items["Roles"] = roles;
                 }
                 catch (SecurityTokenException)
                 {
-                    // Token is invalid or expired
-                    var responseMessage = new { Message = "Token is invalid or Expired" };
+                    var responseMessage = new  AuthResponse { 
+                        Message = "Access Token is invalid or Expired" ,
+                        IsAuthenticated = false ,
+                        IsInvaliedAccessToken = true ,
+                        IsInvalidRefreshToken=false
+                    };
                     var responseJson = JsonSerializer.Serialize(responseMessage);
                     context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                     context.Response.ContentType = "application/json";
@@ -53,7 +49,7 @@ namespace GAMAX.Services.MiddleWare
             else
             {
                 // Access token is missing
-                var responseMessage = new { Message = "Token is Missing" };
+                var responseMessage = new { Message = "Access Token is Missing!" };
                 var responseJson = JsonSerializer.Serialize(responseMessage);
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 context.Response.ContentType = "application/json";
