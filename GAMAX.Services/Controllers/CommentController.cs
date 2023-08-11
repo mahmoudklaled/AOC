@@ -15,15 +15,15 @@ namespace GAMAX.Services.Controllers
             _commentServices = commentServices;
         }
         [HttpPost("GetPostComments")]
-        public async Task<IActionResult> GetPostComments(Guid postId, int PageNumber)
+        public async Task<IActionResult> GetPostComments(Guid postId, DateTime? Time)
         {
-            var comments = await _commentServices.GetPostCommentsAsync(postId, PageNumber);
+            var comments = await _commentServices.GetPostCommentsAsync(postId, Time);
             return Ok(comments);
         }
         [HttpPost("GetQuestionComments")]
-        public async Task<IActionResult> GetQuestionComments(Guid postId, int PageNumber)
+        public async Task<IActionResult> GetQuestionComments(Guid postId, DateTime? Time)
         {
-            var comments = await _commentServices.GetQuestionCommentsAsync(postId, PageNumber);
+            var comments = await _commentServices.GetQuestionCommentsAsync(postId, Time);
            return Ok(comments);
         }
         [HttpPost("AddPostComment")]

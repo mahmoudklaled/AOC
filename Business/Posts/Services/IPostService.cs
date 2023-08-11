@@ -4,9 +4,9 @@ namespace Business.Posts.Services
 {
     public interface IPostService
     {
-        Task<List<DomainModels.DTO.PostDTO>> GetPostAsync(int pageNumber);
-        Task<List<DomainModels.DTO.QuestionPostDTO>> GetQuestionPostAsync(int pageNumber);
-        Task<List<DomainModels.DTO.AllPostDTO>> GetPostTypesAsync(int pageNumber);
+        Task<List<DomainModels.DTO.PostDTO>> GetPostAsync(DateTime? Time);
+        Task<List<DomainModels.DTO.QuestionPostDTO>> GetQuestionPostAsync(DateTime? Time);
+        Task<List<DomainModels.DTO.AllPostDTO>> GetPostTypesAsync(DateTime? Time);
         Task<DomainModels.DTO.PostDTO> GetPostByIDAsync(Guid id);
         Task<DomainModels.DTO.QuestionPostDTO> GetQuestionPostByIdAsync(Guid id);
         Task<List<DomainModels.DTO.PostDTO>> GetPersonalPostAsync(int pageNumber,Guid userID);
