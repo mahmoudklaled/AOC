@@ -147,7 +147,7 @@ namespace Business.Posts.Services
         public async Task<List<ReactsDTO>> GetQuestionReacts(Guid questionId)
         {
             string[] includes = { "UserAccounts" };
-            var reacts = await _unitOfWork.QuestionPost.FindAllAsync(r => r.Id == questionId, includes);
+            var reacts = await _unitOfWork.QuestionPost.FindAsync(r => r.Id == questionId, includes);
             var reactDTO = OMapper.Mapper.Map<List<ReactsDTO>>(reacts);
             return reactDTO;
         }
