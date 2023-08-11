@@ -15,7 +15,7 @@ using DataBase.Core;
 using DataBase.EF;
 using DataBase.Core.Models.Authentication;
 using Business;
-
+ 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
