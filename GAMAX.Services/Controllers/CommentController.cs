@@ -1,10 +1,5 @@
-﻿using Business.Enums;
-using Business.Posts.Models;
-using Business.Posts.Services;
-using Microsoft.AspNetCore.Http;
+﻿using GAMAX.Services.Dto;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
-using System.Security.Claims;
 
 namespace GAMAX.Services.Controllers
 {
@@ -13,57 +8,144 @@ namespace GAMAX.Services.Controllers
     public class CommentController : ControllerBase
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ICommentServices _commentServices;
-        public CommentController(IHttpContextAccessor httpContextAccessor, ICommentServices commentServices)
+        private readonly Business.Posts.Services.ICommentServices _commentServices;
+        public CommentController(IHttpContextAccessor httpContextAccessor, Business.Posts.Services.ICommentServices commentServices)
         {
             _httpContextAccessor = httpContextAccessor;
             _commentServices = commentServices;
         }
         [HttpPost("GetPostComments")]
-        public async Task<IActionResult> GetPostComments(Guid postId, string postType,int countToSkip)
+        public async Task<IActionResult> GetPostComments(Guid postId, DateTime? Time)
         {
-            PostsTypes postsTypes;
-            if(Enum.TryParse(postType, out postsTypes))
-                return Ok(_commentServices.GetCommentsAsync(postId, postsTypes, countToSkip));
-            return BadRequest(new
-            {
-                message = "Wrong Post Type !"
-            }) ; 
+            var comments = await _commentServices.GetPostCommentsAsync(postId, Time);
+            return Ok(comments);
         }
-        [HttpPost("AddComment")]
-        public async Task<IActionResult> AddComment([FromBody]CommentRequest comment ,string ? userEmail)
+        [HttpPost("GetQuestionComments")]
+        public async Task<IActionResult> GetQuestionComments(Guid postId, DateTime? Time)
         {
-            HttpContext context = _httpContextAccessor.HttpContext;
-            string email = context.User.FindFirst(ClaimTypes.Email)?.Value;
-            if (email == null && userEmail==null)
-                return BadRequest(new
-                {
-                    message = "Email Needed !"
-                });
-            if (email != null)
-                return Ok(_commentServices.AddCommentAsync(comment, email));
-            else if(userEmail!=null) return Ok(_commentServices.AddCommentAsync(comment, userEmail));
-            return BadRequest(new
+            var comments = await _commentServices.GetQuestionCommentsAsync(postId, Time);
+           return Ok(comments);
+        }
+        [HttpPost("AddPostComment")]
+        public async Task<IActionResult> AddPostComment([FromForm] DomainModels.DTO.AddCommentRequest requestModel)
+        {
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var cmmnt = new DomainModels.Models.AddCommentRequest
             {
-                message = "Fail"
+                comment = requestModel.comment,
+                Photo = requestModel.Photo,
+                Vedio = requestModel.Vedio,
+                PostId = requestModel.PostId,
+            };
+            var (result,id) = await _commentServices.AddPostCommentAsync(cmmnt, userInfo.Email);
+            if (result)
+            {
+                var commentDto = await _commentServices.GetPostCommentByIdAsync(id);
+                return Ok(commentDto);
+            }
+
+            return BadRequest(new {
+                Message = "Fail"
             });
         }
-        [HttpPost("DeleteComment")]
-        public async Task<IActionResult> DeleteComment([FromBody] Guid commentId, string? userEmail)
+        [HttpPost("AddQuestionComment")]
+        public async Task<IActionResult> AddQuestionComment([FromForm] DomainModels.DTO.AddCommentRequest requestModel)
         {
-            HttpContext context = _httpContextAccessor.HttpContext;
-            string email = context.User.FindFirst(ClaimTypes.Email)?.Value;
-            if (email == null && userEmail == null)
-                return BadRequest(new
-                {
-                    message = "Email Needed !"
-                });
-            if (email != null)
-                return Ok(_commentServices.DeleteCommentAsync(commentId, email));
-            else if (userEmail != null) return Ok(_commentServices.DeleteCommentAsync(commentId, userEmail));
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var cmmnt = new DomainModels.Models.AddCommentRequest
+            {
+                comment = requestModel.comment,
+                Photo = requestModel.Photo,
+                Vedio = requestModel.Vedio,
+                PostId = requestModel.PostId,
+            };
+            var (result,id) = await _commentServices.AddQuestionCommentAsync(cmmnt, userInfo.Email);
+            if (result)
+            {
+                var commentDto = await _commentServices.GetQuestionCommentByIdAsync(id);
+                return Ok(commentDto);
+            }
+
             return BadRequest(new
             {
-                message = "Fail!"
+                Message = "Fail"
+            });
+        }
+        [HttpPost("DeletePostComment")]
+        public async Task<IActionResult> DeletePostComment( Guid commentId)
+        {
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var result = await _commentServices.DeletePostCommentAsync(commentId, userInfo.Email);
+            if (result)
+                return Ok();
+
+            return BadRequest(new
+            {
+                Message = "Fail"
+            });
+        }
+        [HttpPost("DeleteQuestionComment")]
+        public async Task<IActionResult> DeleteQuestionComment( Guid commentId)
+        {
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var result = await _commentServices.DeleteQuestionCommentAsync(commentId, userInfo.Email);
+            if (result)
+                return Ok();
+
+            return BadRequest(new
+            {
+                Message = "Fail"
+            });
+        }
+        [HttpPost("UpdatePostComment")]
+        public async Task<IActionResult> UpdatePostComment([FromForm] DomainModels.DTO.CommentUpdateRequest requestModel)
+        {
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var cmmnt = new DomainModels.Models.CommentUpdateRequest
+            {
+                comment = requestModel.comment,
+                Photo = requestModel.Photo,
+                Vedio = requestModel.Vedio,
+                Id= requestModel.Id,
+                DeletedPhotoId= requestModel.DeletedPhotoId,
+                DeletedVideoId=requestModel.DeletedVedioId
+                
+            };
+            var result = await _commentServices.UpdatePostCommentAsync(cmmnt, userInfo.Email);
+            if (result)
+            {
+                var commentDto = await _commentServices.GetPostCommentByIdAsync(cmmnt.Id);
+                return Ok(commentDto);
+            }
+            return BadRequest(new
+            {
+                Message = "Fail"
+            });
+
+        }
+        [HttpPost("UpdateQuestionComment")]
+        public async Task<IActionResult> UpdateQuestionComment([FromForm] DomainModels.DTO.CommentUpdateRequest requestModel)
+        {
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var cmmnt = new DomainModels.Models.CommentUpdateRequest
+            {
+                comment = requestModel.comment,
+                Photo = requestModel.Photo,
+                Vedio = requestModel.Vedio,
+                Id = requestModel.Id,
+                DeletedPhotoId = requestModel.DeletedPhotoId,
+                DeletedVideoId = requestModel.DeletedVedioId
+
+            };
+            var result = await _commentServices.UpdateQuestionCommentAsync(cmmnt, userInfo.Email);
+            if (result)
+            {
+                var commentDto = await _commentServices.GetQuestionCommentByIdAsync(cmmnt.Id);
+                return Ok(commentDto);
+            }
+            return BadRequest(new
+            {
+                Message = "Fail"
             });
         }
     }
