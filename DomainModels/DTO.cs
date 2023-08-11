@@ -124,6 +124,7 @@ namespace DomainModels.DTO
         public string Date { get; set; }
         public string UserFirstName { get; set; }
         public string UserLastName { get; set; }
+        public DateTime Time { get; set; }
         public Guid UserId { get; set; }
         public BasePhoto? CommentPhoto { get; set; }
         public BaseVedio? CommentVedio { get; set; }
