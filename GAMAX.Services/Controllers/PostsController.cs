@@ -16,15 +16,15 @@ namespace GAMAX.Services.Controllers
             _postService = postService;
         }
         [HttpPost("GetAllPosts")]  
-        public async Task<IActionResult> GetAllPosts(int pageNumber)
+        public async Task<IActionResult> GetAllPosts(DateTime? Time)
         {
-            var posts = await _postService.GetPostAsync(pageNumber);
+            var posts = await _postService.GetPostAsync(Time);
             return Ok(posts);
         }
         [HttpPost("GetAllQuestionPosts")]
-        public async Task<IActionResult> GetAllQuestionPosts(int pageNumber)
+        public async Task<IActionResult> GetAllQuestionPosts(DateTime? Time)
         {
-            var posts = await _postService.GetQuestionPostAsync(pageNumber);
+            var posts = await _postService.GetQuestionPostAsync(Time);
             return Ok(posts);
         }
         [HttpPost("GetPostByID")]
@@ -40,9 +40,9 @@ namespace GAMAX.Services.Controllers
             return Ok(question);
         }
         [HttpPost("GetAllPostTypes")]
-        public async Task<IActionResult> GetAllPostTypes(int pageNumber)
+        public async Task<IActionResult> GetAllPostTypes(DateTime? Time)
         {
-            var Posts = await _postService.GetPostTypesAsync(pageNumber);
+            var Posts = await _postService.GetPostTypesAsync(Time);
             return Ok(Posts);
         }
         [HttpPost("GetAllPersonalPosts")]

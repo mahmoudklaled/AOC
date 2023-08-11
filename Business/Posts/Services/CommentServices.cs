@@ -222,20 +222,29 @@ namespace Business.Posts.Services
             return await _unitOfWork.Complete() > 0;
         }
         // ALL NEW HERE
-        public async Task<List<DomainModels.DTO.CommentDTO>> GetPostCommentsAsync(Guid postId, int pageNumber)
+        public async Task<List<DomainModels.DTO.CommentDTO>> GetPostCommentsAsync(Guid postId, DateTime? Time)
         {
+
             string[] includes = { "PostCommentPhoto", "PostCommentVedio", "PostCommentReacts", "UserAccounts" };
-            var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
-            var comments = await _unitOfWork.PostComment.FindAllAsync(p => p.PostId == postId, take,skip, includes , p => p.Date, OrderBy.Ascending);
+            //var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
+            IEnumerable<PostComment> comments ;
+            if(Time==null)
+                comments =await _unitOfWork.PostComment.FindAllAsync(p => p.PostId == postId, _pageSize,0, includes , p => p.Date, OrderBy.Ascending);
+            else
+                comments = await _unitOfWork.PostComment.FindAllAsync(p => p.PostId == postId && p.Date<Time, _pageSize, 0, includes, p => p.Date, OrderBy.Ascending);
+            
             var CommentsDTO = OMapper.Mapper.Map<IEnumerable<DomainModels.DTO.CommentDTO>>(comments);
             return CommentsDTO.ToList();
         }
-
-        public async Task<List<DomainModels.DTO.CommentDTO>> GetQuestionCommentsAsync(Guid postId, int pageNumber)
+        public async Task<List<DomainModels.DTO.CommentDTO>> GetQuestionCommentsAsync(Guid postId, DateTime? Time)
         {
             string[] includes = { "QuestionCommentPhoto", "QuestionCommentVedio", "QuestionCommentReacts", "UserAccounts" };
-            var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
-            var comments = await _unitOfWork.QuestionComment.FindAllAsync(p => p.QuestionPostId == postId, take, skip, includes, p => p.Date, OrderBy.Ascending);
+            //var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
+            IEnumerable<QuestionComment> comments;
+            if(Time==null)
+                comments = await _unitOfWork.QuestionComment.FindAllAsync(p => p.QuestionPostId == postId, _pageSize, 0, includes, p => p.Date, OrderBy.Ascending);
+            else
+                comments = await _unitOfWork.QuestionComment.FindAllAsync(p => p.QuestionPostId == postId && p.Date<Time, _pageSize, 0, includes, p => p.Date, OrderBy.Ascending);
             var CommentsDTO = OMapper.Mapper.Map<IEnumerable<DomainModels.DTO.CommentDTO>>(comments);
             return CommentsDTO.ToList();
         }
@@ -246,7 +255,6 @@ namespace Business.Posts.Services
             var CommentsDTO = OMapper.Mapper.Map<DomainModels.DTO.CommentDTO>(comment);
             return CommentsDTO;
         }
-
         public async Task<DomainModels.DTO.CommentDTO> GetQuestionCommentByIdAsync(Guid commentId)
         {
             string[] includes = { "QuestionCommentPhoto", "QuestionCommentVedio", "QuestionCommentReacts", "UserAccounts" };
@@ -254,7 +262,6 @@ namespace Business.Posts.Services
             var CommentsDTO = OMapper.Mapper.Map<DomainModels.DTO.CommentDTO>(comment);
             return CommentsDTO;
         }
-
         public async Task<int>GetPostCommentCount(Guid postId)
         {
             var CommentCount = await _unitOfWork.PostComment.CountAsync(C=>C.PostId== postId);

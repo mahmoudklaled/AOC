@@ -353,39 +353,39 @@ namespace Business.Posts.Services
             var result = await  _unitOfWork.Complete();
         }
         //ALL NEW HERE
-        public async Task<List<DomainModels.DTO.PostDTO>> GetPostAsync(int pageNumber)
+        public async Task<List<DomainModels.DTO.PostDTO>> GetPostAsync(DateTime ? Time)
         {
-            var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
+            //var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
             string[] includes = { "Photos", "Vedios", "Reacts", "UserAccounts" };
-            var posts = await _unitOfWork.Post.FindAllAsync(null, take, skip, includes, p => p.TimeCreated, OrderBy.Descending);
+            var posts= await _unitOfWork.Post.FindAllAsync(p => Time == null || p.TimeCreated < Time, _pageSize, 0, includes, p => p.TimeCreated, OrderBy.Descending);
             var PostsDTO = OMapper.Mapper.Map<List<DomainModels.DTO.PostDTO>>(posts);
             foreach(var  post in PostsDTO) { 
                 var commentCount   = await  _commentServices.GetPostCommentCount(post.Id);
-                var CommentDtoList = await _commentServices.GetPostCommentsAsync(post.Id, 1);
+                var CommentDtoList = await _commentServices.GetPostCommentsAsync(post.Id, null);
                 post.commentsCount= commentCount;
                 post.Comments= CommentDtoList;
             }
             return PostsDTO;
         }
-        public async Task<List<DomainModels.DTO.QuestionPostDTO>> GetQuestionPostAsync(int pageNumber)
+        public async Task<List<DomainModels.DTO.QuestionPostDTO>> GetQuestionPostAsync(DateTime? Time)
         {
-            var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber,_pageSize);
+            //var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber,_pageSize);
             string[] includes = { "Photos", "Vedios", "Reacts", "UserAccounts" };
-            var posts = await _unitOfWork.QuestionPost.FindAllAsync(null, take, skip, includes, p => p.TimeCreated, OrderBy.Descending);
+            var posts = await _unitOfWork.QuestionPost.FindAllAsync(p => Time == null || p.TimeCreated < Time, _pageSize, 0, includes, p => p.TimeCreated, OrderBy.Descending);
             var QuestionPostsDTO = OMapper.Mapper.Map<List<DomainModels.DTO.QuestionPostDTO>>(posts);
             foreach (var questionPost in QuestionPostsDTO)
             {
                 var commentCount = await _commentServices.GetQuestionPostCommentCount(questionPost.Id);
-                var CommentDtoList = await _commentServices.GetQuestionCommentsAsync(questionPost.Id, 1);
+                var CommentDtoList = await _commentServices.GetQuestionCommentsAsync(questionPost.Id, null);
                 questionPost.commentsCount = commentCount;
                 questionPost.Comments = CommentDtoList;
             }
             return QuestionPostsDTO;
         }
-        public async Task<List<DomainModels.DTO.AllPostDTO>> GetPostTypesAsync(int pageNumber)
+        public async Task<List<DomainModels.DTO.AllPostDTO>> GetPostTypesAsync(DateTime? Time)
         {
-            var posts = await GetPostAsync(pageNumber);
-            var QPosts = await GetQuestionPostAsync(pageNumber);
+            var posts = await GetPostAsync(Time);
+            var QPosts = await GetQuestionPostAsync(Time);
             var AllPostDTO = OMapper.Mapper.Map<List<DomainModels.DTO.AllPostDTO>>(posts);
             var AllQuestionDTO = OMapper.Mapper.Map<List<DomainModels.DTO.AllPostDTO>>(QPosts);
             AllPostDTO.AddRange(AllQuestionDTO);
@@ -397,7 +397,7 @@ namespace Business.Posts.Services
             var post = await _unitOfWork.Post.FindAsync(p => p.Id == id, includes);
             var PostDTO = OMapper.Mapper.Map<DomainModels.DTO.PostDTO>(post);
             var commentCount = await _commentServices.GetPostCommentCount(post.Id);
-            var CommentDtoList = await _commentServices.GetPostCommentsAsync(post.Id, 1);
+            var CommentDtoList = await _commentServices.GetPostCommentsAsync(post.Id, null);
             PostDTO.commentsCount = commentCount;
             PostDTO.Comments = CommentDtoList;
             return PostDTO;
@@ -408,7 +408,7 @@ namespace Business.Posts.Services
             var post = await _unitOfWork.QuestionPost.FindAsync(p => p.Id == id, includes);
             var PostDTO = OMapper.Mapper.Map<DomainModels.DTO.QuestionPostDTO>(post);
             var commentCount = await _commentServices.GetPostCommentCount(post.Id);
-            var CommentDtoList = await _commentServices.GetPostCommentsAsync(post.Id, 1);
+            var CommentDtoList = await _commentServices.GetPostCommentsAsync(post.Id, null);
             PostDTO.commentsCount = commentCount;
             PostDTO.Comments = CommentDtoList;
             return PostDTO;
@@ -422,7 +422,7 @@ namespace Business.Posts.Services
             foreach (var post in PostsDTO)
             {
                 var commentCount = await _commentServices.GetPostCommentCount(post.Id);
-                var CommentDtoList = await _commentServices.GetPostCommentsAsync(post.Id, 1);
+                var CommentDtoList = await _commentServices.GetPostCommentsAsync(post.Id, null);
                 post.commentsCount = commentCount;
                 post.Comments = CommentDtoList;
             }
@@ -437,7 +437,7 @@ namespace Business.Posts.Services
             foreach (var questionPost in QuestionPostsDTO)
             {
                 var commentCount = await _commentServices.GetQuestionPostCommentCount(questionPost.Id);
-                var CommentDtoList = await _commentServices.GetQuestionCommentsAsync(questionPost.Id, 1);
+                var CommentDtoList = await _commentServices.GetQuestionCommentsAsync(questionPost.Id, null);
                 questionPost.commentsCount = commentCount;
                 questionPost.Comments = CommentDtoList;
             }
