@@ -53,7 +53,7 @@ namespace DomainModels.DTO
         public ICollection<BasePhoto> Photos { get; set; }
         public ICollection<BaseVedio> Vedios { get; set; }
         public ICollection<CommentDTO> Comments { get; set; }
-        public ICollection<BaseReact> Reacts { get; set; }
+        public ICollection<BaseReact> React { get; set; }
         public int commentsCount { get; set; }
         public Guid UserAccountsId { get; set; }
         public string PostUserFirstName { get; set; }
@@ -68,7 +68,7 @@ namespace DomainModels.DTO
         public ICollection<BasePhoto> Photos { get; set; }
         public ICollection<BaseVedio> Vedios { get; set; }
         public ICollection<CommentDTO> Comments { get; set; }
-        public ICollection<BaseReact> Reacts { get; set; }
+        public ICollection<BaseReact> React { get; set; }
         public int commentsCount { get; set; }
         public Guid UserAccountsId { get; set; }
         public string PostUserFirstName { get; set; }
@@ -87,7 +87,7 @@ namespace DomainModels.DTO
         public ICollection<BasePhoto> Photos { get; set; }
         public ICollection<BaseVedio> Vedios { get; set; }
         public ICollection<CommentDTO> Comments { get; set; }
-        public ICollection<BaseReact> Reacts { get; set; }
+        public ICollection<BaseReact> React { get; set; }
         public int commentsCount { get; set; }
         public Guid UserAccountsId { get; set; }
         public string PostUserFirstName { get; set; }
