@@ -22,7 +22,7 @@ namespace DomainModels
                 .ForMember(dest => dest.UserFirstName, src => src.MapFrom(src => src.UserAccounts.FirstName))
                 .ForMember(dest => dest.UserLastName, src => src.MapFrom(src => src.UserAccounts.LastName))
                 .ForMember(dest => dest.UserId, src => src.MapFrom(src => src.UserAccounts.Id))
-                .ForMember(dest => dest.CommentReacts, src => src.MapFrom(src => src.PostCommentReacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts , UserAccountsId = pp.UserAccountsId }).ToList()));
+                .ForMember(dest => dest.CommentReacts, src => src.MapFrom(src => src.PostCommentReacts.Select(pp => new ReactsDTO { Id = pp.Id, react = pp.react , UserId = pp.UserAccountsId }).ToList()));
 
 
             CreateMap<QuestionComment, DTO.CommentDTO>()
@@ -33,17 +33,17 @@ namespace DomainModels
                 .ForMember(dest => dest.UserFirstName, src => src.MapFrom(src => src.UserAccounts.FirstName))
                 .ForMember(dest => dest.UserLastName, src => src.MapFrom(src => src.UserAccounts.LastName))
                 .ForMember(dest => dest.UserId, src => src.MapFrom(src => src.UserAccounts.Id))
-                .ForMember(dest => dest.CommentReacts, src => src.MapFrom(src => src.QuestionCommentReacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts , UserAccountsId =pp.UserAccountsId}).ToList()));
+                .ForMember(dest => dest.CommentReacts, src => src.MapFrom(src => src.QuestionCommentReacts.Select(pp => new ReactsDTO { Id = pp.Id, react = pp.react , UserId =pp.UserAccountsId}).ToList()));
 
             CreateMap<Post, DTO.PostDTO>()
                 .ForMember(dest => dest.Time, src => src.MapFrom(src => src.TimeCreated))
                 .ForMember(dest => dest.Photos, src => src.MapFrom(src => src.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList()))
                 .ForMember(dest => dest.Vedios, src => src.MapFrom(src => src.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList()))
                 .ForMember(dest => dest.TimeCreated, src => src.MapFrom(src => TimeHelper.ConvertTimeCreateToString(src.TimeCreated)))
-                .ForMember(dest => dest.PostUserFirstName, src => src.MapFrom(src => src.UserAccounts.FirstName))
-                .ForMember(dest => dest.PostUserLastName, src => src.MapFrom(src => src.UserAccounts.LastName))
-                .ForMember(dest => dest.UserAccountsId, src => src.MapFrom(src => src.UserAccounts.Id))
-                .ForMember(dest => dest.Reacts, src => src.MapFrom(src => src.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts, UserAccountsId = pp.UserAccountsId }).ToList()));
+                .ForMember(dest => dest.UserFirstName, src => src.MapFrom(src => src.UserAccounts.FirstName))
+                .ForMember(dest => dest.UserLastName, src => src.MapFrom(src => src.UserAccounts.LastName))
+                .ForMember(dest => dest.UserId, src => src.MapFrom(src => src.UserAccounts.Id))
+                .ForMember(dest => dest.Reacts, src => src.MapFrom(src => src.Reacts.Select(pp => new ReactsDTO { Id = pp.Id, react = pp.react, UserId = pp.UserAccountsId }).ToList()));
 
 
             CreateMap<QuestionPost, DTO.QuestionPostDTO>()
@@ -51,10 +51,10 @@ namespace DomainModels
                 .ForMember(dest => dest.Photos, src => src.MapFrom(src => src.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList()))
                 .ForMember(dest => dest.Vedios, src => src.MapFrom(src => src.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList()))
                 .ForMember(dest => dest.TimeCreated, src => src.MapFrom(src => TimeHelper.ConvertTimeCreateToString(src.TimeCreated)))
-                .ForMember(dest => dest.PostUserFirstName, src => src.MapFrom(src => src.UserAccounts.FirstName))
-                .ForMember(dest => dest.PostUserLastName, src => src.MapFrom(src => src.UserAccounts.LastName))
-                .ForMember(dest => dest.UserAccountsId, src => src.MapFrom(src => src.UserAccounts.Id))
-                .ForMember(dest => dest.Reacts, src => src.MapFrom(src => src.Reacts.Select(pp => new BaseReact { Id = pp.Id, reacts = pp.reacts , UserAccountsId = pp.UserAccountsId }).ToList()));
+                .ForMember(dest => dest.UserFirstName, src => src.MapFrom(src => src.UserAccounts.FirstName))
+                .ForMember(dest => dest.UserLastName, src => src.MapFrom(src => src.UserAccounts.LastName))
+                .ForMember(dest => dest.UserId, src => src.MapFrom(src => src.UserAccounts.Id))
+                .ForMember(dest => dest.Reacts, src => src.MapFrom(src => src.Reacts.Select(pp => new ReactsDTO { Id = pp.Id, react = pp.react , UserId = pp.UserAccountsId }).ToList()));
 
 
             CreateMap<DTO.PostDTO, DTO.AllPostDTO>()

@@ -25,7 +25,7 @@ namespace Business.Posts.Services
             {
                 Id = Guid.NewGuid(),
                 PostId = post.Id,
-                reacts = reactRequest.ReactType,
+                react = reactRequest.ReactType,
                 UserAccountsId = user.Id
             };
             await _unitOfWork.PostReact.AddAsync(react);
@@ -41,7 +41,7 @@ namespace Business.Posts.Services
             {
                 Id = Guid.NewGuid(),
                 PostCommentId = Comment.Id,
-                reacts = reactRequest.ReactType,
+                react = reactRequest.ReactType,
                 UserAccountsId = user.Id
             };
             await _unitOfWork.PostCommentReact.AddAsync(react);
@@ -57,7 +57,7 @@ namespace Business.Posts.Services
             {
                 Id = Guid.NewGuid(),
                 QuestionPostId = post.Id,
-                reacts = reactRequest.ReactType,
+                react = reactRequest.ReactType,
                 UserAccountsId = user.Id
             };
             await _unitOfWork.QuestionReact.AddAsync(react);
@@ -73,7 +73,7 @@ namespace Business.Posts.Services
             {
                 Id = Guid.NewGuid(),
                 QuestionCommentId = Comment.Id,
-                reacts = reactRequest.ReactType,
+                react = reactRequest.ReactType,
                 UserAccountsId= user.Id
             };
             await _unitOfWork.QuestionCommentReact.AddAsync(react);
@@ -176,7 +176,7 @@ namespace Business.Posts.Services
         public async Task<ReactsDTO> GetReactByIdOnQuestionComment(Guid reactId)
         {
             string[] includes = { "UserAccounts" };
-            var react = await _unitOfWork.QuestionCommentReact.FindAllAsync(r => r.Id == reactId, includes);
+            var react = await _unitOfWork.QuestionCommentReact.FindAsync(r => r.Id == reactId, includes);
             var reactDTO = OMapper.Mapper.Map<ReactsDTO>(react);
             return reactDTO;
         }
@@ -187,7 +187,7 @@ namespace Business.Posts.Services
             var react = await _unitOfWork.PostCommentReact.FindAsync(r => r.Id == reactRequest.ReactId);
             if ((react == null || user == null) || react.UserAccountsId != user.Id)
                 return false;
-            react.reacts = reactRequest.ReactType;
+            react.react = reactRequest.ReactType;
             _unitOfWork.PostCommentReact.Update(react);
             return await _unitOfWork.Complete() > 0;
         }
@@ -198,7 +198,7 @@ namespace Business.Posts.Services
             var react = await _unitOfWork.PostReact.FindAsync(r => r.Id == reactRequest.ReactId);
             if ((react == null || user == null) || react.UserAccountsId != user.Id)
                 return false;
-            react.reacts = reactRequest.ReactType;
+            react.react = reactRequest.ReactType;
             _unitOfWork.PostReact.Update(react);
             return await _unitOfWork.Complete() > 0;
         }
@@ -209,7 +209,7 @@ namespace Business.Posts.Services
             var react = await _unitOfWork.QuestionCommentReact.FindAsync(r => r.Id == reactRequest.ReactId);
             if ((react == null || user == null) || react.UserAccountsId != user.Id)
                 return false;
-            react.reacts = reactRequest.ReactType;
+            react.react = reactRequest.ReactType;
             _unitOfWork.QuestionCommentReact.Update(react);
             return await _unitOfWork.Complete() > 0;
         }
@@ -220,7 +220,7 @@ namespace Business.Posts.Services
             var react = await _unitOfWork.QuestionReact.FindAsync(r => r.Id == reactRequest.ReactId);
             if ((react == null || user == null) || react.UserAccountsId != user.Id)
                 return false;
-            react.reacts = reactRequest.ReactType;
+            react.react = reactRequest.ReactType;
             _unitOfWork.QuestionReact.Update(react);
             return await _unitOfWork.Complete() > 0;
         }

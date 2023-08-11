@@ -53,11 +53,11 @@ namespace DomainModels.DTO
         public ICollection<BasePhoto> Photos { get; set; }
         public ICollection<BaseVedio> Vedios { get; set; }
         public ICollection<CommentDTO> Comments { get; set; }
-        public ICollection<BaseReact> Reacts { get; set; }
+        public ICollection<ReactsDTO> Reacts { get; set; }
         public int commentsCount { get; set; }
-        public Guid UserAccountsId { get; set; }
-        public string PostUserFirstName { get; set; }
-        public string PostUserLastName { get; set; }
+        public Guid UserId { get; set; }
+        public string UserFirstName { get; set; }
+        public string UserLastName { get; set; }
         public DateTime Time { get; set; }
     }
     public record PostDTO
@@ -68,11 +68,11 @@ namespace DomainModels.DTO
         public ICollection<BasePhoto> Photos { get; set; }
         public ICollection<BaseVedio> Vedios { get; set; }
         public ICollection<CommentDTO> Comments { get; set; }
-        public ICollection<BaseReact> Reacts { get; set; }
+        public ICollection<ReactsDTO> Reacts { get; set; }
         public int commentsCount { get; set; }
-        public Guid UserAccountsId { get; set; }
-        public string PostUserFirstName { get; set; }
-        public string PostUserLastName { get; set; }
+        public Guid UserId { get; set; }
+        public string UserFirstName { get; set; }
+        public string UserLastName { get; set; }
         public DateTime Time { get; set; }
 
     }
@@ -87,11 +87,11 @@ namespace DomainModels.DTO
         public ICollection<BasePhoto> Photos { get; set; }
         public ICollection<BaseVedio> Vedios { get; set; }
         public ICollection<CommentDTO> Comments { get; set; }
-        public ICollection<BaseReact> Reacts { get; set; }
+        public ICollection<ReactsDTO> Reacts { get; set; }
         public int commentsCount { get; set; }
-        public Guid UserAccountsId { get; set; }
-        public string PostUserFirstName { get; set; }
-        public string PostUserLastName { get; set; }
+        public Guid UserId { get; set; }
+        public string UserFirstName { get; set; }
+        public string UserLastName { get; set; }
         public DateTime Time { get; set; }
     }
     
@@ -128,7 +128,7 @@ namespace DomainModels.DTO
         public Guid UserId { get; set; }
         public BasePhoto? CommentPhoto { get; set; }
         public BaseVedio? CommentVedio { get; set; }
-        public List<BaseReact> CommentReacts { get; set; }
+        public List<ReactsDTO> CommentReacts { get; set; }
 
     }
     public record CommentUpdate
