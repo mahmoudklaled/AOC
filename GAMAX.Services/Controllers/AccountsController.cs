@@ -1,4 +1,4 @@
-﻿using Business.Accounts.Services;
+﻿using Business.Services;
 using DataBase.Core.Enums;
 using DomainModels.Models;
 using GAMAX.Services.Dto;
@@ -29,7 +29,7 @@ namespace GAMAX.Services.Controllers
                 {
                     message = "Account Not Found !"
                 });
-            var profileInfo = new DomainModels.DTO.UserAccounts
+            var profileInfo = new DomainModels.DTO.UserAccount
             {
                 Id = accountProfile.Id,
                 Email = accountProfile.Email,
@@ -94,12 +94,7 @@ namespace GAMAX.Services.Controllers
             return BadRequest(new { message = "something wend wrong" });
         }
         
-        [HttpPost("SearchAccount")]
-        public async Task<IActionResult> SearchAccount(string searchString)
-        {
-            var searchResult = await _accountService.SearchAccountsAsync(searchString);
-            return Ok(searchResult);
-        }
+        
 
     }
 

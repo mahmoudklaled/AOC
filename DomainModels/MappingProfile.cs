@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BDataBase.Core.Models.Accounts;
 using DataBase.Core.Models.CommentModels;
+using DataBase.Core.Models.Notifications;
 using DataBase.Core.Models.PhotoModels;
 using DataBase.Core.Models.Posts;
 using DataBase.Core.Models.Reacts;
@@ -85,7 +86,9 @@ namespace DomainModels
                 .ForMember(dest => dest.UserFirstName, src => src.MapFrom(src => src.UserAccounts.FirstName))
                 .ForMember(dest => dest.UserLastName, src => src.MapFrom(src => src.UserAccounts.LastName));
 
-
+            CreateMap<Notifications, DTO.NotificationDTO>()
+                .ForMember(dest => dest.ActionUserFirstName, src => src.MapFrom(src => src.ActionedUser.FirstName))
+                .ForMember(dest => dest.ActionUserLastName, src => src.MapFrom(src => src.ActionedUser.LastName));
 
         }
         public class PostCommentPhotoResolver : IValueResolver<PostComment, CommentDTO, BasePhoto?>

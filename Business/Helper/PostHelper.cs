@@ -1,7 +1,7 @@
 ﻿using DomainModels.Models;
 using Utilites;
 
-namespace Business.Posts.Helper
+namespace Business.Helper
 {
     public static class PostHelper
     {
@@ -14,9 +14,9 @@ namespace Business.Posts.Helper
                 foreach (var photo in model.Photos)
                 {
                     var path = MediaUtilites.ConverIformToPath(photo, photoFolderPath);
-                    if(path != null)
+                    if (path != null)
                         photoPaths.Add(path);
-                    
+
                 }
                 model.PhotosPath = photoPaths;
             }
@@ -26,14 +26,14 @@ namespace Business.Posts.Helper
                 List<string> videoPaths = new List<string>();
                 foreach (var video in model.Vedios)
                 {
-                    var path =  MediaUtilites.ConverIformToPath(video, videoFolderPath);
+                    var path = MediaUtilites.ConverIformToPath(video, videoFolderPath);
                     if (path != null)
                         videoPaths.Add(path);
                 }
                 model.VediosPath = videoPaths;
             }
 
-             return model;
+            return model;
         }
         public static AllPostsModel mappingModel(UploadPost post)
         {

@@ -1,6 +1,6 @@
 ﻿using DomainModels.Models;
 
-namespace Business.Posts.Services
+namespace Business.Services
 {
     public interface IPostService
     {
@@ -9,7 +9,7 @@ namespace Business.Posts.Services
         Task<List<DomainModels.DTO.AllPostDTO>> GetPostTypesAsync(DateTime? Time);
         Task<DomainModels.DTO.PostDTO> GetPostByIDAsync(Guid id);
         Task<DomainModels.DTO.QuestionPostDTO> GetQuestionPostByIdAsync(Guid id);
-        Task<List<DomainModels.DTO.PostDTO>> GetPersonalPostAsync(int pageNumber,Guid userID);
+        Task<List<DomainModels.DTO.PostDTO>> GetPersonalPostAsync(int pageNumber, Guid userID);
         Task<List<DomainModels.DTO.QuestionPostDTO>> GetPersonalQuestionPostAsync(int pageNumber, Guid userID);
         Task<List<DomainModels.DTO.AllPostDTO>> GetPersonalPostTypesAsync(int pageNumber, Guid userID);
 
@@ -19,6 +19,6 @@ namespace Business.Posts.Services
         Task<bool> UpdateQuestionPostAsync(UpdataPost postmodel, string userEmail);
         Task<bool> DeletePostAsync(Guid id, string userEmail);
         Task<bool> DeleteQuestionPostAsync(Guid id, string userEmail);
-        
+
     }
 }

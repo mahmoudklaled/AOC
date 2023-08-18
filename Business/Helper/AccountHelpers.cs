@@ -6,36 +6,36 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Business.Accounts.LogicBusiness
+namespace Business.Helper
 {
     public static class AccountHelpers
     {
         private static string parentFolder = Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
         public static string GetDefaultProfilePohot(Guid id)
         {
-            var sourceFile = Path.Combine(parentFolder, SharedFolderPaths.ProfilePhotos); 
+            var sourceFile = Path.Combine(parentFolder, SharedFolderPaths.ProfilePhotos);
             CopyAndRenamePhoto(sourceFile, sourceFile, "Profile.jpg", id.ToString() + "Profile.jpg");
-            return Path.Combine(SharedFolderPaths.ProfilePhotos, id.ToString()+"Profile.jpg");
+            return Path.Combine(SharedFolderPaths.ProfilePhotos, id.ToString() + "Profile.jpg");
         }
         public static string GetDefaultCoverPohot(Guid id)
         {
             var sourceFile = Path.Combine(parentFolder, SharedFolderPaths.CoverPhotos);
             CopyAndRenamePhoto(sourceFile, sourceFile, "Cover.jpg", id.ToString() + "Cover.jpg");
-            return Path.Combine(SharedFolderPaths.CoverPhotos, id.ToString()+"Cover.jpg");
+            return Path.Combine(SharedFolderPaths.CoverPhotos, id.ToString() + "Cover.jpg");
         }
-        public static string IformToProfilePath(IFormFile formFile,  Guid userId )
+        public static string IformToProfilePath(IFormFile formFile, Guid userId)
         {
             if (formFile != null && formFile.Length > 0)
             {
                 string newFileName = $"{userId}Profile.jpg";
-                string newFilePath = Path.Combine(parentFolder,SharedFolderPaths.ProfilePhotos, newFileName);
+                string newFilePath = Path.Combine(parentFolder, SharedFolderPaths.ProfilePhotos, newFileName);
 
                 using (var fileStream = new FileStream(newFilePath, FileMode.Create))
                 {
                     formFile.CopyTo(fileStream);
                 }
 
-                return (Path.Combine(SharedFolderPaths.ProfilePhotos, newFileName));
+                return Path.Combine(SharedFolderPaths.ProfilePhotos, newFileName);
             }
             return string.Empty;
 
@@ -45,13 +45,13 @@ namespace Business.Accounts.LogicBusiness
             if (formFile != null && formFile.Length > 0)
             {
                 string newFileName = $"{userId}Cover.jpg";
-                string newFilePath = Path.Combine(parentFolder,SharedFolderPaths.CoverPhotos, newFileName);
+                string newFilePath = Path.Combine(parentFolder, SharedFolderPaths.CoverPhotos, newFileName);
 
                 using (var fileStream = new FileStream(newFilePath, FileMode.Create))
                 {
                     formFile.CopyTo(fileStream);
                 }
-                return (Path.Combine(SharedFolderPaths.CoverPhotos, newFileName));
+                return Path.Combine(SharedFolderPaths.CoverPhotos, newFileName);
             }
             return string.Empty;
 
@@ -67,7 +67,7 @@ namespace Business.Accounts.LogicBusiness
 
                 if (File.Exists(sourceFilePath))
                 {
-                    File.Copy(sourceFilePath, destinationFilePath,true);
+                    File.Copy(sourceFilePath, destinationFilePath, true);
 
                 }
             }

@@ -1,5 +1,6 @@
 ﻿using DataBase.Core.Enums;
 using DataBase.Core.Models.Accounts;
+using DataBase.Core.Models.Notifications;
 using DataBase.Core.Models.PhotoModels;
 using DataBase.Core.Models.Posts;
 using System.ComponentModel.DataAnnotations;
@@ -28,6 +29,7 @@ namespace BDataBase.Core.Models.Accounts
         public ICollection<QuestionPost> QuestionPosts { get; set; } 
         public ICollection<FriendRequest> FriendRequests { get; set; }
         public ICollection<Friend> Friends { get; set; }
+        public ICollection<Notifications > Notifications { get; set; }
 
     }
 }

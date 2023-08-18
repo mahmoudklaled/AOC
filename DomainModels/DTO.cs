@@ -97,7 +97,6 @@ namespace DomainModels.DTO
     
     #endregion
 
-
     #region comments
     public record CommentUpdateRequest
     {
@@ -143,7 +142,6 @@ namespace DomainModels.DTO
 
     #endregion
 
-
     #region React
     public record ReactsDTO
     {
@@ -157,7 +155,7 @@ namespace DomainModels.DTO
     #endregion
 
     #region UserProfile
-    public record UserAccounts
+    public record UserAccount
     {
         public Guid Id { get; set; }
         public string Email { get; set; }
@@ -181,6 +179,17 @@ namespace DomainModels.DTO
         public string? Bio { get; set; }
         public DateTime? Birthdate { get; set; }
         public string? gender { get; set; } = "Unknown";
+    }
+    #endregion
+
+    #region Notification
+    public record NotificationDTO
+    {
+        public Guid ActionedUserId { get; set; }
+        public string ActionUserFirstName { get; set; }
+        public string ActionUserLastName { get; set; }
+        public Guid ItemId { get; set; }
+        public NotificatinTypes NotificatinType { get; set; }
     }
     #endregion
 }

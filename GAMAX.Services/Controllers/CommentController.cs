@@ -1,4 +1,5 @@
-﻿using GAMAX.Services.Dto;
+﻿using Business.Services;
+using GAMAX.Services.Dto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GAMAX.Services.Controllers
@@ -8,8 +9,8 @@ namespace GAMAX.Services.Controllers
     public class CommentController : ControllerBase
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly Business.Posts.Services.ICommentServices _commentServices;
-        public CommentController(IHttpContextAccessor httpContextAccessor, Business.Posts.Services.ICommentServices commentServices)
+        private readonly ICommentServices _commentServices;
+        public CommentController(IHttpContextAccessor httpContextAccessor, ICommentServices commentServices)
         {
             _httpContextAccessor = httpContextAccessor;
             _commentServices = commentServices;

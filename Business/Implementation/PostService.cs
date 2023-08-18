@@ -1,5 +1,6 @@
 ﻿using BDataBase.Core.Models.Accounts;
-using Business.Posts.Helper;
+using Business.Helper;
+using Business.Services;
 using DataBase.Core;
 using DataBase.Core.Consts;
 using DataBase.Core.Enums;
@@ -11,23 +12,23 @@ using DomainModels.Models;
 using System.Collections.ObjectModel;
 using Utilites;
 
-namespace Business.Posts.Services
+namespace Business.Implementation
 {
     public class PostService : IPostService
     {
         private readonly int _pageSize = 5;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICommentServices _commentServices;
-        public PostService(IUnitOfWork unitOfWork , ICommentServices commentServices)
+        public PostService(IUnitOfWork unitOfWork, ICommentServices commentServices)
         {
             _unitOfWork = unitOfWork;
-            _commentServices = commentServices; 
+            _commentServices = commentServices;
         }
-        
-        public async Task<(bool , Guid)> AddPostAsync(UploadPost postmodel, string userEmail)
+
+        public async Task<(bool, Guid)> AddPostAsync(UploadPost postmodel, string userEmail)
         {
-            var user = await _unitOfWork.UserAccounts.FindAsync(p=>p.Email ==userEmail);
-            if (user == null) return (false,Guid.Empty);
+            var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
+            if (user == null) return (false, Guid.Empty);
             var newpostmodel = PostHelper.ConvertToPaths(postmodel, SharedFolderPaths.PostPhotos, SharedFolderPaths.PostVideos);
             var post = PreparePostModel(newpostmodel, user);
             await _unitOfWork.Post.AddAsync(post);
@@ -35,21 +36,21 @@ namespace Business.Posts.Services
             var saveresult = await _unitOfWork.Complete();
             return (saveresult > 0, postID);
         }
-        public async Task<(bool,Guid)> AddQuestionPostAsync(UploadPost postmodel, string userEmail)
+        public async Task<(bool, Guid)> AddQuestionPostAsync(UploadPost postmodel, string userEmail)
         {
-            var user = await _unitOfWork.UserAccounts.FindAsync(p=>p.Email==userEmail);
-            if (user == null) return (false,Guid.Empty);
+            var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
+            if (user == null) return (false, Guid.Empty);
             var newpostmodel = PostHelper.ConvertToPaths(postmodel, SharedFolderPaths.QuestionPhotos, SharedFolderPaths.QuestionVideos);
             var post = PrepareQuestonPostModel(newpostmodel, user);
             await _unitOfWork.QuestionPost.AddAsync(post);
-            var saveresult =  await _unitOfWork.Complete();
+            var saveresult = await _unitOfWork.Complete();
             var PostID = post.Id;
-            return ( saveresult > 0, PostID);
+            return (saveresult > 0, PostID);
         }
         public async Task<bool> UpdatePostAsync(UpdataPost postmodel, string userEmail)
         {
             string[] includes = { "Photos", "Vedios", "Reacts", "Comments", "UserAccounts" };
-            var post = await _unitOfWork.Post.FindAsync(p => p.Id == postmodel.Id,includes);
+            var post = await _unitOfWork.Post.FindAsync(p => p.Id == postmodel.Id, includes);
             if (post == null)
                 return false;
             var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
@@ -71,7 +72,7 @@ namespace Business.Posts.Services
         public async Task<bool> UpdateQuestionPostAsync(UpdataPost postmodel, string userEmail)
         {
             var questionpost = await _unitOfWork.QuestionPost.FindAsync(p => p.Id == postmodel.Id);
-                                        
+
             if (questionpost == null)
                 return false;
 
@@ -85,27 +86,27 @@ namespace Business.Posts.Services
             _unitOfWork.QuestionPost.Update(questionpost);
             var update = await _unitOfWork.Complete();
 
-            
-            questionpost = await AddNewPostPhotoAndVedioForQuestion(postmodel,questionpost);
+
+            questionpost = await AddNewPostPhotoAndVedioForQuestion(postmodel, questionpost);
             _unitOfWork.QuestionPost.Update(questionpost);
-             update = await _unitOfWork.Complete();
+            update = await _unitOfWork.Complete();
 
             await DeletePostPhotoAndVedio(postmodel);
 
-            return  update > 0;
+            return update > 0;
         }
         public async Task<bool> DeletePostAsync(Guid id, string userEmail)
         {
-            var post = await _unitOfWork.Post.FindAsync(p=>p.Id==id);
+            var post = await _unitOfWork.Post.FindAsync(p => p.Id == id);
             if (post == null)
                 return false;
-            var user = await _unitOfWork.UserAccounts.FindAsync(p=>p.Email==userEmail);
+            var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
             if (user == null)
                 return false;
             if (post.UserAccountsId != user.Id)
                 return false;
             _unitOfWork.Post.Delete(post);
-            var result =  _unitOfWork.Complete();
+            var result = _unitOfWork.Complete();
             if (await result > 0)
                 return true;
             return false;
@@ -113,7 +114,7 @@ namespace Business.Posts.Services
         }
         public async Task<bool> DeleteQuestionPostAsync(Guid id, string userEmail)
         {
-            var questionpost = await _unitOfWork.QuestionPost.FindAsync(q=>q.Id==id);
+            var questionpost = await _unitOfWork.QuestionPost.FindAsync(q => q.Id == id);
             if (questionpost == null)
                 return false;
             var user = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == userEmail);
@@ -122,7 +123,7 @@ namespace Business.Posts.Services
             if (questionpost.UserAccountsId != user.Id)
                 return false;
             _unitOfWork.QuestionPost.Delete(questionpost);
-            var result =  _unitOfWork.Complete();
+            var result = _unitOfWork.Complete();
             if (await result > 0)
                 return true;
             return false;
@@ -139,7 +140,7 @@ namespace Business.Posts.Services
 
             if (post.Photos == null)
                 post.Photos = new Collection<QuestionPhoto>();
-            if (postmodel.PhotosPath!=null)
+            if (postmodel.PhotosPath != null)
                 foreach (var photo in postmodel.PhotosPath)
                 {
                     var photoModel = new QuestionPhoto()
@@ -153,7 +154,7 @@ namespace Business.Posts.Services
                 }
             if (post.Vedios == null)
                 post.Vedios = new Collection<QuestionVedio>();
-            if(postmodel.VediosPath!=null)
+            if (postmodel.VediosPath != null)
                 foreach (var vedio in postmodel.VediosPath)
                 {
                     var vedioModel = new QuestionVedio()
@@ -183,7 +184,7 @@ namespace Business.Posts.Services
             }
             if (post.Photos == null)
                 post.Photos = new Collection<PostPhoto>();
-            if(postmodel.PhotosPath!=null)
+            if (postmodel.PhotosPath != null)
                 foreach (var photo in postmodel.PhotosPath)
                 {
                     var photoModel = new PostPhoto()
@@ -197,7 +198,7 @@ namespace Business.Posts.Services
                 }
             if (post.Vedios == null)
                 post.Vedios = new Collection<PostVedio>();
-            if( postmodel.VediosPath!=null)
+            if (postmodel.VediosPath != null)
                 foreach (var vedio in postmodel.VediosPath)
                 {
                     var vedioModel = new PostVedio()
@@ -213,7 +214,7 @@ namespace Business.Posts.Services
             post.Description = postmodel.Description;
             return post;
         }
-        private async Task<Post> AddNewPostPhotoAndVedioForPost(UpdataPost postmodel ,Post post)
+        private async Task<Post> AddNewPostPhotoAndVedioForPost(UpdataPost postmodel, Post post)
         {
             if (postmodel.NewPhotos != null)
             {
@@ -225,11 +226,11 @@ namespace Business.Posts.Services
                     var photo = new PostPhoto
                     {
                         PhotoPath = path,
-                        Post=post,
-                        PostId=post.Id
+                        Post = post,
+                        PostId = post.Id
                     };
                     post.Photos.Add(photo);
-                    
+
                 }
             }
             if (postmodel.NewVedios != null)
@@ -250,7 +251,7 @@ namespace Business.Posts.Services
             }
             return post;
         }
-        private async Task<QuestionPost> AddNewPostPhotoAndVedioForQuestion(UpdataPost postmodel , QuestionPost questionPost)
+        private async Task<QuestionPost> AddNewPostPhotoAndVedioForQuestion(UpdataPost postmodel, QuestionPost questionPost)
         {
             if (postmodel.NewPhotos != null)
             {
@@ -275,7 +276,7 @@ namespace Business.Posts.Services
                     questionPost.Vedios = new List<QuestionVedio>();
                 foreach (var item in postmodel.NewVedios)
                 {
-                    var path = MediaUtilites.ConverIformToPath(item,SharedFolderPaths.QuestionVideos);
+                    var path = MediaUtilites.ConverIformToPath(item, SharedFolderPaths.QuestionVideos);
                     var vedio = new QuestionVedio
                     {
 
@@ -287,17 +288,18 @@ namespace Business.Posts.Services
                 }
             }
             return questionPost;
-            
+
         }
         private async Task DeletePostPhotoAndVedio(UpdataPost postmodel)
         {
             switch (postmodel.Type)
             {
                 case PostsTypes.Post:
-                    if (postmodel.DeletedPhotoIds != null) { 
+                    if (postmodel.DeletedPhotoIds != null)
+                    {
                         foreach (var photoID in postmodel.DeletedPhotoIds)
                         {
-                            
+
                             var photo = await _unitOfWork.PostPhoto.FindAsync(p => p.Id == photoID);
                             if (photo != null)
                             {
@@ -350,20 +352,21 @@ namespace Business.Posts.Services
 
 
             }
-            var result = await  _unitOfWork.Complete();
+            var result = await _unitOfWork.Complete();
         }
         //ALL NEW HERE
-        public async Task<List<DomainModels.DTO.PostDTO>> GetPostAsync(DateTime ? Time)
+        public async Task<List<DomainModels.DTO.PostDTO>> GetPostAsync(DateTime? Time)
         {
             //var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
             string[] includes = { "Photos", "Vedios", "Reacts", "UserAccounts" };
-            var posts= await _unitOfWork.Post.FindAllAsync(p => Time == null || p.TimeCreated < Time, _pageSize, 0, includes, p => p.TimeCreated, OrderBy.Descending);
+            var posts = await _unitOfWork.Post.FindAllAsync(p => Time == null || p.TimeCreated < Time, _pageSize, 0, includes, p => p.TimeCreated, OrderBy.Descending);
             var PostsDTO = OMapper.Mapper.Map<List<DomainModels.DTO.PostDTO>>(posts);
-            foreach(var  post in PostsDTO) { 
-                var commentCount   = await  _commentServices.GetPostCommentCount(post.Id);
+            foreach (var post in PostsDTO)
+            {
+                var commentCount = await _commentServices.GetPostCommentCount(post.Id);
                 var CommentDtoList = await _commentServices.GetPostCommentsAsync(post.Id, null);
-                post.commentsCount= commentCount;
-                post.Comments= CommentDtoList;
+                post.commentsCount = commentCount;
+                post.Comments = CommentDtoList;
             }
             return PostsDTO;
         }
@@ -415,7 +418,7 @@ namespace Business.Posts.Services
         }
         public async Task<List<DomainModels.DTO.PostDTO>> GetPersonalPostAsync(int pageNumber, Guid userID)
         {
-            var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber,_pageSize);
+            var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
             string[] includes = { "Photos", "Vedios", "Reacts", "UserAccounts" };
             var posts = await _unitOfWork.Post.FindAllAsync(p => p.UserAccountsId == userID, take, skip, includes, p => p.TimeCreated, OrderBy.Descending);
             var PostsDTO = OMapper.Mapper.Map<List<DomainModels.DTO.PostDTO>>(posts);
@@ -431,7 +434,7 @@ namespace Business.Posts.Services
         public async Task<List<DomainModels.DTO.QuestionPostDTO>> GetPersonalQuestionPostAsync(int pageNumber, Guid userID)
         {
             var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
-            string[] includes = { "Photos", "Vedios", "Reacts","UserAccounts" };
+            string[] includes = { "Photos", "Vedios", "Reacts", "UserAccounts" };
             var posts = await _unitOfWork.QuestionPost.FindAllAsync(p => p.UserAccountsId == userID, take, skip, includes, p => p.TimeCreated, OrderBy.Descending);
             var QuestionPostsDTO = OMapper.Mapper.Map<List<DomainModels.DTO.QuestionPostDTO>>(posts);
             foreach (var questionPost in QuestionPostsDTO)

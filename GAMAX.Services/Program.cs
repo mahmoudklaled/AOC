@@ -8,14 +8,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using GAMAX.Services.MiddleWare;
-using Microsoft.Extensions.FileProviders;
-using Business.Accounts.Services;
-using Business.Posts.Services;
 using DataBase.Core;
 using DataBase.EF;
 using DataBase.Core.Models.Authentication;
 using Business;
- 
+using GAMAX.Services.Hubs;
+using Business.Services;
+using Business.Implementation;
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
@@ -48,15 +48,10 @@ builder.Services.AddControllers()
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-     .AddEntityFrameworkStores<ApplicationDbContext>()
-     .AddDefaultTokenProviders();
-
-//builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 builder.Services.AddTransient<IMailingService, MailingService>();
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
-
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAcountService, AcountService>();
 builder.Services.AddScoped<IPostService, PostService>();
@@ -102,13 +97,7 @@ builder.Services.AddCors(options =>
                    .AllowCredentials();
         });
 });
-
-
-
-
-
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -118,17 +107,17 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-//TODO What is this ?
-var apiProjectPath = Directory.GetCurrentDirectory();
-var solutionPath = Directory.GetParent(apiProjectPath)?.FullName;
-var photosFolderPath = Path.Combine(solutionPath, "StaticFiles");
+////TODO What is this ?
+//var apiProjectPath = Directory.GetCurrentDirectory();
+//var solutionPath = Directory.GetParent(apiProjectPath)?.FullName;
+//var photosFolderPath = Path.Combine(solutionPath, "StaticFiles");
 
-// Configure the static files middleware
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(photosFolderPath),
-    RequestPath = "/ProfilePhotos"
-});
+//// Configure the static files middleware
+//app.UseStaticFiles(new StaticFileOptions
+//{
+//    FileProvider = new PhysicalFileProvider(photosFolderPath),
+//    RequestPath = "/ProfilePhotos"
+//});
 
 // Define the routes that should skip token validation
 var routesToSkipTokenValidation = new List<string>
@@ -166,5 +155,5 @@ app.UseWhen(context => !routesToSkipTokenValidation.Contains(context.Request.Pat
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
+app.UseEndpoints(endpoints =>{endpoints.MapHub<SingalRHub>("/SingalRHub");});
 app.Run();

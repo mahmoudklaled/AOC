@@ -2,10 +2,11 @@
 using DataBase.Core.Models.Accounts;
 using DataBase.Core;
 using Microsoft.AspNetCore.Http;
-using Business.Accounts.LogicBusiness;
 using DomainModels.Models;
+using Business.Helper;
+using Business.Services;
 
-namespace Business.Accounts.Services
+namespace Business.Implementation
 {
     public class AcountService : IAcountService
     {
@@ -16,7 +17,7 @@ namespace Business.Accounts.Services
         }
         public async Task<bool> AproveFriendRequest(Guid friendRequestId)
         {
-            var friendRequest = await _unitOfWork.FriendRequests.FindAsync(f=>f.Id==friendRequestId);
+            var friendRequest = await _unitOfWork.FriendRequests.FindAsync(f => f.Id == friendRequestId);
             if (friendRequest == null)
                 return false;
             await _unitOfWork.Friends.AddAsync(new Friend
@@ -34,17 +35,17 @@ namespace Business.Accounts.Services
         }
         public async Task<bool> SendFriendRequest(Guid senderId, Guid recevierId)
         {
-            var sender = await _unitOfWork.UserAccounts.FindAsync(u=>u.Id == senderId);
+            var sender = await _unitOfWork.UserAccounts.FindAsync(u => u.Id == senderId);
             var recevier = await _unitOfWork.UserAccounts.FindAsync(u => u.Id == recevierId);
-            if(sender == null || recevier == null)
+            if (sender == null || recevier == null)
                 return false;
             await _unitOfWork.FriendRequests.AddAsync(new FriendRequest
             {
                 Id = Guid.NewGuid(),
                 ReceiverId = recevier.Id,
-                Receiver= recevier,
+                Receiver = recevier,
                 RequestorId = sender.Id,
-                Requestor= sender
+                Requestor = sender
             });
             await _unitOfWork.Complete();
 
@@ -61,10 +62,10 @@ namespace Business.Accounts.Services
         }
         public async Task<bool> DeleteFriend(Guid userId, Guid friendId)
         {
-            var friendEntity = await _unitOfWork.Friends.FindAsync(f => 
-                                (f.FirstUserId == userId && f.SecondUserId == friendId) ||
-                                (f.FirstUserId == friendId && f.SecondUserId == userId));
-            if (friendEntity == null) return false; 
+            var friendEntity = await _unitOfWork.Friends.FindAsync(f =>
+                                f.FirstUserId == userId && f.SecondUserId == friendId ||
+                                f.FirstUserId == friendId && f.SecondUserId == userId);
+            if (friendEntity == null) return false;
             _unitOfWork.Friends.Delete(friendEntity);
             await _unitOfWork.Complete();
             return true;
@@ -79,7 +80,7 @@ namespace Business.Accounts.Services
         public async Task<List<SearchAccount>> SearchAccountsAsync(string searchValue)
         {
             string[] includes = { "ProfilePhoto" };
-            var accountProfile = await _unitOfWork.UserAccounts.FindAllAsync(p => p.Email == searchValue || p.UserName ==searchValue || p.FirstName ==searchValue , includes);
+            var accountProfile = await _unitOfWork.UserAccounts.FindAllAsync(p => p.Email == searchValue || p.UserName == searchValue || p.FirstName == searchValue, includes);
             var searchResult = new List<SearchAccount>();
             foreach (var account in accountProfile)
             {
@@ -95,26 +96,26 @@ namespace Business.Accounts.Services
         }
         public async Task<bool> UpdateAccountProfileAsync(ProfileUpdateModel profileUpdateModel)
         {
-            var profileAccount= await _unitOfWork.UserAccounts.FindAsync(p=>p.Id==profileUpdateModel.Id);
+            var profileAccount = await _unitOfWork.UserAccounts.FindAsync(p => p.Id == profileUpdateModel.Id);
             profileAccount.FirstName = profileUpdateModel.FirstName;
             profileAccount.LastName = profileUpdateModel.LastName;
             profileAccount.City = profileUpdateModel.City;
             profileAccount.Country = profileUpdateModel.Country;
-            profileAccount.Bio=profileUpdateModel.Bio;
+            profileAccount.Bio = profileUpdateModel.Bio;
             profileAccount.Birthdate = profileUpdateModel.Birthdate;
             profileAccount.gender = profileUpdateModel.gender;
-             _unitOfWork.UserAccounts.Update(profileAccount);
+            _unitOfWork.UserAccounts.Update(profileAccount);
             var UpdateResult = _unitOfWork.Complete();
             return await UpdateResult > 0;
         }
-        public async Task<bool> UpdateProfilePhotoAsync(IFormFile formFile , string email)
+        public async Task<bool> UpdateProfilePhotoAsync(IFormFile formFile, string email)
         {
             string[] includes = { "ProfilePhoto" };
             var profileAccount = await _unitOfWork.UserAccounts.FindAsync(p => p.Email == email, includes);
-            if (profileAccount== null) return false;
+            if (profileAccount == null) return false;
             var photoPath = AccountHelpers.IformToProfilePath(formFile, profileAccount.Id);
             if (profileAccount.ProfilePhoto != null)
-                 _unitOfWork.ProfilePhoto.Delete(profileAccount.ProfilePhoto);
+                _unitOfWork.ProfilePhoto.Delete(profileAccount.ProfilePhoto);
             var ProfilePhoto = new DataBase.Core.Models.PhotoModels.ProfilePhoto
             {
                 Id = Guid.NewGuid(),
@@ -124,7 +125,7 @@ namespace Business.Accounts.Services
             _unitOfWork.ProfilePhoto.Add(ProfilePhoto);
             var result = await _unitOfWork.Complete();
             return result > 0;
-             
+
         }
         public async Task<bool> UpdateProfileCoverAsync(IFormFile formFile, string email)
         {
@@ -145,6 +146,6 @@ namespace Business.Accounts.Services
             return result > 0;
         }
 
-        
+
     }
 }

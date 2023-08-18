@@ -1,4 +1,4 @@
-﻿using Business.Posts.Services;
+﻿using Business.Services;
 using GAMAX.Services.Dto;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,7 +1,9 @@
 ﻿using BDataBase.Core.Models.Accounts;
+using DataBase.Core.Interfaces;
 using DataBase.Core.Models.Accounts;
 using DataBase.Core.Models.Authentication;
 using DataBase.Core.Models.CommentModels;
+using DataBase.Core.Models.Notifications;
 using DataBase.Core.Models.PhotoModels;
 using DataBase.Core.Models.Posts;
 using DataBase.Core.Models.Reacts;
@@ -40,6 +42,9 @@ namespace DataBase.EF
         public DbSet<QuestionReact> QuestionReacts { get; set; }
         public DbSet<QuestionCommentReact> QuestionCommentReacts { get; set; }
         public DbSet<PostCommentReact> PostCommentReacts { get; set; }
+        public DbSet<Friend> Friends { get; set; }
+        public DbSet<FriendRequest> FriendRequests { get; set; }
+        public DbSet<Notifications> Notification { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

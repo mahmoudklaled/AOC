@@ -31,6 +31,12 @@ namespace DataBase.EF.DBConfiguration
                 .HasForeignKey(qp => qp.UserAccountsId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.
+                 HasMany(p => p.Notifications)
+                .WithOne(n=> n.ActionedUser)
+                .HasForeignKey(n => n.ActionedUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder
                 .HasOne(p => p.ProfilePhoto)
                 .WithOne()
