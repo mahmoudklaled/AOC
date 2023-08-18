@@ -71,10 +71,10 @@ namespace Business.Implementation
             return true;
 
         }
-        public async Task<UserAccounts> GetAccountProfileAsync(string email)
+        public async Task<UserAccounts> GetAccountProfileAsync(Guid userId)
         {
             //string[] includes = { "Posts", "QuestionPosts" , "CoverPhoto", "ProfilePhoto" };
-            var accountProfile = await _unitOfWork.UserAccounts.FindAllAsync(p => p.Email == email /*,includes*/);
+            var accountProfile = await _unitOfWork.UserAccounts.FindAllAsync(p => p.Id == userId /*,includes*/);
             return accountProfile.FirstOrDefault();
         }
         public async Task<List<SearchAccount>> SearchAccountsAsync(string searchValue)

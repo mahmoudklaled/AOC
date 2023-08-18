@@ -6,7 +6,7 @@ namespace Business.Services
 {
     public interface IAcountService
     {
-        Task<UserAccounts> GetAccountProfileAsync(string email);
+        Task<UserAccounts> GetAccountProfileAsync(Guid userId);
         Task<bool> UpdateAccountProfileAsync(ProfileUpdateModel profileUpdateModel);
         Task<bool> UpdateProfilePhotoAsync(IFormFile formFile, string email);
         Task<bool> UpdateProfileCoverAsync(IFormFile formFile, string email);

@@ -19,10 +19,14 @@ namespace GAMAX.Services.Controllers
         }
 
         [HttpPost("GetProfileAcountData")]  
-        public async Task<IActionResult> GetProfileAcountData()
+        public async Task<IActionResult> GetProfileAcountData(Guid ? userId )
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
-            var accountProfile = await _accountService.GetAccountProfileAsync(userInfo.Email);
+            //Guid targetUserId;
+            //if (userId == null) targetUserId = userInfo.Uid;
+            //else targetUserId = (Guid)userId;
+
+            var accountProfile = await _accountService.GetAccountProfileAsync(userId == null ? userInfo.Uid : (Guid)userId);
             
             if (accountProfile == null)
                 return BadRequest(new
