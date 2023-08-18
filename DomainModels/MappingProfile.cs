@@ -77,11 +77,15 @@ namespace DomainModels
                 .ForMember(dest => dest.UserLastName, src => src.MapFrom(src => src.UserAccounts.LastName));
 
             CreateMap<PostReact, DTO.ReactsDTO>()
+                .ForMember(dest => dest.Id, src => src.MapFrom(src => src.Id))
+                .ForMember(dest => dest.react, src => src.MapFrom(src => src.react))
                 .ForMember(dest => dest.UserId, src => src.MapFrom(src => src.UserAccountsId))
                 .ForMember(dest => dest.UserFirstName, src => src.MapFrom(src => src.UserAccounts.FirstName))
                 .ForMember(dest => dest.UserLastName, src => src.MapFrom(src => src.UserAccounts.LastName));
 
             CreateMap<QuestionReact, DTO.ReactsDTO>()
+                .ForMember(dest => dest.Id, src => src.MapFrom(src => src.Id))
+                .ForMember(dest => dest.react, src => src.MapFrom(src => src.react))
                 .ForMember(dest => dest.UserId, src => src.MapFrom(src => src.UserAccountsId))
                 .ForMember(dest => dest.UserFirstName, src => src.MapFrom(src => src.UserAccounts.FirstName))
                 .ForMember(dest => dest.UserLastName, src => src.MapFrom(src => src.UserAccounts.LastName));
