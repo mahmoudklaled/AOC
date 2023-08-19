@@ -95,9 +95,9 @@ namespace GAMAX.Services.Hubs
             Clients.Client(id).SendAsync("OnTestConnection", "Hello youre connected!");
             return Task.CompletedTask;
         }
-        public Task OnInvokeConnection(string id)
+        public Task OnInvokeConnection(string Message)
         {
-            Clients.Client(id).SendAsync("OnInvokeConnection", "Hello youre OnInvokeConnection!");
+            Clients.All.SendAsync("OnInvokeConnection", "Hello youre OnInvokeConnection!" + Message);
             return Task.CompletedTask;
         }
     }
