@@ -9,9 +9,9 @@ namespace Business.Services
         Task<List<DomainModels.DTO.AllPostDTO>> GetPostTypesAsync(DateTime? Time);
         Task<DomainModels.DTO.PostDTO> GetPostByIDAsync(Guid id);
         Task<DomainModels.DTO.QuestionPostDTO> GetQuestionPostByIdAsync(Guid id);
-        Task<List<DomainModels.DTO.PostDTO>> GetPersonalPostAsync(int pageNumber, Guid userID);
-        Task<List<DomainModels.DTO.QuestionPostDTO>> GetPersonalQuestionPostAsync(int pageNumber, Guid userID);
-        Task<List<DomainModels.DTO.AllPostDTO>> GetPersonalPostTypesAsync(int pageNumber, Guid userID);
+        Task<List<DomainModels.DTO.PostDTO>> GetPersonalPostAsync(DateTime? Time, Guid userID);
+        Task<List<DomainModels.DTO.QuestionPostDTO>> GetPersonalQuestionPostAsync(DateTime? Time, Guid userID);
+        Task<List<DomainModels.DTO.AllPostDTO>> GetPersonalPostTypesAsync(DateTime? Time, Guid userID);
 
         Task<(bool, Guid)> AddQuestionPostAsync(UploadPost postmodel, string userEmail);
         Task<(bool, Guid)> AddPostAsync(UploadPost postmodel, string userEmail);

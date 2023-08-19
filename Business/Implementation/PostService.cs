@@ -416,11 +416,11 @@ namespace Business.Implementation
             PostDTO.Comments = CommentDtoList;
             return PostDTO;
         }
-        public async Task<List<DomainModels.DTO.PostDTO>> GetPersonalPostAsync(int pageNumber, Guid userID)
+        public async Task<List<DomainModels.DTO.PostDTO>> GetPersonalPostAsync(DateTime? Time, Guid userID)
         {
-            var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
+            //var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
             string[] includes = { "Photos", "Vedios", "Reacts", "UserAccounts" };
-            var posts = await _unitOfWork.Post.FindAllAsync(p => p.UserAccountsId == userID, take, skip, includes, p => p.TimeCreated, OrderBy.Descending);
+            var posts = await _unitOfWork.Post.FindAllAsync(p =>p.UserAccountsId == userID &&(Time == null || p.TimeCreated < Time), _pageSize, 0, includes, p => p.TimeCreated, OrderBy.Descending);
             var PostsDTO = OMapper.Mapper.Map<List<DomainModels.DTO.PostDTO>>(posts);
             foreach (var post in PostsDTO)
             {
@@ -431,11 +431,11 @@ namespace Business.Implementation
             }
             return PostsDTO;
         }
-        public async Task<List<DomainModels.DTO.QuestionPostDTO>> GetPersonalQuestionPostAsync(int pageNumber, Guid userID)
+        public async Task<List<DomainModels.DTO.QuestionPostDTO>> GetPersonalQuestionPostAsync(DateTime? Time, Guid userID)
         {
-            var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
+            //var (take, skip) = BussnissHelper.GetTakeSkipValues(pageNumber, _pageSize);
             string[] includes = { "Photos", "Vedios", "Reacts", "UserAccounts" };
-            var posts = await _unitOfWork.QuestionPost.FindAllAsync(p => p.UserAccountsId == userID, take, skip, includes, p => p.TimeCreated, OrderBy.Descending);
+            var posts = await _unitOfWork.QuestionPost.FindAllAsync(p => p.UserAccountsId == userID && (Time == null || p.TimeCreated < Time), _pageSize, 0, includes, p => p.TimeCreated, OrderBy.Descending);
             var QuestionPostsDTO = OMapper.Mapper.Map<List<DomainModels.DTO.QuestionPostDTO>>(posts);
             foreach (var questionPost in QuestionPostsDTO)
             {
@@ -446,11 +446,11 @@ namespace Business.Implementation
             }
             return QuestionPostsDTO;
         }
-        public async Task<List<DomainModels.DTO.AllPostDTO>> GetPersonalPostTypesAsync(int pageNumber, Guid userID)
+        public async Task<List<DomainModels.DTO.AllPostDTO>> GetPersonalPostTypesAsync(DateTime? Time, Guid userID)
         {
 
-            var posts = await GetPersonalPostAsync(pageNumber, userID);
-            var questions = await GetPersonalQuestionPostAsync(pageNumber, userID);
+            var posts = await GetPersonalPostAsync(Time, userID);
+            var questions = await GetPersonalQuestionPostAsync(Time, userID);
             var AllPostDTO = OMapper.Mapper.Map<List<DomainModels.DTO.AllPostDTO>>(posts);
             var AllQuestionDTO = OMapper.Mapper.Map<List<DomainModels.DTO.AllPostDTO>>(questions);
             AllPostDTO.AddRange(AllQuestionDTO);

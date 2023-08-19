@@ -46,25 +46,25 @@ namespace GAMAX.Services.Controllers
             return Ok(Posts);
         }
         [HttpPost("GetAllPersonalPosts")]
-        public async Task<IActionResult> GetAllPersonalPosts(int pageNumber)
+        public async Task<IActionResult> GetAllPersonalPosts(DateTime? Time , Guid? userId)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
-            var posts = await _postService.GetPersonalPostAsync(pageNumber,userInfo.Uid);
+            var posts = await _postService.GetPersonalPostAsync(Time, userId == null ? userInfo.Uid : (Guid)userId);
             return Ok(posts);
         }
         [HttpPost("GetAllPersonalQuestionPosts")]
-        public async Task<IActionResult> GetAllPersonalQuestionPosts(int pageNumber)
+        public async Task<IActionResult> GetAllPersonalQuestionPosts(DateTime? Time, Guid? userId)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
-            var posts = await _postService.GetPersonalQuestionPostAsync(pageNumber, userInfo.Uid);
+            var posts = await _postService.GetPersonalQuestionPostAsync(Time, userId == null ? userInfo.Uid : (Guid)userId);
             return Ok(posts);
         }
 
         [HttpPost("GetAllPersonalPostTypes")]
-        public async Task<IActionResult> GetAllPersonalPostTypes(int pageNumber)
+        public async Task<IActionResult> GetAllPersonalPostTypes(DateTime? Time, Guid? userId)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor); 
-            var posts = await _postService.GetPersonalPostTypesAsync(pageNumber, userInfo.Uid);
+            var posts = await _postService.GetPersonalPostTypesAsync(Time, userId == null ? userInfo.Uid : (Guid)userId);
             return Ok(posts);
         }
 
