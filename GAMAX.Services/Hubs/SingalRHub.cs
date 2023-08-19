@@ -20,6 +20,7 @@ namespace GAMAX.Services.Hubs
             string connectionId = Context.ConnectionId;
 
             _userConnectionMap[userInfo.Uid] = connectionId;
+            OnTestConnection(connectionId);
             return base.OnConnectedAsync();
         }
         public override Task OnDisconnectedAsync(Exception? exception)
@@ -88,6 +89,16 @@ namespace GAMAX.Services.Hubs
                     Type = postsType
                 });
             }
+        }
+        public Task OnTestConnection(string id)
+        {
+            Clients.Client(id).SendAsync("OnTestConnection", "Hello youre connected!");
+            return Task.CompletedTask;
+        }
+        public Task OnInvokeConnection(string id)
+        {
+            Clients.Client(id).SendAsync("OnInvokeConnection", "Hello youre OnInvokeConnection!");
+            return Task.CompletedTask;
         }
     }
 }
