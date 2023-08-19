@@ -1,6 +1,11 @@
-﻿using Business.Services;
+﻿using Business;
+using Business.Services;
+using DataBase.Core.Enums;
+using DomainModels.DTO;
 using GAMAX.Services.Dto;
+using GAMAX.Services.Hubs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace GAMAX.Services.Controllers
 {
@@ -10,10 +15,12 @@ namespace GAMAX.Services.Controllers
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IPostService _postService;
-        public PostsController(IHttpContextAccessor httpContextAccessor, IPostService postService )
+        private readonly INotificationServices _notificationServices;
+        public PostsController(IHttpContextAccessor httpContextAccessor, IPostService postService, INotificationServices notificationServices)
         {
             _httpContextAccessor = httpContextAccessor;
             _postService = postService;
+            _notificationServices = notificationServices;   
         }
         [HttpPost("GetAllPosts")]  
         public async Task<IActionResult> GetAllPosts(DateTime? Time)
@@ -95,6 +102,7 @@ namespace GAMAX.Services.Controllers
             if(result)
             {
                 var  post = await _postService.GetPostByIDAsync(id);
+                _notificationServices.NotifyOnAddingPost(post);
                 return Ok(post);
             }
             return BadRequest(result);
@@ -116,6 +124,7 @@ namespace GAMAX.Services.Controllers
             if( result )
             {
                 var post = await _postService.GetQuestionPostByIdAsync(id);
+                _notificationServices.NotifyOnAddingQuestion(post);
                 return Ok(post);
             }
             return BadRequest(result);
