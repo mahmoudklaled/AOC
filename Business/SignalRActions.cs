@@ -8,6 +8,10 @@ namespace Business
 {
     public class SignalRActions
     {
+        public SignalRActions()
+        {
+            
+        }
         public Func<NotificationDTO, Task> OnAddingPostAction { get; set; }
         public Func<Guid , CommentDTO , Guid , PostsTypes , Task> OnAddingCommentAction { get; set; }
         public Func<Guid , UserAccount , Task> OnSendingFriendRequestAction { get; set; }
