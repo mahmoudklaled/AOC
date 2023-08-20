@@ -58,7 +58,7 @@ builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<ICommentServices, CommentServices>();
 builder.Services.AddScoped<IReactServices, ReactsServices>();
 builder.Services.AddScoped<INotificationServices,NotificationServices>();
-builder.Services.AddScoped<SignalRActions>();
+builder.Services.AddSingleton<SignalRActions>();
 
 builder.Services.AddMailKit(config =>
 {
