@@ -59,6 +59,8 @@ builder.Services.AddScoped<ICommentServices, CommentServices>();
 builder.Services.AddScoped<IReactServices, ReactsServices>();
 builder.Services.AddScoped<INotificationServices,NotificationServices>();
 builder.Services.AddSingleton<SignalRActions>();
+builder.Services.AddSingleton<UserConnectionManager>();
+builder.Services.AddSingleton<HubContextNotify>();
 
 builder.Services.AddMailKit(config =>
 {

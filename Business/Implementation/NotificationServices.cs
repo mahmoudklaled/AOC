@@ -6,6 +6,7 @@ using DataBase.Core.Models.Posts;
 using DomainModels;
 using DomainModels.DTO;
 using DomainModels.Models;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -171,5 +172,6 @@ namespace Business.Implementation
         {
             _signalRActions.OnApprovedFriendRequestAction?.Invoke(ApprovedUserId, userAccount);
         }
+
     }
 }
