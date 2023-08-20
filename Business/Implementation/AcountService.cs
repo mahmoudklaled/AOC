@@ -15,11 +15,11 @@ namespace Business.Implementation
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task<(bool ,Guid)> AproveFriendRequest(Guid friendRequestId)
+        public async Task<bool> AproveFriendRequest(Guid friendRequestId)
         {
             var friendRequest = await _unitOfWork.FriendRequests.FindAsync(f => f.Id == friendRequestId);
             if (friendRequest == null)
-                return (false,default);
+                return false;
             await _unitOfWork.Friends.AddAsync(new Friend
             {
                 Id = Guid.NewGuid(),
@@ -31,7 +31,7 @@ namespace Business.Implementation
             });
             _unitOfWork.FriendRequests.Delete(friendRequest);
             await _unitOfWork.Complete();
-            return (true, friendRequest.RequestorId);
+            return true;
         }
         public async Task<bool> SendFriendRequest(Guid senderId, Guid recevierId)
         {

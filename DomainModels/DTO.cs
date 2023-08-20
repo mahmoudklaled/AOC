@@ -185,8 +185,6 @@ namespace DomainModels.DTO
     #region Notification
     public record NotificationDTO
     {
-        public Guid Id { get; set; }
-        public Guid NotifiedUserId { get; set; }
         public Guid ActionedUserId { get; set; }
         public string ActionUserFirstName { get; set; }
         public string ActionUserLastName { get; set; }

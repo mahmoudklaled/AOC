@@ -1,6 +1,4 @@
-﻿using Business;
-using Business.Services;
-using DataBase.Core.Enums;
+﻿using Business.Services;
 using GAMAX.Services.Dto;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,12 +10,10 @@ namespace GAMAX.Services.Controllers
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICommentServices _commentServices;
-        private readonly INotificationServices _notificationServices;
-        public CommentController(IHttpContextAccessor httpContextAccessor, ICommentServices commentServices, INotificationServices notificationServices)
+        public CommentController(IHttpContextAccessor httpContextAccessor, ICommentServices commentServices)
         {
             _httpContextAccessor = httpContextAccessor;
             _commentServices = commentServices;
-            _notificationServices = notificationServices;
         }
         [HttpPost("GetPostComments")]
         public async Task<IActionResult> GetPostComments(Guid postId, DateTime? Time)
@@ -46,7 +42,6 @@ namespace GAMAX.Services.Controllers
             if (result)
             {
                 var commentDto = await _commentServices.GetPostCommentByIdAsync(id);
-                _notificationServices.NotifyOnAddingComment(commentDto, requestModel.PostId, PostsTypes.Post);
                 return Ok(commentDto);
             }
 
@@ -69,7 +64,6 @@ namespace GAMAX.Services.Controllers
             if (result)
             {
                 var commentDto = await _commentServices.GetQuestionCommentByIdAsync(id);
-                _notificationServices.NotifyOnAddingComment(commentDto, requestModel.PostId, PostsTypes.Question);
                 return Ok(commentDto);
             }
 
@@ -155,6 +149,5 @@ namespace GAMAX.Services.Controllers
                 Message = "Fail"
             });
         }
-        
     }
 }

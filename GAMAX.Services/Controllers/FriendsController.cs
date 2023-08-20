@@ -11,12 +11,10 @@ namespace GAMAX.Services.Controllers
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAcountService _accountService;
-        private readonly INotificationServices _notificationServices;
-        public FriendsController(IHttpContextAccessor httpContextAccessor, IAcountService acountService, INotificationServices notificationServices)
+        public FriendsController(IHttpContextAccessor httpContextAccessor, IAcountService acountService)
         {
             _httpContextAccessor = httpContextAccessor;
             _accountService = acountService;
-            _notificationServices = notificationServices;
         }
         [HttpPost("SearchAccount")]
         public async Task<IActionResult> SearchAccount(string searchString)
@@ -29,7 +27,6 @@ namespace GAMAX.Services.Controllers
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var searchResult = await _accountService.SendFriendRequest(userInfo.Uid, userId);
-            _notificationServices.NotifyOnSendFriendRequest(userId, userInfo.Uid);
             return Ok(searchResult);
         }
         [HttpPost("AproveFriendRequest")]
@@ -37,8 +34,7 @@ namespace GAMAX.Services.Controllers
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var searchResult = await _accountService.AproveFriendRequest(RequestId);
-            _notificationServices.NotifyOnApproveFriendRequest(searchResult.Item2, userInfo.Uid);
-            return Ok(searchResult.Item1);
+            return Ok(searchResult);
         }
         [HttpPost("DeneyFriendRequest")]
         public async Task<IActionResult> DeneyFriendRequest(Guid RequestId)

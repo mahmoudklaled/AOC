@@ -1,5 +1,4 @@
-﻿using Business;
-using DataBase.Core.Enums;
+﻿using DataBase.Core.Enums;
 using DomainModels.DTO;
 using GAMAX.Services.Dto;
 using Microsoft.AspNetCore.SignalR;
@@ -11,15 +10,9 @@ namespace GAMAX.Services.Hubs
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly Dictionary<Guid, string> _userConnectionMap = new Dictionary<Guid, string>();
-        private readonly SignalRActions _signalRActions;
-        public SingalRHub(IHttpContextAccessor httpContextAccessor ,SignalRActions signalRActions)
+        public SingalRHub(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
-            _signalRActions = signalRActions;
-            _signalRActions.OnAddingPostAction = OnAddingPost;
-            _signalRActions.OnAddingCommentAction = OnAddingComment;
-            _signalRActions.OnSendingFriendRequestAction = OnSendFriendRequest;
-            _signalRActions.OnApprovedFriendRequestAction = OnApproveFriendRequest;
         }
         public override Task OnConnectedAsync()
         {
@@ -27,7 +20,7 @@ namespace GAMAX.Services.Hubs
             string connectionId = Context.ConnectionId;
 
             _userConnectionMap[userInfo.Uid] = connectionId;
-            //OnTestConnection(connectionId);
+            OnTestConnection(connectionId);
             return base.OnConnectedAsync();
         }
         public override Task OnDisconnectedAsync(Exception? exception)
@@ -64,15 +57,21 @@ namespace GAMAX.Services.Hubs
                 await Clients.Client(targetConnectionId).SendAsync("OnApproveFriendRequest", userAccount);
             }
         }
-        public async Task OnAddingPost(NotificationDTO notification)
+        public async Task OnAddingPost(Guid postId)
         {
-            await Clients.All.SendAsync("OnAddingPostOrQuestion", notification);
+            await Clients.All.SendAsync("OnAddingPost", postId);
+            
         }
-        public async Task OnAddingComment(Guid PostOwnerUserId, CommentDTO comment ,Guid POSTID ,PostsTypes postsType)
+        public async Task OnAddingQuestionPost(Guid postId)
+        {
+            await Clients.All.SendAsync("OnAddingQuestionPost", postId);
+
+        }
+        public async Task OnAddingCommentOnPost(Guid PostOwnerUserId, CommentDTO comment ,Guid POSTID ,PostsTypes postsType)
         {
             if (_userConnectionMap.TryGetValue(PostOwnerUserId, out string targetConnectionId))
             {
-                await Clients.Client(targetConnectionId).SendAsync("OnAddingComment", new {
+                await Clients.Client(targetConnectionId).SendAsync("OnAddingCommentOnPost", new {
                 commentDTO = comment,
                 PostId = POSTID,
                 Type = postsType
@@ -91,32 +90,15 @@ namespace GAMAX.Services.Hubs
                 });
             }
         }
-        public async Task OnAddingReactOnComment(Guid PostOwnerUserId, ReactsDTO react, Guid commentId, NotificatinTypes notificationType)
+        public Task OnTestConnection(string id)
         {
-            if (_userConnectionMap.TryGetValue(PostOwnerUserId, out string targetConnectionId))
-            {
-                await Clients.Client(targetConnectionId).SendAsync("OnAddingReactOnComment", new
-                {
-                    reactDTO = react,
-                    CommentId = commentId,
-                    Type = notificationType
-                });
-            }
+            Clients.Client(id).SendAsync("OnTestConnection", "Hello youre connected!");
+            return Task.CompletedTask;
         }
-        //public Task OnTestConnection(string id)
-        //{
-        //    Clients.Client(id).SendAsync("OnTestConnection", "Hello youre connected!");
-        //    return Task.CompletedTask;
-        //}
-        //public Task OnInvokeConnection(string Message)
-        //{
-        //    Clients.All.SendAsync("OnInvokeConnection", "Hello youre OnInvokeConnection!" + Message);
-        //    return Task.CompletedTask;
-        //}
-        //public async Task OnAddingQuestionPost(Guid postId)
-        //{
-        //    await Clients.All.SendAsync("OnAddingQuestionPost", postId);
-
-        //}
+        public Task OnInvokeConnection(string Message)
+        {
+            Clients.All.SendAsync("OnInvokeConnection", "Hello youre OnInvokeConnection!" + Message);
+            return Task.CompletedTask;
+        }
     }
 }
