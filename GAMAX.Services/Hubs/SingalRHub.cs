@@ -11,10 +11,12 @@ namespace GAMAX.Services.Hubs
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly UserConnectionManager _userConnectionManager;
-        public SingalRHub(IHttpContextAccessor httpContextAccessor, UserConnectionManager userConnectionManager)
+        private readonly HubContextNotify _hubContextNotify;
+        public SingalRHub(IHttpContextAccessor httpContextAccessor, UserConnectionManager userConnectionManager , HubContextNotify hubContextNotify)
         {
             _httpContextAccessor = httpContextAccessor;
             _userConnectionManager = userConnectionManager;
+            _hubContextNotify = hubContextNotify;
             
         }
         public override Task OnConnectedAsync()
