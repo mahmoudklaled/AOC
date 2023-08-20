@@ -12,7 +12,7 @@ namespace Business.Services
         Task<bool> UpdateProfileCoverAsync(IFormFile formFile, string email);
         Task<List<SearchAccount>> SearchAccountsAsync(string searchValue);
         Task<bool> SendFriendRequest(Guid senderId, Guid recevierId);
-        Task<bool> AproveFriendRequest(Guid friendRequestId);
+        Task<(bool, Guid)> AproveFriendRequest(Guid friendRequestId);
         Task<bool> DeneyFriendRequest(Guid friendRequestId);
         Task<bool> DeleteFriend(Guid userId, Guid friendId);
     }

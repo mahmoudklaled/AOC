@@ -8,8 +8,12 @@ namespace DataBase.Core.Enums
 {
     public enum NotificatinTypes
     {
+        AddPost,
+        AddQuestion,
         AddComment,
         AddAnswer,
-        AddReact
+        AddReactOnComment,
+        AddReactOnPost,
+
     }
 }

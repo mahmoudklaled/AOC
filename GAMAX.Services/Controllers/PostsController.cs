@@ -1,6 +1,11 @@
-﻿using Business.Services;
+﻿using Business;
+using Business.Services;
+using DataBase.Core.Enums;
+using DomainModels.DTO;
 using GAMAX.Services.Dto;
+using GAMAX.Services.Hubs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace GAMAX.Services.Controllers
 {
@@ -10,12 +15,14 @@ namespace GAMAX.Services.Controllers
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IPostService _postService;
-        public PostsController(IHttpContextAccessor httpContextAccessor, IPostService postService )
+        private readonly INotificationServices _notificationServices;
+        public PostsController(IHttpContextAccessor httpContextAccessor, IPostService postService, INotificationServices notificationServices)
         {
             _httpContextAccessor = httpContextAccessor;
             _postService = postService;
+            _notificationServices = notificationServices;
         }
-        [HttpPost("GetAllPosts")]  
+        [HttpPost("GetAllPosts")]
         public async Task<IActionResult> GetAllPosts(DateTime? Time)
         {
             var posts = await _postService.GetPostAsync(Time);
@@ -46,7 +53,7 @@ namespace GAMAX.Services.Controllers
             return Ok(Posts);
         }
         [HttpPost("GetAllPersonalPosts")]
-        public async Task<IActionResult> GetAllPersonalPosts(DateTime? Time , Guid? userId)
+        public async Task<IActionResult> GetAllPersonalPosts(DateTime? Time, Guid? userId)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var posts = await _postService.GetPersonalPostAsync(Time, userId == null ? userInfo.Uid : (Guid)userId);
@@ -63,7 +70,7 @@ namespace GAMAX.Services.Controllers
         [HttpPost("GetAllPersonalPostTypes")]
         public async Task<IActionResult> GetAllPersonalPostTypes(DateTime? Time, Guid? userId)
         {
-            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor); 
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var posts = await _postService.GetPersonalPostTypesAsync(Time, userId == null ? userInfo.Uid : (Guid)userId);
             return Ok(posts);
         }
@@ -81,7 +88,7 @@ namespace GAMAX.Services.Controllers
             return Ok(await _postService.DeleteQuestionPostAsync(id, userInfo.Email));
         }
         [HttpPost("AddPost")]
-        public async Task<IActionResult> AddPost([FromForm] DomainModels.DTO.UploadPost postModel )
+        public async Task<IActionResult> AddPost([FromForm] DomainModels.DTO.UploadPost postModel)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var uploadPost = new DomainModels.Models.UploadPost
@@ -91,10 +98,11 @@ namespace GAMAX.Services.Controllers
                 Vedios = postModel.Vedios,
                 Description = postModel.Description
             };
-            (bool result, Guid id) = await _postService.AddPostAsync(uploadPost, userInfo.Email); 
-            if(result)
+            (bool result, Guid id) = await _postService.AddPostAsync(uploadPost, userInfo.Email);
+            if (result)
             {
-                var  post = await _postService.GetPostByIDAsync(id);
+                var post = await _postService.GetPostByIDAsync(id);
+                _notificationServices.NotifyOnAddingPost(post);
                 return Ok(post);
             }
             return BadRequest(result);
@@ -112,30 +120,31 @@ namespace GAMAX.Services.Controllers
                 Type = questionPostModel.Type,
 
             };
-            (bool result ,Guid id ) = await _postService.AddQuestionPostAsync(uploadPost, userInfo.Email);
-            if( result )
+            (bool result, Guid id) = await _postService.AddQuestionPostAsync(uploadPost, userInfo.Email);
+            if (result)
             {
                 var post = await _postService.GetQuestionPostByIdAsync(id);
+                _notificationServices.NotifyOnAddingQuestion(post);
                 return Ok(post);
             }
             return BadRequest(result);
         }
 
         [HttpPost("UpdateQuestion")]
-        public async Task<IActionResult> UpdateQuestion( [FromForm] DomainModels.DTO.UpdateQuestion questionPostModel)
+        public async Task<IActionResult> UpdateQuestion([FromForm] DomainModels.DTO.UpdateQuestion questionPostModel)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var uploadPost = new DomainModels.Models.UpdataPost
             {
                 Id = questionPostModel.Id,
                 Question = questionPostModel.Question,
-                Answer=questionPostModel.Answer,
-                DeletedPhotoIds=questionPostModel.DeletedPhotoIds,
-                DeletedVedioIds=questionPostModel.DeletedVedioIds,
-                NewPhotos=questionPostModel.Photos,
-                NewVedios=questionPostModel.Vedios,
+                Answer = questionPostModel.Answer,
+                DeletedPhotoIds = questionPostModel.DeletedPhotoIds,
+                DeletedVedioIds = questionPostModel.DeletedVedioIds,
+                NewPhotos = questionPostModel.Photos,
+                NewVedios = questionPostModel.Vedios,
                 Type = questionPostModel.Type,
-                
+
             };
             bool result = await _postService.UpdateQuestionPostAsync(uploadPost, userInfo.Email);
             if (result)
@@ -146,7 +155,7 @@ namespace GAMAX.Services.Controllers
             return Ok(result);
         }
         [HttpPost("UpdatePost")]
-        public async Task<IActionResult> UpdatePost( [FromForm] DomainModels.DTO.UpdatePost postModel)
+        public async Task<IActionResult> UpdatePost([FromForm] DomainModels.DTO.UpdatePost postModel)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var uploadPost = new DomainModels.Models.UpdataPost
@@ -157,16 +166,17 @@ namespace GAMAX.Services.Controllers
                 NewPhotos = postModel.Photos,
                 NewVedios = postModel.Vedios,
                 Type = postModel.Type,
-                Description=postModel.Description,
+                Description = postModel.Description,
 
             };
-            bool susscuss = await _postService.UpdatePostAsync(uploadPost, userInfo.Email); 
-            if(susscuss) {
+            bool susscuss = await _postService.UpdatePostAsync(uploadPost, userInfo.Email);
+            if (susscuss)
+            {
                 var post = await _postService.GetPostByIDAsync(uploadPost.Id);
                 return Ok(post);
             }
             return BadRequest(susscuss);
         }
-        
+
     }
 }

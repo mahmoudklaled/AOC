@@ -94,7 +94,7 @@ namespace DomainModels.DTO
         public string UserLastName { get; set; }
         public DateTime Time { get; set; }
     }
-    
+
     #endregion
 
     #region comments
@@ -185,6 +185,8 @@ namespace DomainModels.DTO
     #region Notification
     public record NotificationDTO
     {
+        public Guid Id { get; set; }
+        public Guid NotifiedUserId { get; set; }
         public Guid ActionedUserId { get; set; }
         public string ActionUserFirstName { get; set; }
         public string ActionUserLastName { get; set; }

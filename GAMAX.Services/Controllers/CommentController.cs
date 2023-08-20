@@ -1,4 +1,6 @@
-﻿using Business.Services;
+﻿using Business;
+using Business.Services;
+using DataBase.Core.Enums;
 using GAMAX.Services.Dto;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +12,12 @@ namespace GAMAX.Services.Controllers
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICommentServices _commentServices;
-        public CommentController(IHttpContextAccessor httpContextAccessor, ICommentServices commentServices)
+        private readonly INotificationServices _notificationServices;
+        public CommentController(IHttpContextAccessor httpContextAccessor, ICommentServices commentServices, INotificationServices notificationServices)
         {
             _httpContextAccessor = httpContextAccessor;
             _commentServices = commentServices;
+            _notificationServices = notificationServices;
         }
         [HttpPost("GetPostComments")]
         public async Task<IActionResult> GetPostComments(Guid postId, DateTime? Time)
@@ -25,7 +29,7 @@ namespace GAMAX.Services.Controllers
         public async Task<IActionResult> GetQuestionComments(Guid postId, DateTime? Time)
         {
             var comments = await _commentServices.GetQuestionCommentsAsync(postId, Time);
-           return Ok(comments);
+            return Ok(comments);
         }
         [HttpPost("AddPostComment")]
         public async Task<IActionResult> AddPostComment([FromForm] DomainModels.DTO.AddCommentRequest requestModel)
@@ -38,14 +42,16 @@ namespace GAMAX.Services.Controllers
                 Vedio = requestModel.Vedio,
                 PostId = requestModel.PostId,
             };
-            var (result,id) = await _commentServices.AddPostCommentAsync(cmmnt, userInfo.Email);
+            var (result, id) = await _commentServices.AddPostCommentAsync(cmmnt, userInfo.Email);
             if (result)
             {
                 var commentDto = await _commentServices.GetPostCommentByIdAsync(id);
+                _notificationServices.NotifyOnAddingComment(commentDto, requestModel.PostId, PostsTypes.Post);
                 return Ok(commentDto);
             }
 
-            return BadRequest(new {
+            return BadRequest(new
+            {
                 Message = "Fail"
             });
         }
@@ -60,10 +66,11 @@ namespace GAMAX.Services.Controllers
                 Vedio = requestModel.Vedio,
                 PostId = requestModel.PostId,
             };
-            var (result,id) = await _commentServices.AddQuestionCommentAsync(cmmnt, userInfo.Email);
+            var (result, id) = await _commentServices.AddQuestionCommentAsync(cmmnt, userInfo.Email);
             if (result)
             {
                 var commentDto = await _commentServices.GetQuestionCommentByIdAsync(id);
+                _notificationServices.NotifyOnAddingComment(commentDto, requestModel.PostId, PostsTypes.Question);
                 return Ok(commentDto);
             }
 
@@ -73,7 +80,7 @@ namespace GAMAX.Services.Controllers
             });
         }
         [HttpPost("DeletePostComment")]
-        public async Task<IActionResult> DeletePostComment( Guid commentId)
+        public async Task<IActionResult> DeletePostComment(Guid commentId)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _commentServices.DeletePostCommentAsync(commentId, userInfo.Email);
@@ -86,7 +93,7 @@ namespace GAMAX.Services.Controllers
             });
         }
         [HttpPost("DeleteQuestionComment")]
-        public async Task<IActionResult> DeleteQuestionComment( Guid commentId)
+        public async Task<IActionResult> DeleteQuestionComment(Guid commentId)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _commentServices.DeleteQuestionCommentAsync(commentId, userInfo.Email);
@@ -107,10 +114,10 @@ namespace GAMAX.Services.Controllers
                 comment = requestModel.comment,
                 Photo = requestModel.Photo,
                 Vedio = requestModel.Vedio,
-                Id= requestModel.Id,
-                DeletedPhotoId= requestModel.DeletedPhotoId,
-                DeletedVideoId=requestModel.DeletedVedioId
-                
+                Id = requestModel.Id,
+                DeletedPhotoId = requestModel.DeletedPhotoId,
+                DeletedVideoId = requestModel.DeletedVedioId
+
             };
             var result = await _commentServices.UpdatePostCommentAsync(cmmnt, userInfo.Email);
             if (result)
@@ -149,5 +156,6 @@ namespace GAMAX.Services.Controllers
                 Message = "Fail"
             });
         }
+
     }
 }
