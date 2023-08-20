@@ -85,7 +85,7 @@ namespace Business.Implementation
                 ItemId = postDTO.Id,
                 NotificatinType = NotificatinTypes.AddPost
             };
-            Task.Run(() => { AddNotification(notificationDTO); SendPostNotification(notificationDTO); });
+            Task.Run(async () => { AddNotification(notificationDTO); await SendPostNotification(notificationDTO); });
             return;
         }
         public void NotifyOnAddingQuestion(QuestionPostDTO postDTO)
@@ -98,7 +98,7 @@ namespace Business.Implementation
                 ItemId = postDTO.Id,
                 NotificatinType = NotificatinTypes.AddQuestion
             };
-            Task.Run(() => { AddNotification(notificationDTO); SendPostNotification(notificationDTO); });
+            Task.Run(async () => { AddNotification(notificationDTO); await SendPostNotification(notificationDTO); });
         }
         public void RemoveAllUserNotification(Guid Id)
         {
@@ -155,9 +155,9 @@ namespace Business.Implementation
                 SendFriendRequestNotification(RecivedUserId, userAccount);
             });
         }
-        private void SendPostNotification(NotificationDTO notification)
+        private async Task SendPostNotification(NotificationDTO notification)
         {
-            _signalRActions.OnAddingPostAction?.Invoke(notification);
+            await _signalRActions.OnAddingPostAction?.Invoke(notification);
         }
         private void SendCommentNotification(Guid userOwnerId, CommentDTO commentDTO, Guid postId, PostsTypes postsType)
         {
