@@ -12,11 +12,11 @@ namespace Business
         {
             
         }
-        public Func<NotificationDTO, Task> OnAddingPostAction { get; set; }
-        public Func<Guid , CommentDTO , Guid , PostsTypes , Task> OnAddingCommentAction { get; set; }
+        public Func<NotificationModel, Task> OnAddingPostAction { get; set; }
+        public Func<NotificationModel, Task> OnAddingCommentAction { get; set; }
         public Func<Guid , UserAccount , Task> OnSendingFriendRequestAction { get; set; }
         public Func<Guid , UserAccount , Task> OnApprovedFriendRequestAction { get; set; }
-        public Func<Guid, ReactsDTO, Guid, PostsTypes, Task> OnAddingReactOnPostAction { get; set; }
-        public Func<Guid, ReactsDTO, Guid, PostsTypes, Task> OnAddingReactOnCommentAction { get; set; }
+        public Func<NotificationModel, Task> OnAddingReactOnPostAction { get; set; }
+        public Func<NotificationModel, Task> OnAddingReactOnCommentAction { get; set; }
     }
 }

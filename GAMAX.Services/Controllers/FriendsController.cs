@@ -1,5 +1,6 @@
 ﻿using Business.Services;
 using GAMAX.Services.Dto;
+using GAMAX.Services.Hubs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,11 +13,13 @@ namespace GAMAX.Services.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAcountService _accountService;
         private readonly INotificationServices _notificationServices;
-        public FriendsController(IHttpContextAccessor httpContextAccessor, IAcountService acountService, INotificationServices notificationServices)
+        private readonly HubContextNotify _hubContextNotify;
+        public FriendsController(IHttpContextAccessor httpContextAccessor, IAcountService acountService, INotificationServices notificationServices , HubContextNotify hubContextNotify)
         {
             _httpContextAccessor = httpContextAccessor;
             _accountService = acountService;
             _notificationServices = notificationServices;
+            _hubContextNotify = hubContextNotify;
         }
         [HttpPost("SearchAccount")]
         public async Task<IActionResult> SearchAccount(string searchString)
@@ -31,6 +34,13 @@ namespace GAMAX.Services.Controllers
             var searchResult = await _accountService.SendFriendRequest(userInfo.Uid, userId);
             _notificationServices.NotifyOnSendFriendRequest(userId, userInfo.Uid);
             return Ok(searchResult);
+        }
+        [HttpPost("GetPendingFriendRequest")]
+        public async Task<IActionResult> GetPendingFriendRequest()
+        {
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var pendingRequests = await _accountService.GetPendingFriendRequest(userInfo.Uid);
+            return Ok(pendingRequests);
         }
         [HttpPost("AproveFriendRequest")]
         public async Task<IActionResult> AproveFriendRequest(Guid RequestId)

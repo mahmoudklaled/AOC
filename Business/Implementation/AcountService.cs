@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http;
 using DomainModels.Models;
 using Business.Helper;
 using Business.Services;
+using DomainModels;
+using System.Xml.Linq;
 
 namespace Business.Implementation
 {
@@ -146,6 +148,12 @@ namespace Business.Implementation
             return result > 0;
         }
 
-
+        public async Task<List<DomainModels.DTO.UserAccount>> GetPendingFriendRequest(Guid userId)
+        {
+            string[] includes = { "Requestor" };
+            var pendingList = await _unitOfWork.FriendRequests.FindAllAsync(f=>f.ReceiverId==userId, includes);
+            var userAccounts = OMapper.Mapper.Map<List<DomainModels.DTO.UserAccount>>(pendingList);
+            return userAccounts;
+        }
     }
 }

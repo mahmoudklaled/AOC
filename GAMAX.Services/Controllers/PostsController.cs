@@ -16,11 +16,13 @@ namespace GAMAX.Services.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IPostService _postService;
         private readonly INotificationServices _notificationServices;
-        public PostsController(IHttpContextAccessor httpContextAccessor, IPostService postService, INotificationServices notificationServices)
+        private readonly HubContextNotify _hubContextNotify;
+        public PostsController(IHttpContextAccessor httpContextAccessor, IPostService postService, INotificationServices notificationServices, HubContextNotify hubContextNotify)
         {
             _httpContextAccessor = httpContextAccessor;
             _postService = postService;
             _notificationServices = notificationServices;
+            _hubContextNotify = hubContextNotify;
         }
         [HttpPost("GetAllPosts")]
         public async Task<IActionResult> GetAllPosts(DateTime? Time)

@@ -17,6 +17,7 @@ namespace GAMAX.Services.Hubs
             _signalRActions = signalRActions;
             _signalRActions.OnAddingPostAction = OnAddingPost;
             _signalRActions.OnAddingCommentAction = OnAddingComment;
+            _signalRActions.OnAddingReactOnPostAction = OnAddingReactOnPost;
             _signalRActions.OnSendingFriendRequestAction = OnSendFriendRequest;
             _signalRActions.OnApprovedFriendRequestAction = OnApproveFriendRequest;
         }
@@ -44,47 +45,32 @@ namespace GAMAX.Services.Hubs
                 await _hubContext.Clients.Client(connID).SendAsync("OnApproveFriendRequest", userAccount);
             }
         }
-        public async Task OnAddingPost(NotificationDTO notification)
+        public async Task OnAddingPost(NotificationModel notification)
         {
             await _hubContext.Clients.All.SendAsync("OnAddingPostOrQuestion", notification);
         }
-        public async Task OnAddingComment(Guid PostOwnerUserId, CommentDTO comment, Guid POSTID, PostsTypes postsType)
+        public async Task OnAddingComment(NotificationModel notification)
         {
-            var connID = _userConnectionManager.GetUserConnection(PostOwnerUserId);
+            var connID = _userConnectionManager.GetUserConnection(notification.NotifiedUserId);
             if (!string.IsNullOrEmpty(connID))
             {
-                await _hubContext.Clients.Client(connID).SendAsync("OnAddingComment", new
-                {
-                    commentDTO = comment,
-                    PostId = POSTID,
-                    Type = postsType
-                });
+                await _hubContext.Clients.Client(connID).SendAsync("OnAddingComment", notification);
             }
         }
-        public async Task OnAddingReactOnPost(Guid PostOwnerUserId, ReactsDTO react, Guid POSTID, PostsTypes postsType)
+        public async Task OnAddingReactOnPost(NotificationModel notification)
         {
-            var connID = _userConnectionManager.GetUserConnection(PostOwnerUserId);
+            var connID = _userConnectionManager.GetUserConnection(notification.NotifiedUserId);
             if (!string.IsNullOrEmpty(connID))
             {
-                await _hubContext.Clients.Client(connID).SendAsync("OnAddingReactOnPost", new
-                {
-                    reactDTO = react,
-                    PostId = POSTID,
-                    Type = postsType
-                });
+                await _hubContext.Clients.Client(connID).SendAsync("OnAddingReactOnPost", notification);
             }
         }
-        public async Task OnAddingReactOnComment(Guid PostOwnerUserId, ReactsDTO react, Guid commentId, NotificatinTypes notificationType)
+        public async Task OnAddingReactOnComment(NotificationModel notification)
         {
-            var connID = _userConnectionManager.GetUserConnection(PostOwnerUserId);
+            var connID = _userConnectionManager.GetUserConnection(notification.NotifiedUserId);
             if (!string.IsNullOrEmpty(connID))
             {
-                await _hubContext.Clients.Client(connID).SendAsync("OnAddingReactOnComment", new
-                {
-                    reactDTO = react,
-                    CommentId = commentId,
-                    Type = notificationType
-                });
+                await _hubContext.Clients.Client(connID).SendAsync("OnAddingReactOnComment", notification);
             }
         }
     }

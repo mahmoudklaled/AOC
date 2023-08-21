@@ -193,5 +193,17 @@ namespace DomainModels.DTO
         public Guid ItemId { get; set; }
         public NotificatinTypes NotificatinType { get; set; }
     }
+    public record NotificationModel
+    {
+        public Guid Id { get; set; }
+        public Guid NotifiedUserId { get; set; }
+        public Guid ActionedUserId { get; set; }
+        public string ActionUserFirstName { get; set; }
+        public string ActionUserLastName { get; set; }
+        public Guid PostId { get; set; }
+        public PostsTypes PostsType { get; set; }
+        public NotificatinTypes NotificatinType { get; set; }
+        public string TimeCreated { get; set; }
+    }
     #endregion
 }

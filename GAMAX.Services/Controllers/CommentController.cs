@@ -2,6 +2,7 @@
 using Business.Services;
 using DataBase.Core.Enums;
 using GAMAX.Services.Dto;
+using GAMAX.Services.Hubs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GAMAX.Services.Controllers
@@ -13,11 +14,13 @@ namespace GAMAX.Services.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICommentServices _commentServices;
         private readonly INotificationServices _notificationServices;
-        public CommentController(IHttpContextAccessor httpContextAccessor, ICommentServices commentServices, INotificationServices notificationServices)
+        private readonly HubContextNotify _hubContextNotify;
+        public CommentController(IHttpContextAccessor httpContextAccessor, ICommentServices commentServices, INotificationServices notificationServices, HubContextNotify hubContextNotify)
         {
             _httpContextAccessor = httpContextAccessor;
             _commentServices = commentServices;
             _notificationServices = notificationServices;
+            _hubContextNotify = hubContextNotify;
         }
         [HttpPost("GetPostComments")]
         public async Task<IActionResult> GetPostComments(Guid postId, DateTime? Time)

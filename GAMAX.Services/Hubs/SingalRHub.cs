@@ -11,12 +11,12 @@ namespace GAMAX.Services.Hubs
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly UserConnectionManager _userConnectionManager;
-        private readonly HubContextNotify _hubContextNotify;
-        public SingalRHub(IHttpContextAccessor httpContextAccessor, UserConnectionManager userConnectionManager , HubContextNotify hubContextNotify)
+        //
+        public SingalRHub(IHttpContextAccessor httpContextAccessor, UserConnectionManager userConnectionManager /*, HubContextNotify hubContextNotify*/)
         {
             _httpContextAccessor = httpContextAccessor;
             _userConnectionManager = userConnectionManager;
-            _hubContextNotify = hubContextNotify;
+            //_hubContextNotify = hubContextNotify;
             
         }
         public override Task OnConnectedAsync()
@@ -24,7 +24,6 @@ namespace GAMAX.Services.Hubs
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             string connectionId = Context.ConnectionId;
             _userConnectionManager.AddUserConnection(userInfo.Uid, connectionId);
-            //OnTestConnection(connectionId);
             return base.OnConnectedAsync();
         }
         public override Task OnDisconnectedAsync(Exception? exception)
@@ -33,21 +32,5 @@ namespace GAMAX.Services.Hubs
             _userConnectionManager.RemoveUserConnection(userInfo.Uid);
             return base.OnDisconnectedAsync(exception);
         }
-        
-        //public Task OnTestConnection(string id)
-        //{
-        //    Clients.Client(id).SendAsync("OnTestConnection", "Hello youre connected!");
-        //    return Task.CompletedTask;
-        //}
-        //public Task OnInvokeConnection(string Message)
-        //{
-        //    Clients.All.SendAsync("OnInvokeConnection", "Hello youre OnInvokeConnection!" + Message);
-        //    return Task.CompletedTask;
-        //}
-        //public async Task OnAddingQuestionPost(Guid postId)
-        //{
-        //    await Clients.All.SendAsync("OnAddingQuestionPost", postId);
-
-        //}
     }
 }

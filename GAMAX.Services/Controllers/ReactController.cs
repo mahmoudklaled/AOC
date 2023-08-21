@@ -1,6 +1,7 @@
 ﻿using Business.Services;
 using DomainModels.Models;
 using GAMAX.Services.Dto;
+using GAMAX.Services.Hubs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GAMAX.Services.Controllers
@@ -11,10 +12,14 @@ namespace GAMAX.Services.Controllers
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IReactServices _reactServices;
-        public ReactController(IHttpContextAccessor httpContextAccessor, IReactServices reactServices)
+        private readonly INotificationServices _notificationServices;
+        private readonly HubContextNotify _hubContextNotify;
+        public ReactController(IHttpContextAccessor httpContextAccessor, IReactServices reactServices , INotificationServices notificationServices, HubContextNotify hubContextNotify)
         {
             _httpContextAccessor = httpContextAccessor;
             _reactServices = reactServices;
+            _hubContextNotify = hubContextNotify;
+            _notificationServices = notificationServices;
         }
         [HttpPost("GetPostReacts")]
         public async Task<IActionResult> GetPostReacts(Guid postId)
@@ -94,7 +99,11 @@ namespace GAMAX.Services.Controllers
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _reactServices.AddReactOnPostAsync(reactRequest, userInfo.Email);
             if (result.Item1)
-                return Ok(await _reactServices.GetReactByIdOnPost(result.Item2));
+            {
+                var reactDto = await _reactServices.GetReactByIdOnPost(result.Item2);
+                _notificationServices.NotifyOnAddingReactPost(reactDto , reactRequest);
+                return Ok(reactDto);
+            }
             return BadRequest(new
             {
                 Message = "Fail"
@@ -106,7 +115,11 @@ namespace GAMAX.Services.Controllers
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _reactServices.AddReactOnQuestionPostAsync(reactRequest, userInfo.Email);
             if (result.Item1)
-                return Ok(await _reactServices.GetReactByIdOnQuestionPost(result.Item2));
+            {
+                var reactDto = await _reactServices.GetReactByIdOnQuestionPost(result.Item2);
+                _notificationServices.NotifyOnAddingReactQuestionPost(reactDto, reactRequest);
+                return Ok(reactDto);
+            }
             return BadRequest(new
             {
                 Message = "Fail"
