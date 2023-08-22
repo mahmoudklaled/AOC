@@ -52,7 +52,7 @@ namespace Business.Implementation
         }
         public void NotifyOnAddingComment(CommentDTO commentDTO, Guid postId, PostsTypes postsType)
         {
-            Task.Run(() => {
+            Task.Run(async() => {
                 Guid userPostOwnerId;
                 var notificationDTO = new NotificationDTO()
                 {
@@ -83,7 +83,7 @@ namespace Business.Implementation
                     PostsType = postsType,
                    NotificatinType = notificationDTO.NotificatinType,
                 };
-                SendCommentNotification(notificationModel);
+                await SendCommentNotification(notificationModel);
 
             });
 
@@ -165,7 +165,7 @@ namespace Business.Implementation
                     Type = accountProfile.Type.ToString(),
                 };
 
-                ApproveFriendRequestNotification(ApprovedUserId, userAccount);
+                await ApproveFriendRequestNotification(ApprovedUserId, userAccount);
             });
         }
 
@@ -188,12 +188,12 @@ namespace Business.Implementation
                     Type = accountProfile.Type.ToString(),
                 };
 
-                SendFriendRequestNotification(RecivedUserId, userAccount);
+                await SendFriendRequestNotification(RecivedUserId, userAccount);
             });
         }
         public void NotifyOnAddingReactPost(ReactsDTO reactDTO, AddReactRequest reactRequest)
         {
-            Task.Run( () => {
+            Task.Run(async () => {
                 var notificationDTO = new NotificationDTO()
                 {
                     ActionedUserId = reactDTO.UserId,
@@ -214,12 +214,12 @@ namespace Business.Implementation
                     NotificatinType = notificationDTO.NotificatinType,
                 };
                 AddNotification(notificationDTO); 
-                SendReactNotificationOnPost(notificationModel);
+                await SendReactNotificationOnPost(notificationModel);
             });
         }
         public void NotifyOnAddingReactQuestionPost(ReactsDTO reactDTO, AddReactRequest reactRequest)
         {
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 var notificationDTO = new NotificationDTO()
                 {
@@ -241,7 +241,7 @@ namespace Business.Implementation
                     NotificatinType = notificationDTO.NotificatinType,
                 };
                 AddNotification(notificationDTO);
-                SendReactNotificationOnPost(notificationModel);
+                await SendReactNotificationOnPost(notificationModel);
             });
         }
         //public void NotifyOnAddingReactOnComment(ReactsDTO reactDTO, AddReactRequest reactRequest)
@@ -300,21 +300,21 @@ namespace Business.Implementation
         {
             await _signalRActions.OnAddingPostAction?.Invoke(notification);
         }
-        private void SendCommentNotification(DomainModels.DTO.NotificationModel notification)
+        private async Task SendCommentNotification(DomainModels.DTO.NotificationModel notification)
         {
-            _signalRActions.OnAddingCommentAction?.Invoke(notification);
+            await _signalRActions.OnAddingCommentAction?.Invoke(notification);
         }
-        private void SendReactNotificationOnPost(DomainModels.DTO.NotificationModel notification)
+        private async Task SendReactNotificationOnPost(DomainModels.DTO.NotificationModel notification)
         {
-            _signalRActions.OnAddingReactOnPostAction?.Invoke(notification);
+            await _signalRActions.OnAddingReactOnPostAction?.Invoke(notification);
         }
-        private void SendFriendRequestNotification(Guid RecivedUserId, UserAccount userAccount)
+        private async Task SendFriendRequestNotification(Guid RecivedUserId, UserAccount userAccount)
         {
-            _signalRActions.OnSendingFriendRequestAction?.Invoke(RecivedUserId, userAccount);
+            await _signalRActions.OnSendingFriendRequestAction?.Invoke(RecivedUserId, userAccount);
         }
-        private void ApproveFriendRequestNotification(Guid ApprovedUserId, UserAccount userAccount)
+        private async Task ApproveFriendRequestNotification(Guid ApprovedUserId, UserAccount userAccount)
         {
-            _signalRActions.OnApprovedFriendRequestAction?.Invoke(ApprovedUserId, userAccount);
+            await _signalRActions.OnApprovedFriendRequestAction?.Invoke(ApprovedUserId, userAccount);
         }
 
         
