@@ -52,39 +52,38 @@ namespace Business.Implementation
         }
         public void NotifyOnAddingComment(CommentDTO commentDTO, Guid postId, PostsTypes postsType)
         {
+            Guid userPostOwnerId;
+            var notificationDTO = new NotificationDTO()
+            {
+                ActionedUserId = commentDTO.UserId,
+                ActionUserFirstName = commentDTO.UserFirstName,
+                ActionUserLastName = commentDTO.UserLastName,
+                ItemId = postId,
+            };
+            if (postsType == PostsTypes.Post)
+            {
+                notificationDTO.NotificatinType = NotificatinTypes.AddComment;
+                userPostOwnerId = _unitOfWork.Post.Find(p => p.Id == postId).UserAccountsId;
+            }
+            else
+            {
+                notificationDTO.NotificatinType = NotificatinTypes.AddQuestion;
+                userPostOwnerId = _unitOfWork.QuestionPost.Find(p => p.Id == postId).UserAccountsId;
+            }
+            var notificationModel = new DomainModels.DTO.NotificationModel
+            {
+                ActionedUserId = notificationDTO.ActionedUserId,
+                ActionUserFirstName = notificationDTO.ActionUserFirstName,
+                ActionUserLastName = notificationDTO.ActionUserLastName,
+                NotifiedUserId = notificationDTO.NotifiedUserId,
+                TimeCreated = TimeHelper.ConvertTimeCreateToString(DateTime.UtcNow),
+                PostId = notificationDTO.ItemId,
+                PostsType = postsType,
+                NotificatinType = notificationDTO.NotificatinType,
+            };
             Task.Run(async() => {
-                Guid userPostOwnerId;
-                var notificationDTO = new NotificationDTO()
-                {
-                    ActionedUserId = commentDTO.UserId,
-                    ActionUserFirstName = commentDTO.UserFirstName,
-                    ActionUserLastName = commentDTO.UserLastName,
-                    ItemId = postId,
-                };
-                if (postsType == PostsTypes.Post)
-                {
-                    notificationDTO.NotificatinType = NotificatinTypes.AddComment;
-                    userPostOwnerId = _unitOfWork.Post.Find(p => p.Id == postId).UserAccountsId;
-                }
-                else
-                {
-                    notificationDTO.NotificatinType = NotificatinTypes.AddQuestion;
-                    userPostOwnerId = _unitOfWork.QuestionPost.Find(p => p.Id == postId).UserAccountsId;
-                }
                 AddNotification(notificationDTO);
-                var notificationModel = new DomainModels.DTO.NotificationModel
-                {
-                    ActionedUserId = notificationDTO.ActionedUserId,
-                    ActionUserFirstName = notificationDTO.ActionUserFirstName,
-                    ActionUserLastName = notificationDTO.ActionUserLastName,
-                    NotifiedUserId = notificationDTO.NotifiedUserId,
-                    TimeCreated = TimeHelper.ConvertTimeCreateToString(DateTime.UtcNow),
-                    PostId = notificationDTO.ItemId,
-                    PostsType = postsType,
-                   NotificatinType = notificationDTO.NotificatinType,
-                };
                 await SendCommentNotification(notificationModel);
-
             });
 
             return;
@@ -168,7 +167,6 @@ namespace Business.Implementation
                 await ApproveFriendRequestNotification(ApprovedUserId, userAccount);
             });
         }
-
         public void NotifyOnSendFriendRequest(Guid RecivedUserId, Guid userId)
         {
             Task.Run(async () => {
