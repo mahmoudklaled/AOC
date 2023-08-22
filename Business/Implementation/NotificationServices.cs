@@ -169,23 +169,22 @@ namespace Business.Implementation
         }
         public void NotifyOnSendFriendRequest(Guid RecivedUserId, Guid userId)
         {
+            var accountProfile =  _unitOfWork.UserAccounts.Find(p => p.Id == userId);
+            var userAccount = new DomainModels.DTO.UserAccount
+            {
+                Id = accountProfile.Id,
+                Email = accountProfile.Email,
+                UserName = accountProfile.UserName,
+                FirstName = accountProfile.FirstName,
+                LastName = accountProfile.LastName,
+                City = accountProfile.City,
+                Country = accountProfile.Country,
+                Bio = accountProfile.Bio,
+                Birthdate = accountProfile.Birthdate,
+                gender = accountProfile.gender.ToString(),
+                Type = accountProfile.Type.ToString(),
+            };
             Task.Run(async () => {
-                var accountProfile = await _unitOfWork.UserAccounts.FindAsync(p => p.Id == userId);
-                var userAccount = new DomainModels.DTO.UserAccount
-                {
-                    Id = accountProfile.Id,
-                    Email = accountProfile.Email,
-                    UserName = accountProfile.UserName,
-                    FirstName = accountProfile.FirstName,
-                    LastName = accountProfile.LastName,
-                    City = accountProfile.City,
-                    Country = accountProfile.Country,
-                    Bio = accountProfile.Bio,
-                    Birthdate = accountProfile.Birthdate,
-                    gender = accountProfile.gender.ToString(),
-                    Type = accountProfile.Type.ToString(),
-                };
-
                 await SendFriendRequestNotification(RecivedUserId, userAccount);
             });
         }
