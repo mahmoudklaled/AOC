@@ -75,13 +75,14 @@ namespace Business.Implementation
                 ActionedUserId = notificationDTO.ActionedUserId,
                 ActionUserFirstName = notificationDTO.ActionUserFirstName,
                 ActionUserLastName = notificationDTO.ActionUserLastName,
-                NotifiedUserId = notificationDTO.NotifiedUserId,
+                NotifiedUserId = userPostOwnerId,
                 TimeCreated = TimeHelper.ConvertTimeCreateToString(DateTime.UtcNow),
                 PostId = notificationDTO.ItemId,
                 PostsType = postsType,
                 NotificatinType = notificationDTO.NotificatinType,
             };
             Task.Run(async() => {
+                
                 AddNotification(notificationDTO);
                 await SendCommentNotification(notificationModel);
             });
