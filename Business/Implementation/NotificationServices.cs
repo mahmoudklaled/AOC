@@ -191,53 +191,54 @@ namespace Business.Implementation
         }
         public void NotifyOnAddingReactPost(ReactsDTO reactDTO, AddReactRequest reactRequest)
         {
+            var notificationDTO = new NotificationDTO()
+            {
+                ActionedUserId = reactDTO.UserId,
+                ActionUserFirstName = reactDTO.UserFirstName,
+                ActionUserLastName = reactDTO.UserLastName,
+                ItemId = reactRequest.ObjectId,
+                NotificatinType = NotificatinTypes.AddReactOnPost
+            };
+            var notificationModel = new DomainModels.DTO.NotificationModel
+            {
+                ActionedUserId = reactDTO.UserId,
+                ActionUserFirstName = reactDTO.UserFirstName,
+                ActionUserLastName = reactDTO.UserLastName,
+                NotifiedUserId = _unitOfWork.Post.Find(p => p.Id == reactRequest.ObjectId).UserAccountsId,
+                TimeCreated = TimeHelper.ConvertTimeCreateToString(DateTime.UtcNow),
+                PostId = reactRequest.ObjectId,
+                PostsType = PostsTypes.Post,
+                NotificatinType = notificationDTO.NotificatinType,
+            };
             Task.Run(async () => {
-                var notificationDTO = new NotificationDTO()
-                {
-                    ActionedUserId = reactDTO.UserId,
-                    ActionUserFirstName = reactDTO.UserFirstName,
-                    ActionUserLastName = reactDTO.UserLastName,
-                    ItemId = reactRequest.ObjectId,
-                    NotificatinType = NotificatinTypes.AddReactOnPost
-                };
-                var notificationModel = new DomainModels.DTO.NotificationModel
-                {
-                    ActionedUserId = reactDTO.UserId,
-                    ActionUserFirstName = reactDTO.UserFirstName,
-                    ActionUserLastName = reactDTO.UserLastName,
-                    NotifiedUserId = _unitOfWork.Post.Find(p => p.Id == reactRequest.ObjectId).UserAccountsId,
-                    TimeCreated = TimeHelper.ConvertTimeCreateToString(DateTime.UtcNow),
-                    PostId = reactRequest.ObjectId,
-                    PostsType = PostsTypes.Post,
-                    NotificatinType = notificationDTO.NotificatinType,
-                };
+                
                 AddNotification(notificationDTO); 
                 await SendReactNotificationOnPost(notificationModel);
             });
         }
         public void NotifyOnAddingReactQuestionPost(ReactsDTO reactDTO, AddReactRequest reactRequest)
         {
+            var notificationDTO = new NotificationDTO()
+            {
+                ActionedUserId = reactDTO.UserId,
+                ActionUserFirstName = reactDTO.UserFirstName,
+                ActionUserLastName = reactDTO.UserLastName,
+                ItemId = reactRequest.ObjectId,
+                NotificatinType = NotificatinTypes.AddReactOnQuestion
+            };
+            var notificationModel = new DomainModels.DTO.NotificationModel
+            {
+                ActionedUserId = reactDTO.UserId,
+                ActionUserFirstName = reactDTO.UserFirstName,
+                ActionUserLastName = reactDTO.UserLastName,
+                NotifiedUserId = _unitOfWork.QuestionPost.Find(p => p.Id == reactRequest.ObjectId).UserAccountsId,
+                TimeCreated = TimeHelper.ConvertTimeCreateToString(DateTime.UtcNow),
+                PostId = reactRequest.ObjectId,
+                PostsType = PostsTypes.Question,
+                NotificatinType = notificationDTO.NotificatinType,
+            };
             Task.Run(async () =>
             {
-                var notificationDTO = new NotificationDTO()
-                {
-                    ActionedUserId = reactDTO.UserId,
-                    ActionUserFirstName = reactDTO.UserFirstName,
-                    ActionUserLastName = reactDTO.UserLastName,
-                    ItemId = reactRequest.ObjectId,
-                    NotificatinType = NotificatinTypes.AddReactOnQuestion
-                };
-                var notificationModel = new DomainModels.DTO.NotificationModel
-                {
-                    ActionedUserId = reactDTO.UserId,
-                    ActionUserFirstName = reactDTO.UserFirstName,
-                    ActionUserLastName = reactDTO.UserLastName,
-                    NotifiedUserId = _unitOfWork.QuestionPost.Find(p => p.Id == reactRequest.ObjectId).UserAccountsId,
-                    TimeCreated = TimeHelper.ConvertTimeCreateToString(DateTime.UtcNow),
-                    PostId = reactRequest.ObjectId,
-                    PostsType = PostsTypes.Question,
-                    NotificatinType = notificationDTO.NotificatinType,
-                };
                 AddNotification(notificationDTO);
                 await SendReactNotificationOnPost(notificationModel);
             });
