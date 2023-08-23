@@ -145,7 +145,7 @@ namespace GAMAX.Services.Services
 
             // Step 4: Add the new profile to the DbContext and save changes
             await _unitOfWork.UserAccounts.AddAsync(profile);
-            _unitOfWork.Complete();
+            await _unitOfWork.Complete();
         }
         public async Task<AuthModel> LoginAndGetTokenAsync(TokenRequestModel model)
         {

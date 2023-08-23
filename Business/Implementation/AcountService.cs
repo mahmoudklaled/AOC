@@ -148,11 +148,11 @@ namespace Business.Implementation
             return result > 0;
         }
 
-        public async Task<List<DomainModels.DTO.UserAccount>> GetPendingFriendRequest(Guid userId)
+        public async Task<List<DomainModels.DTO.FriendRequestUserAccount>> GetPendingFriendRequest(Guid userId)
         {
             string[] includes = { "Requestor" };
             var pendingList = await _unitOfWork.FriendRequests.FindAllAsync(f=>f.ReceiverId==userId, includes);
-            var userAccounts = OMapper.Mapper.Map<List<DomainModels.DTO.UserAccount>>(pendingList);
+            var userAccounts = OMapper.Mapper.Map<List<DomainModels.DTO.FriendRequestUserAccount>>(pendingList);
             return userAccounts;
         }
     }

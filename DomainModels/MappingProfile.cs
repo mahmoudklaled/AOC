@@ -108,6 +108,21 @@ namespace DomainModels
                 .ForMember(dest => dest.Type, src => src.MapFrom(src => src.Requestor.Type))
                 .ForMember(dest => dest.Email, src => src.MapFrom(src => src.Requestor.Email));
 
+            CreateMap<FriendRequest, DTO.FriendRequestUserAccount>()
+                .ForMember(dest => dest.RequestId, src => src.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Id, src => src.MapFrom(src => src.RequestorId))
+                .ForMember(dest => dest.FirstName, src => src.MapFrom(src => src.Requestor.FirstName))
+                .ForMember(dest => dest.LastName, src => src.MapFrom(src => src.Requestor.LastName))
+                .ForMember(dest => dest.UserName, src => src.MapFrom(src => src.Requestor.UserName))
+                .ForMember(dest => dest.City, src => src.MapFrom(src => src.Requestor.City))
+                .ForMember(dest => dest.gender, src => src.MapFrom(src => src.Requestor.gender))
+                .ForMember(dest => dest.Bio, src => src.MapFrom(src => src.Requestor.Bio))
+                .ForMember(dest => dest.Country, src => src.MapFrom(src => src.Requestor.Country))
+                .ForMember(dest => dest.Birthdate, src => src.MapFrom(src => src.Requestor.Birthdate))
+                .ForMember(dest => dest.Type, src => src.MapFrom(src => src.Requestor.Type))
+                .ForMember(dest => dest.Email, src => src.MapFrom(src => src.Requestor.Email));
+
+
         }
         public class PostCommentPhotoResolver : IValueResolver<PostComment, CommentDTO, BasePhoto?>
         {

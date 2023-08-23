@@ -169,6 +169,21 @@ namespace DomainModels.DTO
         public string? gender { get; set; }
         public string Type { get; set; }
     }
+    public record FriendRequestUserAccount
+    {
+        public Guid RequestId { get; set; }
+        public Guid Id { get; set; }
+        public string Email { get; set; }
+        public string UserName { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string? Bio { get; set; }
+        public string? City { get; set; }
+        public string? Country { get; set; }
+        public DateTime? Birthdate { get; set; }
+        public string? gender { get; set; }
+        public string Type { get; set; }
+    }
     public record ProfileUpdateModel
     {
         public Guid Id { get; set; }
@@ -180,6 +195,7 @@ namespace DomainModels.DTO
         public DateTime? Birthdate { get; set; }
         public string? gender { get; set; } = "Unknown";
     }
+
     #endregion
 
     #region Notification

@@ -29,7 +29,7 @@ namespace GAMAX.Services.Hubs
                 await _hubContext.Clients.Client(connID).SendAsync("ReceiveMessage", message);
             }
         }
-        public async Task OnSendFriendRequest(Guid RecivedUserId, UserAccount userAccount)
+        public async Task OnSendFriendRequest(Guid RecivedUserId, FriendRequestUserAccount userAccount)
         {
             var connID = _userConnectionManager.GetUserConnection(RecivedUserId);
             if (!string.IsNullOrEmpty(connID))

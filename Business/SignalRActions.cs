@@ -14,7 +14,7 @@ namespace Business
         }
         public Func<NotificationModel, Task> OnAddingPostAction { get; set; }
         public Func<NotificationModel, Task> OnAddingCommentAction { get; set; }
-        public Func<Guid , UserAccount , Task> OnSendingFriendRequestAction { get; set; }
+        public Func<Guid , FriendRequestUserAccount, Task> OnSendingFriendRequestAction { get; set; }
         public Func<Guid , UserAccount , Task> OnApprovedFriendRequestAction { get; set; }
         public Func<NotificationModel, Task> OnAddingReactOnPostAction { get; set; }
         public Func<NotificationModel, Task> OnAddingReactOnCommentAction { get; set; }
