@@ -126,7 +126,7 @@ namespace GAMAX.Services.Controllers
             });
         }
         [HttpPost("AddReactOnPostComment")]
-        public async Task<IActionResult> AddReactOnPostComment([FromForm]AddReactRequest reactRequest)
+        public async Task<IActionResult> AddReactOnPostComment(AddReactRequest reactRequest)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _reactServices.AddReactOnPostCommentAsync(reactRequest, userInfo.Email);
