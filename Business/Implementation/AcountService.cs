@@ -7,6 +7,7 @@ using Business.Helper;
 using Business.Services;
 using DomainModels;
 using System.Xml.Linq;
+using DomainModels.DTO;
 
 namespace Business.Implementation
 {
@@ -41,6 +42,10 @@ namespace Business.Implementation
             var recevier = await _unitOfWork.UserAccounts.FindAsync(u => u.Id == recevierId);
             if (sender == null || recevier == null)
                 return false;
+            //case already a friend 
+            var isSendReqBefor = _unitOfWork.FriendRequests.Count(f => f.ReceiverId == recevierId && f.RequestorId == senderId);
+            if (isSendReqBefor > 0)
+                return true;
             await _unitOfWork.FriendRequests.AddAsync(new FriendRequest
             {
                 Id = Guid.NewGuid(),
@@ -82,7 +87,7 @@ namespace Business.Implementation
         public async Task<List<SearchAccount>> SearchAccountsAsync(string searchValue)
         {
             string[] includes = { "ProfilePhoto" };
-            var accountProfile = await _unitOfWork.UserAccounts.FindAllAsync(p => p.Email == searchValue || p.UserName == searchValue || p.FirstName == searchValue, includes);
+            var accountProfile = await _unitOfWork.UserAccounts.FindAllAsync(p => p.Email.ToLower() == searchValue || p.UserName.ToLower() == searchValue || p.FirstName.Contains(searchValue) || (p.FirstName+p.LastName).ToLower().Contains(searchValue), includes);
             var searchResult = new List<SearchAccount>();
             foreach (var account in accountProfile)
             {
@@ -96,7 +101,7 @@ namespace Business.Implementation
             }
             return searchResult;
         }
-        public async Task<bool> UpdateAccountProfileAsync(ProfileUpdateModel profileUpdateModel)
+        public async Task<bool> UpdateAccountProfileAsync(DomainModels.Models.ProfileUpdateModel profileUpdateModel)
         {
             var profileAccount = await _unitOfWork.UserAccounts.FindAsync(p => p.Id == profileUpdateModel.Id);
             profileAccount.FirstName = profileUpdateModel.FirstName;
@@ -154,6 +159,41 @@ namespace Business.Implementation
             var pendingList = await _unitOfWork.FriendRequests.FindAllAsync(f=>f.ReceiverId==userId, includes);
             var userAccounts = OMapper.Mapper.Map<List<DomainModels.DTO.FriendRequestUserAccount>>(pendingList);
             return userAccounts;
+        }
+
+        public async Task<List<DomainModels.DTO.UserAccount>> GetAllUserFreinds(Guid userId)
+        {
+            string[] includes = { "FirstUser" , "SecondUser" };
+            var frindsList = await _unitOfWork.Friends.FindAllAsync(f => f.FirstUserId == userId || f.SecondUserId == userId , includes);
+            List<UserAccount> users = new List<UserAccount>();
+            foreach (var frind in frindsList)
+            {
+                var userDto = new UserAccount();
+                if (userId == frind.FirstUserId)
+                {
+                    userDto.Id= frind.SecondUserId;
+                    userDto.UserName = frind.SecondUser.UserName;
+                    userDto.FirstName= frind.SecondUser.FirstName;
+                    userDto.LastName= frind.SecondUser.LastName;
+                    userDto.Birthdate= frind.SecondUser.Birthdate;
+                    userDto.Bio= frind.SecondUser.Bio;
+                    userDto.City= frind.SecondUser.City;
+                    userDto.Country= frind.SecondUser.Country;
+                }
+                else
+                {
+                    userDto.Id = frind.FirstUserId;
+                    userDto.UserName = frind.FirstUser.UserName;
+                    userDto.FirstName = frind.FirstUser.FirstName;
+                    userDto.LastName = frind.FirstUser.LastName;
+                    userDto.Birthdate = frind.FirstUser.Birthdate;
+                    userDto.Bio = frind.FirstUser.Bio;
+                    userDto.City = frind.FirstUser.City;
+                    userDto.Country = frind.FirstUser.Country;
+                }
+                users.Add(userDto);
+            }
+            return users;
         }
     }
 }

@@ -24,6 +24,7 @@ namespace GAMAX.Services.Controllers
         [HttpPost("SearchAccount")]
         public async Task<IActionResult> SearchAccount(string searchString)
         {
+            searchString=searchString.ToLower();
             var searchResult = await _accountService.SearchAccountsAsync(searchString);
             return Ok(searchResult);
         }
@@ -49,6 +50,13 @@ namespace GAMAX.Services.Controllers
             var searchResult = await _accountService.AproveFriendRequest(RequestId);
             _notificationServices.NotifyOnApproveFriendRequest(searchResult.Item2, userInfo.Uid);
             return Ok(searchResult.Item1);
+        }
+        [HttpPost("GetAllUserFriends")]
+        public async Task<IActionResult> GetAllUserFreinds(Guid ? userID)
+        {
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var userFriend = await _accountService.GetAllUserFreinds(userID == null ? userInfo.Uid : (Guid)userID);
+            return Ok(userFriend);
         }
         [HttpPost("DeneyFriendRequest")]
         public async Task<IActionResult> DeneyFriendRequest(Guid RequestId)

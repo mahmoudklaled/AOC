@@ -36,7 +36,7 @@ namespace GAMAX.Services.Hubs
             {
                 await _hubContext.Clients.Client(connID).SendAsync("OnSendFriendRequest", userAccount);
             }
-        }
+          }
         public async Task OnApproveFriendRequest(Guid ApprovedUserId, UserAccount userAccount)
         {
             var connID = _userConnectionManager.GetUserConnection(ApprovedUserId);

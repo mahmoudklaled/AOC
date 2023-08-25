@@ -68,7 +68,7 @@ namespace Business.Implementation
             }
             else
             {
-                notificationDTO.NotificatinType = NotificatinTypes.AddQuestion;
+                notificationDTO.NotificatinType = NotificatinTypes.AddAnswer;
                 userPostOwnerId = _unitOfWork.QuestionPost.Find(p => p.Id == postId).UserAccountsId;
                 notificationDTO.NotifiedUserId = userPostOwnerId;
             }
@@ -235,7 +235,7 @@ namespace Business.Implementation
         private  FriendRequestUserAccount GetFriendRequestData(Guid RecivedUserId, Guid userId)
         {
             string[] includes = { "Requestor" };
-            var pendingList =  _unitOfWork.FriendRequests.Find(f => f.ReceiverId == RecivedUserId && f.RequestorId==userId, includes);
+            var pendingList =  _unitOfWork.FriendRequests.FindAll(f => f.ReceiverId == RecivedUserId && f.RequestorId==userId, includes).FirstOrDefault();
             var userAccounts = OMapper.Mapper.Map<DomainModels.DTO.FriendRequestUserAccount>(pendingList);
             return userAccounts;
         }

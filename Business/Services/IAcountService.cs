@@ -16,5 +16,6 @@ namespace Business.Services
         Task<bool> DeneyFriendRequest(Guid friendRequestId);
         Task<bool> DeleteFriend(Guid userId, Guid friendId);
         Task<List<DomainModels.DTO.FriendRequestUserAccount>> GetPendingFriendRequest(Guid userId);
+        Task <List<DomainModels.DTO.UserAccount>>GetAllUserFreinds(Guid userId);
     }
 }
