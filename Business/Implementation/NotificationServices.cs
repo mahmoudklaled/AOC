@@ -59,13 +59,13 @@ namespace Business.Implementation
             if (postsType == PostsTypes.Post)
             {
                 notificationDTO.NotificatinType = NotificatinTypes.AddComment;
-                userPostOwnerId = _unitOfWork.PostComment.Find(p => p.Id == postId).UserAccountsId;
+                userPostOwnerId = _unitOfWork.Post.Find(p => p.Id == postId).UserAccountsId;
                 notificationDTO.NotifiedUserId=userPostOwnerId;
             }
             else
             {
                 notificationDTO.NotificatinType = NotificatinTypes.AddAnswer;
-                userPostOwnerId = _unitOfWork.QuestionComment.Find(p => p.Id == postId).UserAccountsId;
+                userPostOwnerId = _unitOfWork.QuestionPost.Find(p => p.Id == postId).UserAccountsId;
                 notificationDTO.NotifiedUserId = userPostOwnerId;
             }
             var notificationModel = new DomainModels.DTO.NotificationModel
