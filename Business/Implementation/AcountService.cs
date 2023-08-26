@@ -8,6 +8,7 @@ using Business.Services;
 using DomainModels;
 using System.Xml.Linq;
 using DomainModels.DTO;
+using DataBase.Core.Enums;
 
 namespace Business.Implementation
 {
@@ -87,7 +88,7 @@ namespace Business.Implementation
         public async Task<List<SearchAccount>> SearchAccountsAsync(string searchValue)
         {
             string[] includes = { "ProfilePhoto" };
-            var accountProfile = await _unitOfWork.UserAccounts.FindAllAsync(p => p.Email.ToLower() == searchValue || p.UserName.ToLower() == searchValue || p.FirstName.Contains(searchValue) || (p.FirstName+p.LastName).ToLower().Contains(searchValue), includes);
+            var accountProfile = await _unitOfWork.UserAccounts.FindAllAsync(p => p.Email.ToLower() == searchValue || p.UserName.ToLower() == searchValue || p.FirstName.Contains(searchValue) || (p.FirstName + p.LastName).ToLower().Contains(searchValue), includes);
             var searchResult = new List<SearchAccount>();
             foreach (var account in accountProfile)
             {
@@ -152,33 +153,31 @@ namespace Business.Implementation
             var result = await _unitOfWork.Complete();
             return result > 0;
         }
-
         public async Task<List<DomainModels.DTO.FriendRequestUserAccount>> GetPendingFriendRequest(Guid userId)
         {
             string[] includes = { "Requestor" };
-            var pendingList = await _unitOfWork.FriendRequests.FindAllAsync(f=>f.ReceiverId==userId, includes);
+            var pendingList = await _unitOfWork.FriendRequests.FindAllAsync(f => f.ReceiverId == userId, includes);
             var userAccounts = OMapper.Mapper.Map<List<DomainModels.DTO.FriendRequestUserAccount>>(pendingList);
             return userAccounts;
         }
-
         public async Task<List<DomainModels.DTO.UserAccount>> GetAllUserFreinds(Guid userId)
         {
-            string[] includes = { "FirstUser" , "SecondUser" };
-            var frindsList = await _unitOfWork.Friends.FindAllAsync(f => f.FirstUserId == userId || f.SecondUserId == userId , includes);
+            string[] includes = { "FirstUser", "SecondUser" };
+            var frindsList = await _unitOfWork.Friends.FindAllAsync(f => f.FirstUserId == userId || f.SecondUserId == userId, includes);
             List<UserAccount> users = new List<UserAccount>();
             foreach (var frind in frindsList)
             {
                 var userDto = new UserAccount();
                 if (userId == frind.FirstUserId)
                 {
-                    userDto.Id= frind.SecondUserId;
+                    userDto.Id = frind.SecondUserId;
                     userDto.UserName = frind.SecondUser.UserName;
-                    userDto.FirstName= frind.SecondUser.FirstName;
-                    userDto.LastName= frind.SecondUser.LastName;
-                    userDto.Birthdate= frind.SecondUser.Birthdate;
-                    userDto.Bio= frind.SecondUser.Bio;
-                    userDto.City= frind.SecondUser.City;
-                    userDto.Country= frind.SecondUser.Country;
+                    userDto.FirstName = frind.SecondUser.FirstName;
+                    userDto.LastName = frind.SecondUser.LastName;
+                    userDto.Birthdate = frind.SecondUser.Birthdate;
+                    userDto.Bio = frind.SecondUser.Bio;
+                    userDto.City = frind.SecondUser.City;
+                    userDto.Country = frind.SecondUser.Country;
                 }
                 else
                 {
@@ -194,6 +193,17 @@ namespace Business.Implementation
                 users.Add(userDto);
             }
             return users;
+        }
+
+        public async Task<FriendRelation> GettwoUserFriendRelation(Guid FirstUserId, Guid secondUserId)
+        {
+            var isFriends =  _unitOfWork.Friends.Find(f => (f.FirstUserId == FirstUserId && f.SecondUserId == secondUserId) || (f.FirstUserId == secondUserId && f.SecondUserId == FirstUserId));
+            if (isFriends != null)
+                return FriendRelation.Friends;
+            var pendingFriends = _unitOfWork.FriendRequests.Find(f => (f.RequestorId == FirstUserId && f.ReceiverId == secondUserId) || (f.ReceiverId == secondUserId && f.RequestorId == FirstUserId));
+            if(pendingFriends != null)
+                return FriendRelation.PendingFriends;
+            return FriendRelation.NotFriends;
         }
     }
 }

@@ -72,5 +72,12 @@ namespace GAMAX.Services.Controllers
             var searchResult = await _accountService.DeleteFriend(userInfo.Uid, UserId);
             return Ok(searchResult);
         }
+        [HttpPost("GetUserFriendRelation")]
+        public async Task<IActionResult> GetUserFriendRelation(Guid SecondUserId)
+        {
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var searchResult = await _accountService.GettwoUserFriendRelation(userInfo.Uid, SecondUserId);
+            return Ok(searchResult);
+        }
     }
 }

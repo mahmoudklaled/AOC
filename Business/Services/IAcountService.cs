@@ -1,4 +1,5 @@
 ﻿using BDataBase.Core.Models.Accounts;
+using DataBase.Core.Enums;
 using DomainModels.Models;
 using Microsoft.AspNetCore.Http;
 
@@ -17,5 +18,6 @@ namespace Business.Services
         Task<bool> DeleteFriend(Guid userId, Guid friendId);
         Task<List<DomainModels.DTO.FriendRequestUserAccount>> GetPendingFriendRequest(Guid userId);
         Task <List<DomainModels.DTO.UserAccount>>GetAllUserFreinds(Guid userId);
+        Task<FriendRelation> GettwoUserFriendRelation(Guid FirstUserId , Guid secondUserId);
     }
 }

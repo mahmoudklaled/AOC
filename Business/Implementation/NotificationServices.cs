@@ -38,12 +38,6 @@ namespace Business.Implementation
             };
              await _unitOfWork.Notification.AddAsync(_notification);
              return await _unitOfWork.Complete() >0;
-            //await Task.Run(async () =>
-            //      {
-            //            await _unitOfWork.Notification.AddAsync(_notification);
-            //            await _unitOfWork.Complete();
-            //      });
-
         }
         public async Task<IEnumerable<NotificationDTO>> GetAllUserNotifications(Guid userId)
         {
@@ -52,7 +46,7 @@ namespace Business.Implementation
             var notificationDTO = OMapper.Mapper.Map<List<DomainModels.DTO.NotificationDTO>>(notifications);
             return notificationDTO;
         }
-        public void NotifyOnAddingComment(CommentDTO commentDTO, Guid postId, PostsTypes postsType)
+        public Task NotifyOnAddingComment(CommentDTO commentDTO, Guid postId, PostsTypes postsType)
         {
             Guid userPostOwnerId;
             var notificationDTO = new NotificationDTO()
@@ -65,13 +59,13 @@ namespace Business.Implementation
             if (postsType == PostsTypes.Post)
             {
                 notificationDTO.NotificatinType = NotificatinTypes.AddComment;
-                userPostOwnerId = _unitOfWork.Post.Find(p => p.Id == postId).UserAccountsId;
+                userPostOwnerId = _unitOfWork.PostComment.Find(p => p.Id == postId).UserAccountsId;
                 notificationDTO.NotifiedUserId=userPostOwnerId;
             }
             else
             {
                 notificationDTO.NotificatinType = NotificatinTypes.AddAnswer;
-                userPostOwnerId = _unitOfWork.QuestionPost.Find(p => p.Id == postId).UserAccountsId;
+                userPostOwnerId = _unitOfWork.QuestionComment.Find(p => p.Id == postId).UserAccountsId;
                 notificationDTO.NotifiedUserId = userPostOwnerId;
             }
             var notificationModel = new DomainModels.DTO.NotificationModel
@@ -92,9 +86,9 @@ namespace Business.Implementation
                 await SendCommentNotification(notificationModel);
             });
 
-            return;
+            return Task.CompletedTask;
         }
-        public void NotifyOnAddingPost(PostDTO postDTO)
+        public Task NotifyOnAddingPost(PostDTO postDTO)
         {
             var notificationDTO = new NotificationDTO()
             {
@@ -116,9 +110,9 @@ namespace Business.Implementation
                 NotificatinType = notificationDTO.NotificatinType,
             };
             Task.Run(async () => {  await SendPostNotification(notificationModel); });
-            return;
+            return Task.CompletedTask;
         }
-        public void NotifyOnAddingQuestion(QuestionPostDTO postDTO)
+        public Task NotifyOnAddingQuestion(QuestionPostDTO postDTO)
         {
             var notificationDTO = new NotificationDTO()
             {
@@ -140,8 +134,9 @@ namespace Business.Implementation
                 NotificatinType = notificationDTO.NotificatinType,
             };
             Task.Run(async () => {await SendPostNotification(notificationModel); });
+            return Task.CompletedTask;
         }
-        public void RemoveAllUserNotification(Guid Id)
+        public Task RemoveAllUserNotification(Guid Id)
         {
             Task.Run(async () =>
             {
@@ -149,38 +144,39 @@ namespace Business.Implementation
                 _unitOfWork.Notification.DeleteRange(notifications);
                 await _unitOfWork.Complete();
             });
-            return;
+            return Task.CompletedTask;
         }
-        public void NotifyOnApproveFriendRequest(Guid ApprovedUserId, Guid userId)
+        public Task NotifyOnApproveFriendRequest(Guid RequestorUserId, Guid approvedUserId)
         {
+            var accountProfile =  _unitOfWork.UserAccounts.Find(p => p.Id == approvedUserId);
+            var userAccount = new DomainModels.DTO.UserAccount
+            {
+                Id = accountProfile.Id,
+                Email = accountProfile.Email,
+                UserName = accountProfile.UserName,
+                FirstName = accountProfile.FirstName,
+                LastName = accountProfile.LastName,
+                City = accountProfile.City,
+                Country = accountProfile.Country,
+                Bio = accountProfile.Bio,
+                Birthdate = accountProfile.Birthdate,
+                gender = accountProfile.gender.ToString(),
+                Type = accountProfile.Type.ToString(),
+            };
             Task.Run(async () => {
-                var accountProfile = await _unitOfWork.UserAccounts.FindAsync(p => p.Id == userId);
-                var userAccount = new DomainModels.DTO.UserAccount
-                {
-                    Id = accountProfile.Id,
-                    Email = accountProfile.Email,
-                    UserName = accountProfile.UserName,
-                    FirstName = accountProfile.FirstName,
-                    LastName = accountProfile.LastName,
-                    City = accountProfile.City,
-                    Country = accountProfile.Country,
-                    Bio = accountProfile.Bio,
-                    Birthdate = accountProfile.Birthdate,
-                    gender = accountProfile.gender.ToString(),
-                    Type = accountProfile.Type.ToString(),
-                };
-
-                await ApproveFriendRequestNotification(ApprovedUserId, userAccount);
+                await ApproveFriendRequestNotification(RequestorUserId, userAccount);
             });
+            return Task.CompletedTask;
         }
-        public void NotifyOnSendFriendRequest(Guid RecivedUserId, Guid userId)
+        public Task NotifyOnSendFriendRequest(Guid RecivedUserId, Guid userId)
         {
             var requestNotification = GetFriendRequestData(RecivedUserId, userId);
             Task.Run(async () => {
                 await SendFriendRequestNotification(RecivedUserId, requestNotification);
             });
+            return Task.CompletedTask; return Task.CompletedTask;
         }
-        public void NotifyOnAddingReactPost(ReactsDTO reactDTO, AddReactRequest reactRequest)
+        public Task NotifyOnAddingReactPost(ReactsDTO reactDTO, AddReactRequest reactRequest)
         {
             var notificationDTO = new NotificationDTO()
             {
@@ -188,7 +184,8 @@ namespace Business.Implementation
                 ActionUserFirstName = reactDTO.UserFirstName,
                 ActionUserLastName = reactDTO.UserLastName,
                 ItemId = reactRequest.ObjectId,
-                NotificatinType = NotificatinTypes.AddReactOnPost
+                NotificatinType = NotificatinTypes.AddReactOnPost,
+                NotifiedUserId = _unitOfWork.Post.Find(p=>p.Id==reactRequest.ObjectId).UserAccountsId,
             };
             var notificationModel = new DomainModels.DTO.NotificationModel
             {
@@ -208,8 +205,9 @@ namespace Business.Implementation
                 
                 await SendReactNotificationOnPost(notificationModel);
             });
+            return Task.CompletedTask;
         }
-        public void NotifyOnAddingReactQuestionPost(ReactsDTO reactDTO, AddReactRequest reactRequest)
+        public Task NotifyOnAddingReactQuestionPost(ReactsDTO reactDTO, AddReactRequest reactRequest)
         {
             var notificationDTO = new NotificationDTO()
             {
@@ -217,7 +215,8 @@ namespace Business.Implementation
                 ActionUserFirstName = reactDTO.UserFirstName,
                 ActionUserLastName = reactDTO.UserLastName,
                 ItemId = reactRequest.ObjectId,
-                NotificatinType = NotificatinTypes.AddReactOnQuestion
+                NotificatinType = NotificatinTypes.AddReactOnQuestion,
+                NotifiedUserId = _unitOfWork.QuestionPost.Find(p => p.Id == reactRequest.ObjectId).UserAccountsId,
             };
             var notificationModel = new DomainModels.DTO.NotificationModel
             {
@@ -230,14 +229,14 @@ namespace Business.Implementation
                 PostsType = PostsTypes.Question,
                 NotificatinType = notificationDTO.NotificatinType,
             };
-
             AddNotification(notificationDTO);
             Task.Run(async () =>
             {
                 await SendReactNotificationOnPost(notificationModel);
             });
+            return Task.CompletedTask;
         }
-        public void NotifyOnAddingReactOnComment(ReactsDTO reactDTO, AddReactRequest reactRequest)
+        public Task NotifyOnAddingReactOnComment(ReactsDTO reactDTO, AddReactRequest reactRequest)
         {
             var notificationDTO = new NotificationDTO()
             {
@@ -259,15 +258,14 @@ namespace Business.Implementation
                 PostsType = PostsTypes.Post,
                 NotificatinType = notificationDTO.NotificatinType,
             };
-
             AddNotification(notificationDTO);
             Task.Run(async () =>
             {
-                
                 await SendReactNotificationOnComment(notificationModel);
             });
+            return Task.CompletedTask;
         }
-        public void NotifyOnAddingReactOnAnswer(ReactsDTO reactDTO, AddReactRequest reactRequest)
+        public Task NotifyOnAddingReactOnAnswer(ReactsDTO reactDTO, AddReactRequest reactRequest)
         {
             var notificationDTO = new NotificationDTO()
             {
@@ -293,9 +291,9 @@ namespace Business.Implementation
             AddNotification(notificationDTO);
             Task.Run(async () =>
             {
-                
                 await SendReactNotificationOnComment(notificationModel);
             });
+            return Task.CompletedTask;
         }
         private FriendRequestUserAccount GetFriendRequestData(Guid RecivedUserId, Guid userId)
         {
@@ -324,9 +322,9 @@ namespace Business.Implementation
         {
             await _signalRActions.OnSendingFriendRequestAction?.Invoke(RecivedUserId, userAccount);
         }
-        private async Task ApproveFriendRequestNotification(Guid ApprovedUserId, UserAccount userAccount)
+        private async Task ApproveFriendRequestNotification(Guid RequstorUserId, UserAccount userAccount)
         {
-            await _signalRActions.OnApprovedFriendRequestAction?.Invoke(ApprovedUserId, userAccount);
+            await _signalRActions.OnApprovedFriendRequestAction?.Invoke(RequstorUserId, userAccount);
         }
         private Guid GetPostownerIdFromComment(Guid commentId , PostsTypes postsType)
         {
@@ -337,7 +335,7 @@ namespace Business.Implementation
                     return _unitOfWork.Post.Find(p=>p.Id== postId).UserAccountsId;
                 case PostsTypes.Question:
                     var QuestionId = _unitOfWork.QuestionComment.Find(c => c.Id == commentId).QuestionPostId;
-                    return _unitOfWork.Post.Find(p => p.Id == QuestionId).UserAccountsId;
+                    return _unitOfWork.QuestionPost.Find(p => p.Id == QuestionId).UserAccountsId;
                 default:break;
             }
             return default;

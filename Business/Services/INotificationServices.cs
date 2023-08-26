@@ -12,16 +12,16 @@ namespace Business.Services
     public interface INotificationServices
     {
         Task<bool> AddNotification(NotificationDTO notification);
-        void NotifyOnAddingComment(CommentDTO commentDTO, Guid postId, PostsTypes postsType);
-        void NotifyOnAddingPost(PostDTO postDTO);
-        void NotifyOnAddingQuestion(QuestionPostDTO postDTO);
-        void NotifyOnAddingReactPost(ReactsDTO reactDTO , AddReactRequest reactRequest);
-        void NotifyOnAddingReactQuestionPost(ReactsDTO reactDTO, AddReactRequest reactRequest);
-        void NotifyOnAddingReactOnComment(ReactsDTO reactDTO, AddReactRequest reactRequest);
-        void NotifyOnAddingReactOnAnswer(ReactsDTO reactDTO, AddReactRequest reactRequest);
-        void NotifyOnApproveFriendRequest(Guid ApprovedUserId, Guid userId);
-        void NotifyOnSendFriendRequest(Guid RecivedUserId, Guid userId);
-        void RemoveAllUserNotification(Guid Id);
+        Task NotifyOnAddingComment(CommentDTO commentDTO, Guid postId, PostsTypes postsType);
+        Task NotifyOnAddingPost(PostDTO postDTO);
+        Task NotifyOnAddingQuestion(QuestionPostDTO postDTO);
+        Task NotifyOnAddingReactPost(ReactsDTO reactDTO , AddReactRequest reactRequest);
+        Task NotifyOnAddingReactQuestionPost(ReactsDTO reactDTO, AddReactRequest reactRequest);
+        Task NotifyOnAddingReactOnComment(ReactsDTO reactDTO, AddReactRequest reactRequest);
+        Task NotifyOnAddingReactOnAnswer(ReactsDTO reactDTO, AddReactRequest reactRequest);
+        Task NotifyOnApproveFriendRequest(Guid ApprovedUserId, Guid userId);
+        Task NotifyOnSendFriendRequest(Guid RecivedUserId, Guid userId);
+        Task RemoveAllUserNotification(Guid Id);
         Task<IEnumerable<NotificationDTO>> GetAllUserNotifications(Guid userId);
     }
 }
