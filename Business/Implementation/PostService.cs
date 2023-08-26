@@ -385,10 +385,10 @@ namespace Business.Implementation
             }
             return QuestionPostsDTO;
         }
-        public async Task<List<DomainModels.DTO.AllPostDTO>> GetPostTypesAsync(DateTime? Time)
+        public async Task<List<DomainModels.DTO.AllPostDTO>> GetPostTypesAsync(DateTime? PostTime, DateTime? QuestionTime)
         {
-            var posts = await GetPostAsync(Time);
-            var QPosts = await GetQuestionPostAsync(Time);
+            var posts = await GetPostAsync(PostTime);
+            var QPosts = await GetQuestionPostAsync(QuestionTime);
             var AllPostDTO = OMapper.Mapper.Map<List<DomainModels.DTO.AllPostDTO>>(posts);
             var AllQuestionDTO = OMapper.Mapper.Map<List<DomainModels.DTO.AllPostDTO>>(QPosts);
             AllPostDTO.AddRange(AllQuestionDTO);
@@ -446,11 +446,11 @@ namespace Business.Implementation
             }
             return QuestionPostsDTO;
         }
-        public async Task<List<DomainModels.DTO.AllPostDTO>> GetPersonalPostTypesAsync(DateTime? Time, Guid userID)
+        public async Task<List<DomainModels.DTO.AllPostDTO>> GetPersonalPostTypesAsync(DateTime? PostTime, DateTime? QuestionTime, Guid userID)
         {
 
-            var posts = await GetPersonalPostAsync(Time, userID);
-            var questions = await GetPersonalQuestionPostAsync(Time, userID);
+            var posts = await GetPersonalPostAsync(PostTime, userID);
+            var questions = await GetPersonalQuestionPostAsync(QuestionTime, userID);
             var AllPostDTO = OMapper.Mapper.Map<List<DomainModels.DTO.AllPostDTO>>(posts);
             var AllQuestionDTO = OMapper.Mapper.Map<List<DomainModels.DTO.AllPostDTO>>(questions);
             AllPostDTO.AddRange(AllQuestionDTO);
