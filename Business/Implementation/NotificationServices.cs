@@ -26,7 +26,7 @@ namespace Business.Implementation
             _unitOfWork = unitOfWork;
             _signalRActions = signalRActions;
         }
-        public void AddNotification(NotificationDTO notification)
+        public async Task<bool> AddNotification(NotificationDTO notification)
         {
             var _notification = new Notifications
             {
@@ -36,12 +36,14 @@ namespace Business.Implementation
                 NotificatinType = notification.NotificatinType,
                 NotifiedUserId = notification.NotifiedUserId,
             };
-            Task.Run(async () =>
-            {
-                await _unitOfWork.Notification.AddAsync(_notification);
-                await _unitOfWork.Complete();
-            });
-            return;
+             await _unitOfWork.Notification.AddAsync(_notification);
+             return await _unitOfWork.Complete() >0;
+            //await Task.Run(async () =>
+            //      {
+            //            await _unitOfWork.Notification.AddAsync(_notification);
+            //            await _unitOfWork.Complete();
+            //      });
+
         }
         public async Task<IEnumerable<NotificationDTO>> GetAllUserNotifications(Guid userId)
         {
@@ -83,9 +85,10 @@ namespace Business.Implementation
                 PostsType = postsType,
                 NotificatinType = notificationDTO.NotificatinType,
             };
+
+            AddNotification(notificationDTO);
             Task.Run(async() => {
                 
-                AddNotification(notificationDTO);
                 await SendCommentNotification(notificationModel);
             });
 
@@ -199,9 +202,10 @@ namespace Business.Implementation
                 NotificatinType = notificationDTO.NotificatinType,
             };
             notificationDTO.NotifiedUserId = notificationModel.NotifiedUserId;
+
+            AddNotification(notificationDTO);
             Task.Run(async () => {
                 
-                AddNotification(notificationDTO); 
                 await SendReactNotificationOnPost(notificationModel);
             });
         }
@@ -226,71 +230,80 @@ namespace Business.Implementation
                 PostsType = PostsTypes.Question,
                 NotificatinType = notificationDTO.NotificatinType,
             };
+
+            AddNotification(notificationDTO);
             Task.Run(async () =>
             {
-                AddNotification(notificationDTO);
                 await SendReactNotificationOnPost(notificationModel);
             });
         }
-        private  FriendRequestUserAccount GetFriendRequestData(Guid RecivedUserId, Guid userId)
+        public void NotifyOnAddingReactOnComment(ReactsDTO reactDTO, AddReactRequest reactRequest)
+        {
+            var notificationDTO = new NotificationDTO()
+            {
+                ActionedUserId = reactDTO.UserId,
+                ActionUserFirstName = reactDTO.UserFirstName,
+                ActionUserLastName = reactDTO.UserLastName,
+                ItemId = reactRequest.ObjectId,
+                NotificatinType = NotificatinTypes.AddReactOnComment,
+                NotifiedUserId = GetPostownerIdFromComment(reactRequest.ObjectId, PostsTypes.Post),
+            };
+            var notificationModel = new DomainModels.DTO.NotificationModel
+            {
+                ActionedUserId = notificationDTO.ActionedUserId,
+                ActionUserFirstName = notificationDTO.ActionUserFirstName,
+                ActionUserLastName = notificationDTO.ActionUserLastName,
+                NotifiedUserId = notificationDTO.NotifiedUserId,
+                TimeCreated = TimeHelper.ConvertTimeCreateToString(DateTime.UtcNow),
+                PostId = _unitOfWork.PostComment.Find(p => p.Id == reactRequest.ObjectId).PostId,
+                PostsType = PostsTypes.Post,
+                NotificatinType = notificationDTO.NotificatinType,
+            };
+
+            AddNotification(notificationDTO);
+            Task.Run(async () =>
+            {
+                
+                await SendReactNotificationOnComment(notificationModel);
+            });
+        }
+        public void NotifyOnAddingReactOnAnswer(ReactsDTO reactDTO, AddReactRequest reactRequest)
+        {
+            var notificationDTO = new NotificationDTO()
+            {
+                ActionedUserId = reactDTO.UserId,
+                ActionUserFirstName = reactDTO.UserFirstName,
+                ActionUserLastName = reactDTO.UserLastName,
+                ItemId = reactRequest.ObjectId,
+                NotificatinType = NotificatinTypes.AddReactOnAnswer,
+                NotifiedUserId = GetPostownerIdFromComment(reactRequest.ObjectId, PostsTypes.Question),
+            };
+            var notificationModel = new DomainModels.DTO.NotificationModel
+            {
+                ActionedUserId = notificationDTO.ActionedUserId,
+                ActionUserFirstName = notificationDTO.ActionUserFirstName,
+                ActionUserLastName = notificationDTO.ActionUserLastName,
+                NotifiedUserId = notificationDTO.NotifiedUserId,
+                TimeCreated = TimeHelper.ConvertTimeCreateToString(DateTime.UtcNow),
+                PostId = _unitOfWork.QuestionComment.Find(p => p.Id == reactRequest.ObjectId).QuestionPostId,
+                PostsType = PostsTypes.Question,
+                NotificatinType = notificationDTO.NotificatinType,
+            };
+
+            AddNotification(notificationDTO);
+            Task.Run(async () =>
+            {
+                
+                await SendReactNotificationOnComment(notificationModel);
+            });
+        }
+        private FriendRequestUserAccount GetFriendRequestData(Guid RecivedUserId, Guid userId)
         {
             string[] includes = { "Requestor" };
             var pendingList =  _unitOfWork.FriendRequests.FindAll(f => f.ReceiverId == RecivedUserId && f.RequestorId==userId, includes).FirstOrDefault();
             var userAccounts = OMapper.Mapper.Map<DomainModels.DTO.FriendRequestUserAccount>(pendingList);
             return userAccounts;
         }
-        //public void NotifyOnAddingReactOnComment(ReactsDTO reactDTO, AddReactRequest reactRequest)
-        //{
-        //    Task.Run(async () => {
-        //        var notificationDTO = new NotificationDTO()
-        //        {
-        //            ActionedUserId = reactDTO.UserId,
-        //            ActionUserFirstName = reactDTO.UserFirstName,
-        //            ActionUserLastName = reactDTO.UserLastName,
-        //            ItemId = reactRequest.ObjectId,
-        //            NotificatinType = NotificatinTypes.AddReactOnComment
-        //        };
-        //        var notificationModel = new DomainModels.DTO.NotificationModel
-        //        {
-        //            ActionedUserId = reactDTO.UserId,
-        //            ActionUserFirstName = reactDTO.UserFirstName,
-        //            ActionUserLastName = reactDTO.UserLastName,
-        //            NotifiedUserId = _unitOfWork.PostComment.Find(p => p.Id == reactRequest.ObjectId).UserAccountsId,
-        //            TimeCreated = TimeHelper.ConvertTimeCreateToString(DateTime.UtcNow),
-        //            PostId = _unitOfWork.PostComment.Find(p => p.Id == reactRequest.ObjectId).PostId,
-        //            PostsType = PostsTypes.Post,
-        //            NotificatinType = notificationDTO.NotificatinType,
-        //        };
-        //        AddNotification(notificationDTO);
-        //        await SendPostNotification(notificationModel);
-        //    });
-        //}
-        //public void NotifyOnAddingReactOnAnswer(ReactsDTO reactDTO, AddReactRequest reactRequest)
-        //{
-        //    Task.Run(() => {
-        //        var notificationDTO = new NotificationDTO()
-        //        {
-        //            ActionedUserId = reactDTO.UserId,
-        //            ActionUserFirstName = reactDTO.UserFirstName,
-        //            ActionUserLastName = reactDTO.UserLastName,
-        //            ItemId = reactRequest.ObjectId,
-        //            NotificatinType = NotificatinTypes.AddReactOnPost
-        //        };
-        //        var notificationModel = new DomainModels.DTO.NotificationModel
-        //        {
-        //            ActionedUserId = reactDTO.UserId,
-        //            ActionUserFirstName = reactDTO.UserFirstName,
-        //            ActionUserLastName = reactDTO.UserLastName,
-        //            NotifiedUserId = _unitOfWork.Post.Find(p => p.Id == reactRequest.ObjectId).UserAccountsId,
-        //            TimeCreated = TimeHelper.ConvertTimeCreateToString(DateTime.UtcNow),
-        //            PostId = reactRequest.ObjectId,
-        //            PostsType = PostsTypes.Post,
-        //            NotificatinType = notificationDTO.NotificatinType,
-        //        };
-        //        AddNotification(notificationDTO);
-        //        SendReactNotificationOnPost(notificationModel);
-        //    });
-        //}
         private async Task SendPostNotification(DomainModels.DTO.NotificationModel notification)
         {
             await _signalRActions.OnAddingPostAction?.Invoke(notification);
@@ -303,6 +316,10 @@ namespace Business.Implementation
         {
             await _signalRActions.OnAddingReactOnPostAction?.Invoke(notification);
         }
+        private async Task SendReactNotificationOnComment(DomainModels.DTO.NotificationModel notification)
+        {
+            await _signalRActions.OnAddingReactOnCommentAction?.Invoke(notification);
+        }
         private async Task SendFriendRequestNotification(Guid RecivedUserId, FriendRequestUserAccount userAccount)
         {
             await _signalRActions.OnSendingFriendRequestAction?.Invoke(RecivedUserId, userAccount);
@@ -310,6 +327,20 @@ namespace Business.Implementation
         private async Task ApproveFriendRequestNotification(Guid ApprovedUserId, UserAccount userAccount)
         {
             await _signalRActions.OnApprovedFriendRequestAction?.Invoke(ApprovedUserId, userAccount);
+        }
+        private Guid GetPostownerIdFromComment(Guid commentId , PostsTypes postsType)
+        {
+            switch (postsType)
+            {
+                case PostsTypes.Post:
+                    var postId = _unitOfWork.PostComment.Find(c => c.Id == commentId).PostId;
+                    return _unitOfWork.Post.Find(p=>p.Id== postId).UserAccountsId;
+                case PostsTypes.Question:
+                    var QuestionId = _unitOfWork.QuestionComment.Find(c => c.Id == commentId).QuestionPostId;
+                    return _unitOfWork.Post.Find(p => p.Id == QuestionId).UserAccountsId;
+                default:break;
+            }
+            return default;
         }
 
         

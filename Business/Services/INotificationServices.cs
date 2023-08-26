@@ -11,14 +11,14 @@ namespace Business.Services
 {
     public interface INotificationServices
     {
-        void AddNotification(NotificationDTO notification);
+        Task<bool> AddNotification(NotificationDTO notification);
         void NotifyOnAddingComment(CommentDTO commentDTO, Guid postId, PostsTypes postsType);
         void NotifyOnAddingPost(PostDTO postDTO);
         void NotifyOnAddingQuestion(QuestionPostDTO postDTO);
         void NotifyOnAddingReactPost(ReactsDTO reactDTO , AddReactRequest reactRequest);
         void NotifyOnAddingReactQuestionPost(ReactsDTO reactDTO, AddReactRequest reactRequest);
-        //void NotifyOnAddingReactOnComment(ReactsDTO reactDTO, AddReactRequest reactRequest);
-        //void NotifyOnAddingReactOnAnswer(ReactsDTO reactDTO, AddReactRequest reactRequest);
+        void NotifyOnAddingReactOnComment(ReactsDTO reactDTO, AddReactRequest reactRequest);
+        void NotifyOnAddingReactOnAnswer(ReactsDTO reactDTO, AddReactRequest reactRequest);
         void NotifyOnApproveFriendRequest(Guid ApprovedUserId, Guid userId);
         void NotifyOnSendFriendRequest(Guid RecivedUserId, Guid userId);
         void RemoveAllUserNotification(Guid Id);

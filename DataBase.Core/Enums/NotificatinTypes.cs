@@ -13,6 +13,7 @@ namespace DataBase.Core.Enums
         AddComment,
         AddAnswer,
         AddReactOnComment,
+        AddReactOnAnswer,
         AddReactOnPost,
         AddReactOnQuestion,
 

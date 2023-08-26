@@ -20,6 +20,7 @@ namespace GAMAX.Services.Hubs
             _signalRActions.OnAddingReactOnPostAction = OnAddingReactOnPost;
             _signalRActions.OnSendingFriendRequestAction = OnSendFriendRequest;
             _signalRActions.OnApprovedFriendRequestAction = OnApproveFriendRequest;
+            _signalRActions.OnAddingReactOnCommentAction = OnAddingReactOnComment;
         }
         public async Task SendPrivateMessage(Guid RecivedUserId, string message)
         {

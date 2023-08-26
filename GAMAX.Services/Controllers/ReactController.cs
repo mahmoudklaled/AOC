@@ -131,7 +131,11 @@ namespace GAMAX.Services.Controllers
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _reactServices.AddReactOnPostCommentAsync(reactRequest, userInfo.Email);
             if (result.Item1)
-                return Ok(await _reactServices.GetReactByIdOnPostComment(result.Item2));
+            {
+                var reatDto = await _reactServices.GetReactByIdOnPostComment(result.Item2);
+                _notificationServices.NotifyOnAddingReactOnComment(reatDto, reactRequest);
+                return Ok(reatDto);
+            }
             return BadRequest(new
             {
                 Message = "Fail"
@@ -143,7 +147,11 @@ namespace GAMAX.Services.Controllers
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _reactServices.AddReactOnQuestionPostCommentAsync(reactRequest, userInfo.Email);
             if (result.Item1)
-                return Ok(await _reactServices.GetReactByIdOnQuestionComment(result.Item2));
+            {
+                var reactDto = await _reactServices.GetReactByIdOnQuestionComment(result.Item2);
+                _notificationServices.NotifyOnAddingReactOnAnswer(reactDto, reactRequest);
+                return Ok(reactDto);
+            }
             return BadRequest(new
             {
                 Message = "Fail"
