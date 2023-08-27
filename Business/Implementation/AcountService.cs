@@ -197,10 +197,10 @@ namespace Business.Implementation
 
         public async Task<FriendRelation> GettwoUserFriendRelation(Guid FirstUserId, Guid secondUserId)
         {
-            var isFriends =  _unitOfWork.Friends.Find(f => (f.FirstUserId == FirstUserId && f.SecondUserId == secondUserId) || (f.FirstUserId == secondUserId && f.SecondUserId == FirstUserId));
+            var isFriends =  _unitOfWork.Friends.FindAll(f => (f.FirstUserId == FirstUserId && f.SecondUserId == secondUserId) || (f.FirstUserId == secondUserId && f.SecondUserId == FirstUserId)).FirstOrDefault();
             if (isFriends != null)
                 return FriendRelation.Friends;
-            var pendingFriends = _unitOfWork.FriendRequests.Find(f => (f.RequestorId == FirstUserId && f.ReceiverId == secondUserId) || (f.ReceiverId == secondUserId && f.RequestorId == FirstUserId));
+            var pendingFriends = _unitOfWork.FriendRequests.FindAll(f => (f.RequestorId == FirstUserId && f.ReceiverId == secondUserId) || (f.ReceiverId == secondUserId && f.RequestorId == FirstUserId)).FirstOrDefault();
             if(pendingFriends != null)
                 return FriendRelation.PendingFriends;
             return FriendRelation.NotFriends;

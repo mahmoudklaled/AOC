@@ -6,6 +6,7 @@ using DataBase.Core.Models.PhotoModels;
 using DataBase.Core.Models.VedioModels;
 using DomainModels;
 using DomainModels.Models;
+using System.Drawing.Printing;
 using System.Xml.Linq;
 using Utilites;
 
@@ -232,7 +233,7 @@ namespace Business.Implementation
             if (Time == null)
                 comments = await _unitOfWork.PostComment.FindAllAsync(p => p.PostId == postId, _pageSize, 0, includes, p => p.Date, OrderBy.Ascending);
             else
-                comments = await _unitOfWork.PostComment.FindAllAsync(p => p.PostId == postId && p.Date > Time, _pageSize, 0, includes, p => p.Date, OrderBy.Ascending);
+                comments = await _unitOfWork.PostComment.FindAllAsync(p => p.PostId == postId && p.Date > Time, 0, _pageSize, includes, p => p.Date, OrderBy.Ascending);
 
             var CommentsDTO = OMapper.Mapper.Map<IEnumerable<DomainModels.DTO.CommentDTO>>(comments);
             return CommentsDTO.ToList();
@@ -245,7 +246,7 @@ namespace Business.Implementation
             if (Time == null)
                 comments = await _unitOfWork.QuestionComment.FindAllAsync(p => p.QuestionPostId == postId, _pageSize, 0, includes, p => p.Date, OrderBy.Ascending);
             else
-                comments = await _unitOfWork.QuestionComment.FindAllAsync(p => p.QuestionPostId == postId && p.Date > Time, _pageSize, 0, includes, p => p.Date, OrderBy.Ascending);
+                comments = await _unitOfWork.QuestionComment.FindAllAsync(p => p.QuestionPostId == postId && p.Date > Time, 0, _pageSize, includes, p => p.Date, OrderBy.Ascending);
             var CommentsDTO = OMapper.Mapper.Map<IEnumerable<DomainModels.DTO.CommentDTO>>(comments);
             return CommentsDTO.ToList();
         }

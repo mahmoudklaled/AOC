@@ -410,8 +410,8 @@ namespace Business.Implementation
             string[] includes = { "Photos", "Vedios", "Reacts", "UserAccounts" };
             var post = await _unitOfWork.QuestionPost.FindAsync(p => p.Id == id, includes);
             var PostDTO = OMapper.Mapper.Map<DomainModels.DTO.QuestionPostDTO>(post);
-            var commentCount = await _commentServices.GetPostCommentCount(post.Id);
-            var CommentDtoList = await _commentServices.GetPostCommentsAsync(post.Id, null);
+            var commentCount = await _commentServices.GetQuestionPostCommentCount(post.Id);
+            var CommentDtoList = await _commentServices.GetQuestionCommentsAsync(post.Id, null);
             PostDTO.commentsCount = commentCount;
             PostDTO.Comments = CommentDtoList;
             return PostDTO;

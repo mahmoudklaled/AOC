@@ -9,6 +9,7 @@ using DomainModels.Models;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -75,7 +76,7 @@ namespace Business.Implementation
                 ActionUserLastName = notificationDTO.ActionUserLastName,
                 NotifiedUserId = userPostOwnerId,
                 TimeCreated = TimeHelper.ConvertTimeCreateToString(DateTime.UtcNow),
-                PostId = notificationDTO.ItemId,
+                PostId = postId,
                 PostsType = postsType,
                 NotificatinType = notificationDTO.NotificatinType,
             };
@@ -178,6 +179,7 @@ namespace Business.Implementation
         }
         public Task NotifyOnAddingReactPost(ReactsDTO reactDTO, AddReactRequest reactRequest)
         {
+            var post = _unitOfWork.Post.Find(p => p.Id == reactRequest.ObjectId);
             var notificationDTO = new NotificationDTO()
             {
                 ActionedUserId = reactDTO.UserId,
@@ -185,14 +187,14 @@ namespace Business.Implementation
                 ActionUserLastName = reactDTO.UserLastName,
                 ItemId = reactRequest.ObjectId,
                 NotificatinType = NotificatinTypes.AddReactOnPost,
-                NotifiedUserId = _unitOfWork.Post.Find(p=>p.Id==reactRequest.ObjectId).UserAccountsId,
+                NotifiedUserId = post.UserAccountsId,
             };
             var notificationModel = new DomainModels.DTO.NotificationModel
             {
                 ActionedUserId = reactDTO.UserId,
                 ActionUserFirstName = reactDTO.UserFirstName,
                 ActionUserLastName = reactDTO.UserLastName,
-                NotifiedUserId = _unitOfWork.Post.Find(p => p.Id == reactRequest.ObjectId).UserAccountsId,
+                NotifiedUserId = post.UserAccountsId,
                 TimeCreated = TimeHelper.ConvertTimeCreateToString(DateTime.UtcNow),
                 PostId = reactRequest.ObjectId,
                 PostsType = PostsTypes.Post,
@@ -209,6 +211,7 @@ namespace Business.Implementation
         }
         public Task NotifyOnAddingReactQuestionPost(ReactsDTO reactDTO, AddReactRequest reactRequest)
         {
+            var question = _unitOfWork.QuestionPost.Find(p => p.Id == reactRequest.ObjectId);
             var notificationDTO = new NotificationDTO()
             {
                 ActionedUserId = reactDTO.UserId,
@@ -216,14 +219,14 @@ namespace Business.Implementation
                 ActionUserLastName = reactDTO.UserLastName,
                 ItemId = reactRequest.ObjectId,
                 NotificatinType = NotificatinTypes.AddReactOnQuestion,
-                NotifiedUserId = _unitOfWork.QuestionPost.Find(p => p.Id == reactRequest.ObjectId).UserAccountsId,
+                NotifiedUserId = question.UserAccountsId,
             };
             var notificationModel = new DomainModels.DTO.NotificationModel
             {
                 ActionedUserId = reactDTO.UserId,
                 ActionUserFirstName = reactDTO.UserFirstName,
                 ActionUserLastName = reactDTO.UserLastName,
-                NotifiedUserId = _unitOfWork.QuestionPost.Find(p => p.Id == reactRequest.ObjectId).UserAccountsId,
+                NotifiedUserId = question.UserAccountsId,
                 TimeCreated = TimeHelper.ConvertTimeCreateToString(DateTime.UtcNow),
                 PostId = reactRequest.ObjectId,
                 PostsType = PostsTypes.Question,
@@ -238,6 +241,7 @@ namespace Business.Implementation
         }
         public Task NotifyOnAddingReactOnComment(ReactsDTO reactDTO, AddReactRequest reactRequest)
         {
+            var commment = _unitOfWork.PostComment.Find(c => c.Id == reactRequest.ObjectId);
             var notificationDTO = new NotificationDTO()
             {
                 ActionedUserId = reactDTO.UserId,
@@ -245,7 +249,7 @@ namespace Business.Implementation
                 ActionUserLastName = reactDTO.UserLastName,
                 ItemId = reactRequest.ObjectId,
                 NotificatinType = NotificatinTypes.AddReactOnComment,
-                NotifiedUserId = GetPostownerIdFromComment(reactRequest.ObjectId, PostsTypes.Post),
+                NotifiedUserId = commment.UserAccountsId,
             };
             var notificationModel = new DomainModels.DTO.NotificationModel
             {
@@ -254,7 +258,7 @@ namespace Business.Implementation
                 ActionUserLastName = notificationDTO.ActionUserLastName,
                 NotifiedUserId = notificationDTO.NotifiedUserId,
                 TimeCreated = TimeHelper.ConvertTimeCreateToString(DateTime.UtcNow),
-                PostId = _unitOfWork.PostComment.Find(p => p.Id == reactRequest.ObjectId).PostId,
+                PostId = commment.PostId,
                 PostsType = PostsTypes.Post,
                 NotificatinType = notificationDTO.NotificatinType,
             };
@@ -267,6 +271,7 @@ namespace Business.Implementation
         }
         public Task NotifyOnAddingReactOnAnswer(ReactsDTO reactDTO, AddReactRequest reactRequest)
         {
+            var commment = _unitOfWork.QuestionComment.Find(c => c.Id == reactRequest.ObjectId);
             var notificationDTO = new NotificationDTO()
             {
                 ActionedUserId = reactDTO.UserId,
@@ -274,7 +279,7 @@ namespace Business.Implementation
                 ActionUserLastName = reactDTO.UserLastName,
                 ItemId = reactRequest.ObjectId,
                 NotificatinType = NotificatinTypes.AddReactOnAnswer,
-                NotifiedUserId = GetPostownerIdFromComment(reactRequest.ObjectId, PostsTypes.Question),
+                NotifiedUserId = commment.UserAccountsId,
             };
             var notificationModel = new DomainModels.DTO.NotificationModel
             {
@@ -283,11 +288,10 @@ namespace Business.Implementation
                 ActionUserLastName = notificationDTO.ActionUserLastName,
                 NotifiedUserId = notificationDTO.NotifiedUserId,
                 TimeCreated = TimeHelper.ConvertTimeCreateToString(DateTime.UtcNow),
-                PostId = _unitOfWork.QuestionComment.Find(p => p.Id == reactRequest.ObjectId).QuestionPostId,
+                PostId = commment.QuestionPostId,
                 PostsType = PostsTypes.Question,
                 NotificatinType = notificationDTO.NotificatinType,
             };
-
             AddNotification(notificationDTO);
             Task.Run(async () =>
             {

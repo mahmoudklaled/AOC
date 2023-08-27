@@ -23,7 +23,7 @@ namespace DataBase.Core.Interfaces
 
         Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> criteria, string[] includes = null);
         Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> criteria, int skip, int take);
-        Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>>? criteria, int? skip, int? take,
+        Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>>? criteria, int? take, int? skip,
            string[] includes = null, Expression<Func<T, object>> orderBy = null, string orderByDirection = OrderBy.Descending);
         T Add(T entity);
         Task<T> AddAsync(T entity);
