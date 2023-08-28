@@ -147,7 +147,7 @@ namespace Business.Implementation
             }
             return true;
         }
-        public Task NotifyOnApproveFriendRequest(Guid RequestorUserId, Guid approvedUserId)
+        public async Task<bool> NotifyOnApproveFriendRequest(Guid RequestorUserId, Guid approvedUserId)
         {
             var accountProfile =  _unitOfWork.UserAccounts.Find(p => p.Id == approvedUserId);
             var userAccount = new DomainModels.DTO.UserAccount
@@ -164,10 +164,11 @@ namespace Business.Implementation
                 gender = accountProfile.gender.ToString(),
                 Type = accountProfile.Type.ToString(),
             };
-            Task.Run(async () => {
-                await ApproveFriendRequestNotification(RequestorUserId, userAccount);
-            });
-            return Task.CompletedTask;
+            await ApproveFriendRequestNotification(RequestorUserId, userAccount);
+            //Task.Run(async () => {
+                
+            //});
+            return true;
         }
         public Task NotifyOnSendFriendRequest(Guid RecivedUserId, Guid userId)
         {
@@ -175,7 +176,7 @@ namespace Business.Implementation
             Task.Run(async () => {
                 await SendFriendRequestNotification(RecivedUserId, requestNotification);
             });
-            return Task.CompletedTask; return Task.CompletedTask;
+            return Task.CompletedTask; 
         }
         public Task NotifyOnAddingReactPost(ReactsDTO reactDTO, AddReactRequest reactRequest)
         {
