@@ -137,15 +137,15 @@ namespace Business.Implementation
             Task.Run(async () => {await SendPostNotification(notificationModel); });
             return Task.CompletedTask;
         }
-        public Task RemoveAllUserNotification(Guid Id)
+        public async Task<bool> RemoveAllUserNotification(Guid Id)
         {
-            Task.Run(async () =>
+            var notifications =  await _unitOfWork.Notification.FindAllAsync(n => n.NotifiedUserId == Id);
+            if (notifications != null)
             {
-                var notifications = await _unitOfWork.Notification.FindAllAsync(n => n.NotifiedUserId == Id);
                 _unitOfWork.Notification.DeleteRange(notifications);
-                await _unitOfWork.Complete();
-            });
-            return Task.CompletedTask;
+                 return await _unitOfWork.Complete()>0;
+            }
+            return true;
         }
         public Task NotifyOnApproveFriendRequest(Guid RequestorUserId, Guid approvedUserId)
         {
@@ -185,7 +185,7 @@ namespace Business.Implementation
                 ActionedUserId = reactDTO.UserId,
                 ActionUserFirstName = reactDTO.UserFirstName,
                 ActionUserLastName = reactDTO.UserLastName,
-                ItemId = reactRequest.ObjectId,
+                ItemId = post.Id,
                 NotificatinType = NotificatinTypes.AddReactOnPost,
                 NotifiedUserId = post.UserAccountsId,
             };
@@ -217,7 +217,7 @@ namespace Business.Implementation
                 ActionedUserId = reactDTO.UserId,
                 ActionUserFirstName = reactDTO.UserFirstName,
                 ActionUserLastName = reactDTO.UserLastName,
-                ItemId = reactRequest.ObjectId,
+                ItemId = question.Id,
                 NotificatinType = NotificatinTypes.AddReactOnQuestion,
                 NotifiedUserId = question.UserAccountsId,
             };
@@ -247,7 +247,7 @@ namespace Business.Implementation
                 ActionedUserId = reactDTO.UserId,
                 ActionUserFirstName = reactDTO.UserFirstName,
                 ActionUserLastName = reactDTO.UserLastName,
-                ItemId = reactRequest.ObjectId,
+                ItemId = commment.PostId,
                 NotificatinType = NotificatinTypes.AddReactOnComment,
                 NotifiedUserId = commment.UserAccountsId,
             };
@@ -277,7 +277,7 @@ namespace Business.Implementation
                 ActionedUserId = reactDTO.UserId,
                 ActionUserFirstName = reactDTO.UserFirstName,
                 ActionUserLastName = reactDTO.UserLastName,
-                ItemId = reactRequest.ObjectId,
+                ItemId = commment.QuestionPostId,
                 NotificatinType = NotificatinTypes.AddReactOnAnswer,
                 NotifiedUserId = commment.UserAccountsId,
             };

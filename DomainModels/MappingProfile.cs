@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BDataBase.Core.Models.Accounts;
+using DataBase.Core.Enums;
 using DataBase.Core.Models.Accounts;
 using DataBase.Core.Models.CommentModels;
 using DataBase.Core.Models.Notifications;
@@ -92,6 +93,8 @@ namespace DomainModels
                 .ForMember(dest => dest.UserLastName, src => src.MapFrom(src => src.UserAccounts.LastName));
 
             CreateMap<Notifications, DTO.NotificationDTO>()
+                .ForMember(dest => dest.PostsType, src => src.MapFrom<PostTypeResolver>())
+                .ForMember(dest => dest.PostId, src => src.MapFrom(src => src.ItemId))
                 .ForMember(dest => dest.ActionUserFirstName, src => src.MapFrom(src => src.ActionedUser.FirstName))
                 .ForMember(dest => dest.ActionUserLastName, src => src.MapFrom(src => src.ActionedUser.LastName));
             
@@ -182,6 +185,17 @@ namespace DomainModels
                     };
                 }
                 return null;
+            }
+        }
+        public class PostTypeResolver : IValueResolver<Notifications, DTO.NotificationDTO, PostsTypes>
+        {
+            public PostsTypes Resolve(Notifications source, DTO.NotificationDTO destination, PostsTypes destMember, ResolutionContext context)
+            {
+                if (source.NotificatinType==NotificatinTypes.AddPost || source.NotificatinType == NotificatinTypes.AddReactOnPost || source.NotificatinType == NotificatinTypes.AddComment || source.NotificatinType == NotificatinTypes.AddReactOnComment)
+                {
+                    return PostsTypes.Post;
+                }
+                return PostsTypes.Question;
             }
         }
     }

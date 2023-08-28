@@ -207,6 +207,8 @@ namespace DomainModels.DTO
         public string ActionUserFirstName { get; set; }
         public string ActionUserLastName { get; set; }
         public Guid ItemId { get; set; }
+        public Guid PostId { get; set; }
+        public PostsTypes PostsType { get; set; }
         public NotificatinTypes NotificatinType { get; set; }
     }
     public record NotificationModel

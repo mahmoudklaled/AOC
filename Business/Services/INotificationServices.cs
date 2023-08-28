@@ -21,7 +21,7 @@ namespace Business.Services
         Task NotifyOnAddingReactOnAnswer(ReactsDTO reactDTO, AddReactRequest reactRequest);
         Task NotifyOnApproveFriendRequest(Guid ApprovedUserId, Guid userId);
         Task NotifyOnSendFriendRequest(Guid RecivedUserId, Guid userId);
-        Task RemoveAllUserNotification(Guid Id);
+        Task<bool> RemoveAllUserNotification(Guid Id);
         Task<IEnumerable<NotificationDTO>> GetAllUserNotifications(Guid userId);
     }
 }

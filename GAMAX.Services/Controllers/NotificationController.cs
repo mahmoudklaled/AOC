@@ -28,7 +28,7 @@ namespace GAMAX.Services.Controllers
         public async Task<IActionResult> MarkUserNotificationsAsRead()
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
-            _notificationServices.RemoveAllUserNotification(userInfo.Uid);
+            await _notificationServices.RemoveAllUserNotification(userInfo.Uid);
             return Ok();
         }
     }
