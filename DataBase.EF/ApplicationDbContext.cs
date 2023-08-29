@@ -1,5 +1,6 @@
 ﻿using BDataBase.Core.Models.Accounts;
 using DataBase.Core.Interfaces;
+using DataBase.Core.Models;
 using DataBase.Core.Models.Accounts;
 using DataBase.Core.Models.Authentication;
 using DataBase.Core.Models.CommentModels;
@@ -45,6 +46,7 @@ namespace DataBase.EF
         public DbSet<Friend> Friends { get; set; }
         public DbSet<FriendRequest> FriendRequests { get; set; }
         public DbSet<Notifications> Notification { get; set; }
+        public DbSet<Chat> Chat { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

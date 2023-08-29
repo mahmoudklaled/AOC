@@ -48,7 +48,7 @@ namespace GAMAX.Services.Controllers
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var searchResult = await _accountService.AproveFriendRequest(RequestId);
-            _notificationServices.NotifyOnApproveFriendRequest(searchResult.Item2, userInfo.Uid);
+            await _notificationServices.NotifyOnApproveFriendRequest(searchResult.Item2, userInfo.Uid);
             return Ok(searchResult.Item1);
         }
         [HttpPost("GetAllUserFriends")]

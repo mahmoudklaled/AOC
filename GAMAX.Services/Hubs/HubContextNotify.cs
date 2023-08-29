@@ -22,7 +22,7 @@ namespace GAMAX.Services.Hubs
             _signalRActions.OnApprovedFriendRequestAction = OnApproveFriendRequest;
             _signalRActions.OnAddingReactOnCommentAction = OnAddingReactOnComment;
         }
-        public async Task SendPrivateMessage(Guid RecivedUserId, string message)
+        public async Task SendPrivateMessage(Guid RecivedUserId, string? message)
         {
             var connID = _userConnectionManager.GetUserConnection(RecivedUserId);
             if (!string.IsNullOrEmpty(connID))

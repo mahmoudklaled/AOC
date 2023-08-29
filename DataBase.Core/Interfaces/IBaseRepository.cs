@@ -30,6 +30,7 @@ namespace DataBase.Core.Interfaces
         IEnumerable<T> AddRange(IEnumerable<T> entities);
         Task<IEnumerable<T>> AddRangeAsync(IEnumerable<T> entities);
         T Update(T entity);
+        IEnumerable<T> UpdateRange(IEnumerable<T> entity);
         void Delete(T entity);
         void DeleteRange(IEnumerable<T> entities);
         void Attach(T entity);

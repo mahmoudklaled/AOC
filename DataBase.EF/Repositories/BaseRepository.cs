@@ -253,6 +253,11 @@ namespace DataBase.EF.Repositories
             _context.Update(entity);
             return entity;
         }
+        public IEnumerable<T> UpdateRange(IEnumerable<T> entity)
+        {
+            _context.UpdateRange(entity);
+            return entity;
+        }
 
         public void Delete(T entity)
         {

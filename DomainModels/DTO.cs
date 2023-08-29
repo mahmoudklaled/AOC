@@ -224,4 +224,18 @@ namespace DomainModels.DTO
         public string TimeCreated { get; set; }
     }
     #endregion
+
+    #region chat
+    public record ChatDTO
+    {
+        public Guid? Id { get; set; }
+        public Guid SenderId { get; set; }
+        public Guid ReciveId { get; set; }
+        public string? Message { get; set; }
+        public string? PhotoPath { get; set; }
+        public string? VedioPath { get; set; }
+        public bool Read { get; set; } = false;
+        public DateTime? TimeStamp { get; set; }
+    }
+    #endregion
 }

@@ -1,5 +1,6 @@
 ﻿using BDataBase.Core.Models.Accounts;
 using DataBase.Core.Interfaces;
+using DataBase.Core.Models;
 using DataBase.Core.Models.Accounts;
 using DataBase.Core.Models.CommentModels;
 using DataBase.Core.Models.Notifications;
@@ -39,6 +40,7 @@ namespace DataBase.Core
         IBaseRepository<QuestionCommentPhoto> QuestionCommentPhoto { get; }
         IBaseRepository<PostCommentVedio> PostCommentVedio { get; }
         IBaseRepository<PostCommentPhoto> PostCommentPhoto { get; }
+        IBaseRepository<Chat> Chat { get; }
         Task<int> Complete();
     }
 }

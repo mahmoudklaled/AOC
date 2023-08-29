@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BDataBase.Core.Models.Accounts;
 using DataBase.Core.Enums;
+using DataBase.Core.Models;
 using DataBase.Core.Models.Accounts;
 using DataBase.Core.Models.CommentModels;
 using DataBase.Core.Models.Notifications;
@@ -124,6 +125,8 @@ namespace DomainModels
                 .ForMember(dest => dest.Birthdate, src => src.MapFrom(src => src.Requestor.Birthdate))
                 .ForMember(dest => dest.Type, src => src.MapFrom(src => src.Requestor.Type))
                 .ForMember(dest => dest.Email, src => src.MapFrom(src => src.Requestor.Email));
+
+            CreateMap<Chat, DTO.ChatDTO>();
 
 
         }
