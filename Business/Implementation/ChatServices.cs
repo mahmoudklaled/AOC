@@ -77,8 +77,9 @@ namespace Business.Implementation
 
             var join1 = from friend in userFriends
                         join chatR in userChat
-                        on friend.Id equals chatR.ReciveId
-                        orderby chatR.TimeStamp descending
+                        on friend.Id equals chatR.ReciveId into chatGroup
+                        from chatR in chatGroup.DefaultIfEmpty()  // Perform left join using DefaultIfEmpty
+                        orderby chatR?.TimeStamp descending  // Use ?. operator to access properties of chatR safely
                         select new friendChat
                         {
                             UserId = friend.Id,
@@ -86,18 +87,20 @@ namespace Business.Implementation
                             FirstName = friend.FirstName,
                             LastName = friend.LastName,
                             Email = friend.Email,
-                            Message = chatR.Message,
-                            PhotoPath = chatR.PhotoPath,
-                            Read = chatR.Read,
-                            TimeStamp = chatR.TimeStamp,
-                            VedioPath= chatR.VedioPath,
-                            ReciveId = chatR.ReciveId,
-                            SenderId = chatR.SenderId,
+                            Message = chatR?.Message,
+                            PhotoPath = chatR?.PhotoPath,
+                            Read = chatR?.Read,
+                            TimeStamp = chatR?.TimeStamp ?? DateTime.MinValue,  // Handle null TimeStamp
+                            VedioPath = chatR?.VedioPath,
+                            ReciveId = chatR?.ReciveId ?? Guid.Empty,  // Handle null ReciveId
+                            SenderId = chatR?.SenderId ?? Guid.Empty,  // Handle null SenderId
                         };
+
             var join2 = from friend in userFriends
                         join chatS in userRevicedChat
-                        on friend.Id equals chatS.SenderId
-                        orderby chatS.TimeStamp descending
+                        on friend.Id equals chatS.SenderId into chatGroup
+                        from chatS in chatGroup.DefaultIfEmpty()  // Perform left join using DefaultIfEmpty
+                        orderby chatS?.TimeStamp descending  // Use ?. operator to access properties of chatS safely
                         select new friendChat
                         {
                             UserId = friend.Id,
@@ -105,15 +108,15 @@ namespace Business.Implementation
                             FirstName = friend.FirstName,
                             LastName = friend.LastName,
                             Email = friend.Email,
-                            Message = chatS.Message,
-                            PhotoPath = chatS.PhotoPath,
-                            Read = chatS.Read,
-                            TimeStamp = chatS.TimeStamp,
-                            VedioPath = chatS.VedioPath,
-                            ReciveId = chatS.ReciveId,
-                            SenderId = chatS.SenderId,
-
+                            Message = chatS?.Message,
+                            PhotoPath = chatS?.PhotoPath,
+                            Read = chatS?.Read,
+                            TimeStamp = chatS?.TimeStamp ?? DateTime.MinValue,  // Handle null TimeStamp
+                            VedioPath = chatS?.VedioPath,
+                            ReciveId = chatS?.ReciveId ?? Guid.Empty,  // Handle null ReciveId
+                            SenderId = chatS?.SenderId ?? Guid.Empty,  // Handle null SenderId
                         };
+
             var AllJoin = join2.ToList();
             AllJoin.AddRange(join1.ToList());
             var finalResult = AllJoin.OrderByDescending(x => x.TimeStamp).DistinctBy(x=>x.UserId).Select( f=> new friendChat
@@ -188,13 +191,13 @@ namespace Business.Implementation
             public string UserName { get; set; }
             public string FirstName { get; set; }
             public string LastName { get; set; }
-            public Guid SenderId { get; set; }
-            public Guid ReciveId { get; set; }
+            public Guid? SenderId { get; set; }
+            public Guid? ReciveId { get; set; }
             public string? Message { get; set; }
             public string? PhotoPath { get; set; }
             public string? VedioPath { get; set; }
-            public bool Read { get; set; }
-            public bool Online { get; set; }
+            public bool? Read { get; set; }
+            public bool? Online { get; set; }
             public DateTime? TimeStamp { get; set; }
         }
     }

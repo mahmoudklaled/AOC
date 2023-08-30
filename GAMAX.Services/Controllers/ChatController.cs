@@ -26,7 +26,7 @@ namespace GAMAX.Services.Controllers
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _chatServices.SendPrivateMessage(chatDTO);
-            await _hubContextNotify.SendPrivateMessage(chatDTO.ReciveId, chatDTO.Message);
+            await _hubContextNotify.SendPrivateMessage(chatDTO.ReciveId, chatDTO);
             return Ok(result);
         }
         [HttpPost("GetUserChat")]
