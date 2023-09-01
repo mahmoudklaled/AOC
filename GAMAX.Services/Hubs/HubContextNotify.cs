@@ -47,6 +47,14 @@ namespace GAMAX.Services.Hubs
                 await _hubContext.Clients.Client(connID).SendAsync("DeleteMessage", chat);
             }
         }
+        public async Task Hello(Guid ApprovedUserId)
+        {
+            var connID = _userConnectionManager.GetUserConnection(ApprovedUserId);
+            if (!string.IsNullOrEmpty(connID))
+            {
+                await _hubContext.Clients.Client(connID).SendAsync("DeleteMessage", "Hello");
+            }
+        }
         public async Task OnSendFriendRequest(Guid RecivedUserId, FriendRequestUserAccount userAccount)
         {
             var connID = _userConnectionManager.GetUserConnection(RecivedUserId);
