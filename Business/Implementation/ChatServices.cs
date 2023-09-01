@@ -88,7 +88,8 @@ namespace Business.Implementation
             var chat = await _unitOfWork.Chat.FindAsync(c => c.Id == chatId);
             if(chat !=null && userId==chat.SenderId)
                   _unitOfWork.Chat.Delete(chat);
-            return (true, chat);
+            var result =await _unitOfWork.Complete()>0;
+            return (result, chat);
         }
         public async Task<(bool, ChatDTO)> UpdateChat(UpdateChatDTO updateChatDTO ,Guid userId)
         {
