@@ -48,7 +48,22 @@ namespace GAMAX.Services.Controllers
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var searchResult = await _accountService.AproveFriendRequest(RequestId);
-            await _notificationServices.NotifyOnApproveFriendRequest(searchResult.Item2, userInfo.Uid);
+            var accountProfile = await _accountService.GetAccountProfileAsync(userInfo.Uid);
+            var profileInfo = new DomainModels.DTO.UserAccount
+            {
+                Id = accountProfile.Id,
+                Email = accountProfile.Email,
+                UserName = accountProfile.UserName,
+                FirstName = accountProfile.FirstName,
+                LastName = accountProfile.LastName,
+                City = accountProfile.City,
+                Country = accountProfile.Country,
+                Bio = accountProfile.Bio,
+                Birthdate = accountProfile.Birthdate,
+                gender = accountProfile.gender.ToString(),
+                Type = accountProfile.Type.ToString(),
+            };
+            await _hubContextNotify.OnApproveFriendRequest(searchResult.Item2, profileInfo);
             return Ok(searchResult.Item1);
         }
         [HttpPost("GetAllUserFriends")]
