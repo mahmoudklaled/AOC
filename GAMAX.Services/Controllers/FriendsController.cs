@@ -63,7 +63,7 @@ namespace GAMAX.Services.Controllers
                 gender = accountProfile.gender.ToString(),
                 Type = accountProfile.Type.ToString(),
             };
-            await _hubContextNotify.Hello(searchResult.Item2);
+            await _hubContextNotify.OnApproveFriendRequest(searchResult.Item2, profileInfo);
             return Ok(searchResult.Item1);
         }
         [HttpPost("GetAllUserFriends")]
