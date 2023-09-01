@@ -22,7 +22,7 @@ namespace GAMAX.Services.Controllers
             _chatServices = chatServices;
         }
         [HttpPost("SendPrivateMessage")]
-        public async Task<IActionResult> SearchAccount(UploadChatDTO uploadChatDTO)
+        public async Task<IActionResult> SearchAccount([FromForm] UploadChatDTO uploadChatDTO)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _chatServices.SendPrivateMessage(uploadChatDTO);
