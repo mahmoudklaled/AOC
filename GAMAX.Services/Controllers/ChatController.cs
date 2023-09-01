@@ -27,7 +27,7 @@ namespace GAMAX.Services.Controllers
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _chatServices.SendPrivateMessage(uploadChatDTO);
             if(result.Item1)
-                await _hubContextNotify.SendPrivateMessage(result.Item2.ReciveId, result.Item2);
+                await _hubContextNotify.ReceiveMessage(result.Item2.ReciveId, result.Item2);
             return Ok(result.Item2);
         }
         [HttpPost("GetUserChat")]
@@ -50,6 +50,22 @@ namespace GAMAX.Services.Controllers
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _chatServices.GetFriendsWithLastMessage(userInfo.Uid);
             return Ok(result);
+        }
+        [HttpPost("DeleteChat")]
+        public async Task<IActionResult> DeleteChat(Guid chatId)
+        {
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var result = await _chatServices.DeleteChat(userInfo.Uid , chatId);
+            await _hubContextNotify.DeleteMessage(result.Item2.ReciveId, result.Item2);
+            return Ok(result.Item1);
+        }
+        [HttpPost("UpdateChat")]
+        public async Task<IActionResult> UpdateChat(UpdateChatDTO updateChatDTO)
+        {
+            var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
+            var result = await _chatServices.UpdateChat(updateChatDTO, userInfo.Uid);
+            await _hubContextNotify.UpdateMessage(result.Item2.ReciveId, result.Item2);
+            return Ok(result.Item1);
         }
     }
 }

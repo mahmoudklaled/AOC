@@ -251,5 +251,18 @@ namespace DomainModels.DTO
         public bool Read { get; set; } = false;
         public DateTime TimeStamp { get; set; } = DateTime.UtcNow;
     }
+    public record UpdateChatDTO
+    {
+        public Guid? Id { get; set; }
+        public Guid SenderId { get; set; }
+        public Guid ReciveId { get; set; }
+        public string? Message { get; set; }
+        public List<Guid>? DeletedPhotoIds { get; set; }
+        public List<Guid>? DeletedVedioIds { get; set; }
+        public List<IFormFile>? Photos { get; set; }
+        public List<IFormFile>? Vedios { get; set; }
+        public bool Read { get; set; } = false;
+        public DateTime TimeStamp { get; set; } = DateTime.UtcNow;
+    }
     #endregion
 }

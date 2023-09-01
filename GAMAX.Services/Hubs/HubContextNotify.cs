@@ -1,5 +1,6 @@
 ﻿using Business;
 using DataBase.Core.Enums;
+using DataBase.Core.Models;
 using DomainModels.DTO;
 using Microsoft.AspNetCore.SignalR;
 
@@ -22,12 +23,28 @@ namespace GAMAX.Services.Hubs
             _signalRActions.OnApprovedFriendRequestAction = OnApproveFriendRequest;
             _signalRActions.OnAddingReactOnCommentAction = OnAddingReactOnComment;
         }
-        public async Task SendPrivateMessage(Guid RecivedUserId, ChatDTO chatDTO)
+        public async Task ReceiveMessage(Guid RecivedUserId, ChatDTO chatDTO)
         {
             var connID = _userConnectionManager.GetUserConnection(RecivedUserId);
             if (!string.IsNullOrEmpty(connID))
             {
                 await _hubContext.Clients.Client(connID).SendAsync("ReceiveMessage", chatDTO);
+            }
+        }
+        public async Task UpdateMessage(Guid RecivedUserId, ChatDTO chatDTO)
+        {
+            var connID = _userConnectionManager.GetUserConnection(RecivedUserId);
+            if (!string.IsNullOrEmpty(connID))
+            {
+                await _hubContext.Clients.Client(connID).SendAsync("UpdateMessage", chatDTO);
+            }
+        }
+        public async Task DeleteMessage(Guid RecivedUserId, Chat chat)
+        {
+            var connID = _userConnectionManager.GetUserConnection(RecivedUserId);
+            if (!string.IsNullOrEmpty(connID))
+            {
+                await _hubContext.Clients.Client(connID).SendAsync("DeleteMessage", chat);
             }
         }
         public async Task OnSendFriendRequest(Guid RecivedUserId, FriendRequestUserAccount userAccount)

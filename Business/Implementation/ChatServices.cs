@@ -44,7 +44,7 @@ namespace Business.Implementation
             var chatForSecondUser =await _unitOfWork.Chat.FindAllAsync(c => c.SenderId == secondUser && c.ReciveId == firstUser,includes);
             var AllChats = chatForFirstUser.ToList();
             AllChats.AddRange(chatForSecondUser.ToList());
-            AllChats.OrderBy(i=>i.TimeStamp).ToList();
+            AllChats.OrderByDescending(i=>i.TimeStamp).ToList();
             var ChatDto = OMapper.Mapper.Map<List<DomainModels.DTO.ChatDTO>>(AllChats);
             return ChatDto;
         }
@@ -82,6 +82,60 @@ namespace Business.Implementation
             if(result)
                 return(true, OMapper.Mapper.Map<DomainModels.DTO.ChatDTO>(chat));
             else return(false, null);
+        }
+        public async Task<(bool, Chat)> DeleteChat(Guid userId, Guid chatId)
+        {
+            var chat = await _unitOfWork.Chat.FindAsync(c => c.Id == chatId);
+            if(chat !=null && userId==chat.SenderId)
+                  _unitOfWork.Chat.Delete(chat);
+            return (true, chat);
+        }
+        public async Task<(bool, ChatDTO)> UpdateChat(UpdateChatDTO updateChatDTO ,Guid userId)
+        {
+            string[] includes = { "Vedios", "Photos" };
+            var chat = await _unitOfWork.Chat.FindAsync(c=>c.Id==updateChatDTO.Id, includes);
+            if(chat == null || chat.SenderId!=userId)
+                return(false, null);
+            chat.Message= updateChatDTO.Message;
+            if(updateChatDTO.DeletedPhotoIds!=null && updateChatDTO.DeletedPhotoIds.Count() > 0)
+            {
+                foreach (var id in updateChatDTO.DeletedPhotoIds)
+                    chat.Photos.Remove(chat.Photos.Where(p => p.Id == id).First());
+            }
+            if (updateChatDTO.DeletedVedioIds != null && updateChatDTO.DeletedVedioIds.Count() > 0)
+            {
+                foreach (var id in updateChatDTO.DeletedVedioIds)
+                    chat.Vedios.Remove(chat.Vedios.Where(p => p.Id == id).First());
+            }
+            if(updateChatDTO.Photos!=null && updateChatDTO.Photos.Count > 0)
+            {
+                var photoList = IformListToPath(updateChatDTO.Photos, SharedFolderPaths.ChatPhotos);
+                foreach (var photo in photoList)
+                {
+                    chat.Photos.Add(new ChatPhoto
+                    {
+                        ChatId = (Guid)updateChatDTO.Id,
+                        PhotoPath = photo,
+                        Id = Guid.NewGuid(),
+                    });
+                }
+            }
+            if (updateChatDTO.Vedios != null && updateChatDTO.Vedios.Count > 0)
+            {
+                var vedioList= IformListToPath(updateChatDTO.Vedios, SharedFolderPaths.ChatVideos);
+                foreach (var vedio in vedioList)
+                {
+                    chat.Vedios.Add(new ChatVedio
+                    {
+                        ChatId = (Guid)updateChatDTO.Id,
+                        VedioPath= vedio,
+                        Id = Guid.NewGuid(),
+                    });
+                }
+            }
+            _unitOfWork.Chat.Update(chat);
+            var result = await _unitOfWork.Complete();
+            return (true, OMapper.Mapper.Map<DomainModels.DTO.ChatDTO>(chat));
         }
         public async Task<IEnumerable<friendChat>> GetFriendsWithLastMessage(Guid userId)
         {
