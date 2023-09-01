@@ -43,7 +43,9 @@ namespace DataBase.EF
         public IBaseRepository<QuestionCommentPhoto> QuestionCommentPhoto { get; private set; }
         public IBaseRepository<PostCommentVedio> PostCommentVedio { get; private set; }
         public IBaseRepository<PostCommentPhoto> PostCommentPhoto { get; private set; }
-        public IBaseRepository<Chat> Chat { get; private set; } 
+        public IBaseRepository<Chat> Chat { get; private set; }
+        public IBaseRepository<ChatPhoto> ChatPhoto { get; private set; }
+        public IBaseRepository<ChatVedio> ChatVedio { get; private set; }
 
         public UnitOfWork(ApplicationDbContext context)
         {
@@ -74,6 +76,9 @@ namespace DataBase.EF
             FriendRequests = new BaseRepository<FriendRequest>(_context);
             Notification = new BaseRepository<Notifications>(_context);
             Chat = new BaseRepository<Chat>(_context);
+            ChatPhoto = new BaseRepository<ChatPhoto>(_context);
+            ChatVedio = new BaseRepository<ChatVedio>(_context);
+
         }
 
         public async Task<int> Complete()

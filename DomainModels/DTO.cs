@@ -232,10 +232,24 @@ namespace DomainModels.DTO
         public Guid SenderId { get; set; }
         public Guid ReciveId { get; set; }
         public string? Message { get; set; }
-        public string? PhotoPath { get; set; }
-        public string? VedioPath { get; set; }
+        public ICollection<BasePhoto>? Photos { get; set; }
+        public ICollection<BaseVedio>? Vedios { get; set; }
+        public bool Read { get; set; }
+        public string TimeCreated { get; set; }
+        public DateTime TimeStamp { get; set; }
+    }
+    public record UploadChatDTO
+    {
+        public Guid? Id { get; set; }
+        public Guid SenderId { get; set; }
+        public Guid ReciveId { get; set; }
+        public string? Message { get; set; }
+        //public List<Guid>? DeletedPhotoIds { get; set; }
+        //public List<Guid>? DeletedVedioIds { get; set; }
+        public List<IFormFile>? Photos { get; set; }
+        public List<IFormFile>? Vedios { get; set; }
         public bool Read { get; set; } = false;
-        public DateTime? TimeStamp { get; set; }
+        public DateTime TimeStamp { get; set; } = DateTime.UtcNow;
     }
     #endregion
 }

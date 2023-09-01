@@ -10,7 +10,7 @@ namespace Business.Services
 {
     public interface IChatServices
     {
-        Task<bool> SendPrivateMessage(ChatDTO chatDTO);
+        Task<(bool, ChatDTO)> SendPrivateMessage(UploadChatDTO uploadChatDTO);
         Task<bool> MarkUserChatAsRead(Guid firstUser, Guid secoundUserId);
         Task<List<ChatDTO>> GetUserChat(Guid firstUser , Guid secondUser);
         Task<IEnumerable<friendChat>> GetFriendsWithLastMessage(Guid userId);

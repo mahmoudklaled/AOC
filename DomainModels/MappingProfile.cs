@@ -126,9 +126,11 @@ namespace DomainModels
                 .ForMember(dest => dest.Type, src => src.MapFrom(src => src.Requestor.Type))
                 .ForMember(dest => dest.Email, src => src.MapFrom(src => src.Requestor.Email));
 
-            CreateMap<Chat, DTO.ChatDTO>();
-
-
+            CreateMap<Chat, DTO.ChatDTO>()
+                .ForMember(dest => dest.Photos, src => src.MapFrom(src => src.Photos.Select(pp => new BasePhoto { Id = pp.Id, PhotoPath = pp.PhotoPath }).ToList()))
+                .ForMember(dest => dest.Vedios, src => src.MapFrom(src => src.Vedios.Select(pp => new BaseVedio { Id = pp.Id, VedioPath = pp.VedioPath }).ToList()))
+                .ForMember(dest => dest.TimeStamp, src => src.MapFrom(src => src.TimeStamp))
+                .ForMember(dest => dest.TimeCreated, src => src.MapFrom(src => TimeHelper.ConvertTimeCreateToString(src.TimeStamp)));
         }
         public class PostCommentPhotoResolver : IValueResolver<PostComment, CommentDTO, BasePhoto?>
         {
@@ -190,6 +192,7 @@ namespace DomainModels
                 return null;
             }
         }
+
         public class PostTypeResolver : IValueResolver<Notifications, DTO.NotificationDTO, PostsTypes>
         {
             public PostsTypes Resolve(Notifications source, DTO.NotificationDTO destination, PostsTypes destMember, ResolutionContext context)

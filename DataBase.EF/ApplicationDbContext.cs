@@ -47,6 +47,8 @@ namespace DataBase.EF
         public DbSet<FriendRequest> FriendRequests { get; set; }
         public DbSet<Notifications> Notification { get; set; }
         public DbSet<Chat> Chat { get; set; }
+        public DbSet<ChatPhoto> ChatPhoto { get; set; }
+        public DbSet<ChatVedio> ChatVedio { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

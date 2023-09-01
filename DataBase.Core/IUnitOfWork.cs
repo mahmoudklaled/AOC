@@ -41,6 +41,8 @@ namespace DataBase.Core
         IBaseRepository<PostCommentVedio> PostCommentVedio { get; }
         IBaseRepository<PostCommentPhoto> PostCommentPhoto { get; }
         IBaseRepository<Chat> Chat { get; }
+        IBaseRepository<ChatPhoto> ChatPhoto { get; }
+        IBaseRepository<ChatVedio> ChatVedio { get; }
         Task<int> Complete();
     }
 }

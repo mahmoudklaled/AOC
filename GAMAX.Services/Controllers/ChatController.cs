@@ -22,12 +22,13 @@ namespace GAMAX.Services.Controllers
             _chatServices = chatServices;
         }
         [HttpPost("SendPrivateMessage")]
-        public async Task<IActionResult> SearchAccount(ChatDTO chatDTO)
+        public async Task<IActionResult> SearchAccount(UploadChatDTO uploadChatDTO)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
-            var result = await _chatServices.SendPrivateMessage(chatDTO);
-            await _hubContextNotify.SendPrivateMessage(chatDTO.ReciveId, chatDTO);
-            return Ok(result);
+            var result = await _chatServices.SendPrivateMessage(uploadChatDTO);
+            if(result.Item1)
+                await _hubContextNotify.SendPrivateMessage(result.Item2.ReciveId, result.Item2);
+            return Ok(result.Item2);
         }
         [HttpPost("GetUserChat")]
         public async Task<IActionResult> GetUserChat(Guid secoundUserId)

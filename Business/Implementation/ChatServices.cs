@@ -4,15 +4,22 @@ using DataBase.Core.Consts;
 using DataBase.Core.Models;
 using DataBase.Core.Models.Accounts;
 using DataBase.Core.Models.Notifications;
+using DataBase.Core.Models.PhotoModels;
+using DataBase.Core.Models.VedioModels;
 //using DataBase.EF;
 using DomainModels;
 using DomainModels.DTO;
+using Microsoft.AspNetCore.Http;
+using Microsoft.VisualBasic;
 //using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utilites;
 
 namespace Business.Implementation
 {
@@ -32,8 +39,9 @@ namespace Business.Implementation
         }
         public async Task<List<ChatDTO>> GetUserChat(Guid firstUser, Guid secondUser)
         {
-            var chatForFirstUser =await  _unitOfWork.Chat.FindAllAsync(c=> c.SenderId == firstUser && c.ReciveId==secondUser);
-            var chatForSecondUser =await _unitOfWork.Chat.FindAllAsync(c => c.SenderId == secondUser && c.ReciveId == firstUser);
+            string[] includes = { "Vedios", "Photos" };
+            var chatForFirstUser =await  _unitOfWork.Chat.FindAllAsync(c=> c.SenderId == firstUser && c.ReciveId==secondUser ,includes);
+            var chatForSecondUser =await _unitOfWork.Chat.FindAllAsync(c => c.SenderId == secondUser && c.ReciveId == firstUser,includes);
             var AllChats = chatForFirstUser.ToList();
             AllChats.AddRange(chatForSecondUser.ToList());
             AllChats.OrderBy(i=>i.TimeStamp).ToList();
@@ -56,18 +64,24 @@ namespace Business.Implementation
             return await _unitOfWork.Complete()>0;
         }
 
-        public async Task<bool> SendPrivateMessage(ChatDTO chatDTO)
+        public async Task<(bool, ChatDTO)> SendPrivateMessage(UploadChatDTO uploadChatDTO)
         {
-            await _unitOfWork.Chat.AddAsync(new DataBase.Core.Models.Chat
+            var listOfPhotos= IformListToPath(uploadChatDTO.Photos,SharedFolderPaths.ChatPhotos);
+            var ListOfVideos= IformListToPath(uploadChatDTO.Vedios, SharedFolderPaths.ChatVideos);
+            var chat = new Chat
             {
                 Id = Guid.NewGuid(),
-                Message = chatDTO.Message,
-                PhotoPath = chatDTO.PhotoPath,
-                ReciveId = chatDTO.ReciveId,
-                SenderId = chatDTO.SenderId,
-                VedioPath = chatDTO.VedioPath,
-            });
-            return await _unitOfWork.Complete() >0;
+                Message = uploadChatDTO.Message,
+                ReciveId = uploadChatDTO.ReciveId,
+                SenderId = uploadChatDTO.SenderId,
+                TimeStamp = DateTime.UtcNow,
+            };
+            chat = PrepareChatForAdd(chat, listOfPhotos, ListOfVideos);
+            await _unitOfWork.Chat.AddAsync(chat) ;
+            var result = await _unitOfWork.Complete() > 0;
+            if(result)
+                return(true, OMapper.Mapper.Map<DomainModels.DTO.ChatDTO>(chat));
+            else return(false, null);
         }
         public async Task<IEnumerable<friendChat>> GetFriendsWithLastMessage(Guid userId)
         {
@@ -88,12 +102,11 @@ namespace Business.Implementation
                             LastName = friend.LastName,
                             Email = friend.Email,
                             Message = chatR?.Message,
-                            PhotoPath = chatR?.PhotoPath,
                             Read = chatR?.Read,
                             TimeStamp = chatR?.TimeStamp ?? DateTime.MinValue,  // Handle null TimeStamp
-                            VedioPath = chatR?.VedioPath,
                             ReciveId = chatR?.ReciveId ?? Guid.Empty,  // Handle null ReciveId
                             SenderId = chatR?.SenderId ?? Guid.Empty,  // Handle null SenderId
+                            LastMessageId=chatR?.Id??Guid.Empty,
                         };
 
             var join2 = from friend in userFriends
@@ -109,12 +122,11 @@ namespace Business.Implementation
                             LastName = friend.LastName,
                             Email = friend.Email,
                             Message = chatS?.Message,
-                            PhotoPath = chatS?.PhotoPath,
                             Read = chatS?.Read,
                             TimeStamp = chatS?.TimeStamp ?? DateTime.MinValue,  // Handle null TimeStamp
-                            VedioPath = chatS?.VedioPath,
                             ReciveId = chatS?.ReciveId ?? Guid.Empty,  // Handle null ReciveId
                             SenderId = chatS?.SenderId ?? Guid.Empty,  // Handle null SenderId
+                            LastMessageId = chatS?.Id ?? Guid.Empty,
                         };
 
             var AllJoin = join2.ToList();
@@ -128,12 +140,14 @@ namespace Business.Implementation
                 LastName = f.LastName,
                 Email = f.Email,
                 Message = f.Message,
-                PhotoPath = f.PhotoPath,
+                Photos = GetChatPhotosByChatId(f.LastMessageId),
                 Read = f.Read,
                 TimeStamp = f.TimeStamp,
-                VedioPath = f.VedioPath,
+                TimeCreated=TimeHelper.ConvertTimeCreateToString(f?.TimeStamp?? DateTime.MinValue),
+                Vedios = GetChatVediosByChatId(f.LastMessageId),
                 ReciveId = f.ReciveId,
                 SenderId = f.SenderId,
+                LastMessageId=f.LastMessageId
             });
             return finalResult;
         }
@@ -143,8 +157,70 @@ namespace Business.Implementation
                 return true;
             return false;
         }
+        private List<string> IformListToPath(List<IFormFile>? formFiles , string folderPath)
+        {
+            List<string> Paths = new List<string>();
+            if(formFiles != null)
+            {
+                foreach(var formFile in formFiles)
+                {
+                    var path = MediaUtilites.ConverIformToPath(formFile, folderPath);
+                    Paths.Add(path);
+                }
+            }
+            return Paths;
+        }
+        private Chat PrepareChatForAdd(Chat chat , List<string> photos , List<string> vedios)
+        {
+            chat.Photos = new Collection<ChatPhoto>();
+            chat.Vedios = new Collection<ChatVedio>();
+            foreach(var photo in photos)
+            {
+                if (!string.IsNullOrEmpty(photo))
+                {
+                    chat.Photos.Add(new ChatPhoto {
+                        Id = Guid.NewGuid(),
+                        PhotoPath = photo,
+                        ChatId = chat.Id,
+                    });
+                }
+            }
+            foreach (var vedio in vedios)
+            {
+                if (!string.IsNullOrEmpty(vedio))
+                {
+                    chat.Vedios.Add(new ChatVedio
+                    {
+                        Id = Guid.NewGuid(),
+                        VedioPath = vedio,
+                        ChatId = chat.Id,
+                    });
+                }
+            }
+            return chat;
+        }
+        private List<BasePhoto> GetChatPhotosByChatId(Guid? chatId)
+        {
+            var chatPhotos = new List<BasePhoto>();
+            if(chatId == Guid.Empty || chatId == null)
+                return chatPhotos;
+            var Photo = _unitOfWork.ChatPhoto.FindAll(c => c.ChatId == chatId);
+            if(Photo != null)
+                return Photo.Select(p=> new BasePhoto { Id = p.Id , PhotoPath =p.PhotoPath }).ToList();
+            return chatPhotos;
+        }
+        private List<BaseVedio> GetChatVediosByChatId(Guid? chatId)
+        {
+            var chatvedio = new List<BaseVedio>();
+            if (chatId == Guid.Empty || chatId==null)
+                return chatvedio;
+            var vedio = _unitOfWork.ChatVedio.FindAll(c => c.ChatId == chatId);
+            if (vedio != null)
+                return vedio.Select(p => new BaseVedio { Id = p.Id, VedioPath = p.VedioPath }).ToList();
+            return chatvedio;
+        }
 
-            
+
         /// <summary>
         /// use this if meet performance Issue
         /// </summary>
@@ -193,12 +269,14 @@ namespace Business.Implementation
             public string LastName { get; set; }
             public Guid? SenderId { get; set; }
             public Guid? ReciveId { get; set; }
+            public Guid? LastMessageId { get; set; }
             public string? Message { get; set; }
-            public string? PhotoPath { get; set; }
-            public string? VedioPath { get; set; }
+            public List<BasePhoto>? Photos { get; set; }
+            public List<BaseVedio>? Vedios { get; set; }
             public bool? Read { get; set; }
             public bool? Online { get; set; }
             public DateTime? TimeStamp { get; set; }
+            public string? TimeCreated { get; set; }
         }
     }
 }

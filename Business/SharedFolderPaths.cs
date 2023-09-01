@@ -16,5 +16,7 @@ namespace Business
         public static string QuestionPhotos { get; set; }
         public static string CommentsPhotos { get; set; }
         public static string CommentsVideos { get; set; }
+        public static string ChatPhotos { get; set; }
+        public static string ChatVideos { get; set; }
     }
 }
