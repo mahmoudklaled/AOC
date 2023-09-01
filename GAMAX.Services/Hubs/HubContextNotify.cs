@@ -52,7 +52,7 @@ namespace GAMAX.Services.Hubs
             var connID = _userConnectionManager.GetUserConnection(ApprovedUserId);
             if (!string.IsNullOrEmpty(connID))
             {
-                await _hubContext.Clients.Client(connID).SendAsync("DeleteMessage", "Hello");
+                await _hubContext.Clients.Client(connID).SendAsync("ApproveFriend", "Hello");
             }
         }
         public async Task OnSendFriendRequest(Guid RecivedUserId, FriendRequestUserAccount userAccount)
