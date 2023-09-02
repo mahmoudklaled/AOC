@@ -137,8 +137,9 @@ namespace Business.Implementation
                 }
             }
             result = await _unitOfWork.Complete();
-            var chatForDto = _unitOfWork.Chat.FindAsync(c=>c.Id == chat.Id,includes);
-            return (result>0, OMapper.Mapper.Map<DomainModels.DTO.ChatDTO>(chatForDto));
+            var chatForDto = await _unitOfWork.Chat.FindAsync(c=>c.Id == chat.Id,includes);
+            var chatDTO = OMapper.Mapper.Map<DomainModels.DTO.ChatDTO>(chatForDto);
+            return (result>0, chatDTO);
         }
         public async Task<IEnumerable<friendChat>> GetFriendsWithLastMessage(Guid userId)
         {
