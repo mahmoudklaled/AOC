@@ -60,7 +60,7 @@ namespace GAMAX.Services.Controllers
             return Ok(result.Item1);
         }
         [HttpPost("UpdateChat")]
-        public async Task<IActionResult> UpdateChat(UpdateChatDTO updateChatDTO)
+        public async Task<IActionResult> UpdateChat([FromForm] UpdateChatDTO updateChatDTO)
         {
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _chatServices.UpdateChat(updateChatDTO, userInfo.Uid);
