@@ -44,7 +44,7 @@ namespace Business.Implementation
             var chatForSecondUser =await _unitOfWork.Chat.FindAllAsync(c => c.SenderId == secondUser && c.ReciveId == firstUser,includes);
             var AllChats = chatForFirstUser.ToList();
             AllChats.AddRange(chatForSecondUser.ToList());
-            AllChats.OrderByDescending(i=>i.TimeStamp).ToList();
+            AllChats =  AllChats.OrderByDescending(i=>i.TimeStamp).ToList();
             var ChatDto = OMapper.Mapper.Map<List<DomainModels.DTO.ChatDTO>>(AllChats);
             return ChatDto;
         }
