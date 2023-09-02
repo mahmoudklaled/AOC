@@ -108,14 +108,16 @@ namespace Business.Implementation
                 foreach (var id in updateChatDTO.DeletedVedioIds)
                     chat.Vedios.Remove(chat.Vedios.Where(p => p.Id == id).First());
             }
-            if(updateChatDTO.Photos!=null && updateChatDTO.Photos.Count > 0)
+            _unitOfWork.Chat.Update(chat);
+            var result = await _unitOfWork.Complete();
+            if (updateChatDTO.Photos != null && updateChatDTO.Photos.Count > 0)
             {
                 var photoList = IformListToPath(updateChatDTO.Photos, SharedFolderPaths.ChatPhotos);
                 foreach (var photo in photoList)
                 {
-                    chat.Photos.Add(new ChatPhoto
+                    _unitOfWork.ChatPhoto.Add(new ChatPhoto
                     {
-                        ChatId = (Guid)updateChatDTO.Id,
+                        ChatId = chat.Id,
                         PhotoPath = photo,
                         Id = Guid.NewGuid(),
                     });
@@ -123,20 +125,20 @@ namespace Business.Implementation
             }
             if (updateChatDTO.Vedios != null && updateChatDTO.Vedios.Count > 0)
             {
-                var vedioList= IformListToPath(updateChatDTO.Vedios, SharedFolderPaths.ChatVideos);
+                var vedioList = IformListToPath(updateChatDTO.Vedios, SharedFolderPaths.ChatVideos);
                 foreach (var vedio in vedioList)
                 {
-                    chat.Vedios.Add(new ChatVedio
+                    _unitOfWork.ChatVedio.Add(new ChatVedio
                     {
-                        ChatId = (Guid)updateChatDTO.Id,
-                        VedioPath= vedio,
+                        ChatId = chat.Id,
+                        VedioPath = vedio,
                         Id = Guid.NewGuid(),
                     });
                 }
             }
-            _unitOfWork.Chat.Update(chat);
-            var result = await _unitOfWork.Complete();
-            return (true, OMapper.Mapper.Map<DomainModels.DTO.ChatDTO>(chat));
+            result = await _unitOfWork.Complete();
+            var chatForDto = _unitOfWork.Chat.FindAsync(c=>c.Id == chat.Id,includes);
+            return (result>0, OMapper.Mapper.Map<DomainModels.DTO.ChatDTO>(chatForDto));
         }
         public async Task<IEnumerable<friendChat>> GetFriendsWithLastMessage(Guid userId)
         {

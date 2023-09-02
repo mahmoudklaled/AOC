@@ -65,7 +65,7 @@ namespace GAMAX.Services.Controllers
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             var result = await _chatServices.UpdateChat(updateChatDTO, userInfo.Uid);
             await _hubContextNotify.UpdateMessage(result.Item2.ReciveId, result.Item2);
-            return Ok(result.Item1);
+            return Ok(result.Item2);
         }
     }
 }
