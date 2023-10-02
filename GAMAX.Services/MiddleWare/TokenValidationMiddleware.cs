@@ -1,10 +1,12 @@
-﻿using GAMAX.Services.Dto;
+﻿using Business;
+using GAMAX.Services.Dto;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using Utilites;
 
 namespace GAMAX.Services.MiddleWare
 {
@@ -69,9 +71,9 @@ namespace GAMAX.Services.MiddleWare
                             .Build();
 
             // Read the values from the configuration file
-            string validIssuer = configuration["JWT:Issuer"];
-            string validAudience = configuration["JWT:Audience"];
-            string key = configuration["JWT:Key"];
+            string validIssuer = SharedFolderPaths.validIssuer;
+            string validAudience = SharedFolderPaths.validAudience;
+            string key = SharedFolderPaths.key;
             // Create and configure the token validation parameters
             var validationParameters = new TokenValidationParameters
             {

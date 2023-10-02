@@ -265,4 +265,9 @@ namespace DomainModels.DTO
         public DateTime TimeStamp { get; set; } = DateTime.UtcNow;
     }
     #endregion
+
+    public record PlayerStatus
+    {
+        public string Data { get; set; }
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using Business;
 using DataBase.Core.Enums;
+using DataBase.Core.Models;
 using DomainModels.DTO;
 using GAMAX.Services.Dto;
 using Microsoft.AspNetCore.SignalR;
@@ -31,6 +32,19 @@ namespace GAMAX.Services.Hubs
             var userInfo = UserClaimsHelper.GetClaimsFromHttpContext(_httpContextAccessor);
             _userConnectionManager.RemoveUserConnection(userInfo.Uid);
             return base.OnDisconnectedAsync(exception);
+        }
+        public async Task TypeMessage( Guid UsersenderID,Guid RecivedUserId)
+        {
+            var connRecivedID = _userConnectionManager.GetUserConnection(RecivedUserId);
+            var connSenderID = _userConnectionManager.GetUserConnection(UsersenderID);
+            if (!string.IsNullOrEmpty(connRecivedID))
+            {
+                await Clients.Client(connRecivedID).SendAsync("typing");
+            }
+            //if (!string.IsNullOrEmpty(connSenderID))
+            //{
+            //    await Clients.Client(connSenderID).SendAsync("typing");
+            //}
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Utilites
 {
     public static class MediaUtilites
     {
-        private static string FolderPath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())?.FullName);
+        private static string FolderPath = SharedFolderPaths.HostedFolderPath; /*Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())?.FullName);*/
 
         public static string ConverIformToPath(IFormFile formFile, string FileFolderPath)
         {

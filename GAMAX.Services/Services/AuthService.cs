@@ -13,6 +13,8 @@ using DataBase.Core.Enums;
 using BDataBase.Core.Models.Accounts;
 using DataBase.Core;
 using Business.Helper;
+using Business;
+using Utilites;
 
 namespace GAMAX.Services.Services
 {
@@ -364,7 +366,7 @@ namespace GAMAX.Services.Services
 
             var verificationCode = await _userManager.GenerateEmailConfirmationTokenAsync(result);
 
-            string baseUrl = "http://localhost:5285";
+            string baseUrl = SharedFolderPaths.BackendUrl;
             string routePrefix = "api/Auth";
             string actionRoute = "verify";
 

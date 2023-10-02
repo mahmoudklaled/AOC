@@ -5,12 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utilites;
 
 namespace Business.Helper
 {
     public static class AccountHelpers
     {
-        private static string parentFolder = Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
+        private static string parentFolder = SharedFolderPaths.HostedFolderPath;/* Directory.GetParent(Directory.GetCurrentDirectory()).FullName;*/
         public static string GetDefaultProfilePohot(Guid id)
         {
             var sourceFile = Path.Combine(parentFolder, SharedFolderPaths.ProfilePhotos);

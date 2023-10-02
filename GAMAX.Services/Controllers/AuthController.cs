@@ -1,7 +1,9 @@
-﻿using DataBase.Core.Models.Authentication;
+﻿using Business;
+using DataBase.Core.Models.Authentication;
 using GAMAX.Services.Dto;
 using GAMAX.Services.Services;
 using Microsoft.AspNetCore.Mvc;
+using Utilites;
 
 namespace GAMAX.Services.Controllers
 {
@@ -45,7 +47,7 @@ namespace GAMAX.Services.Controllers
                 return BadRequest(new { Message = result.Message });
 
             SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
-            string redirectUrl = "http://localhost:3000/login?verfiy=true";
+            string redirectUrl = SharedFolderPaths.orginUrl+"/login?verfiy=true";
             //return Ok();
             return Redirect(redirectUrl);
 

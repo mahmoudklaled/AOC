@@ -15,6 +15,7 @@ using Business;
 using GAMAX.Services.Hubs;
 using Business.Services;
 using Business.Implementation;
+using Utilites;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
@@ -22,7 +23,7 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnC
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
+SharedFolderPaths.HostedFolderPath = builder.Environment.ContentRootPath;
 SharedFolderPaths.ProfilePhotos = builder.Configuration.GetValue<string>("SharedFolder:ProfilePhotos");
 SharedFolderPaths.CoverPhotos = builder.Configuration.GetValue<string>("SharedFolder:CoverPhotos");
 SharedFolderPaths.PostPhotos = builder.Configuration.GetValue<string>("SharedFolder:PostPhotos");
@@ -33,8 +34,12 @@ SharedFolderPaths.CommentsPhotos = builder.Configuration.GetValue<string>("Share
 SharedFolderPaths.CommentsVideos = builder.Configuration.GetValue<string>("SharedFolder:CommentsVideos");
 SharedFolderPaths.ChatPhotos = builder.Configuration.GetValue<string>("SharedFolder:ChatPhotos");
 SharedFolderPaths.ChatVideos = builder.Configuration.GetValue<string>("SharedFolder:ChatVideos");
-
-
+SharedFolderPaths.orginUrl= builder.Configuration.GetValue<string>("AllowedOrigin");
+SharedFolderPaths.BackendUrl = builder.Configuration.GetValue<string>("BackendUrl");
+SharedFolderPaths.validIssuer = builder.Configuration.GetValue<string>("JWT:Issuer");
+SharedFolderPaths.validAudience = builder.Configuration.GetValue<string>("JWT:Audience");
+SharedFolderPaths.key = builder.Configuration.GetValue<string>("JWT:Key");
+var allowedOrigin = builder.Configuration.GetValue<string>("AllowedOrigin");
 
 
 
@@ -59,6 +64,7 @@ builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<ICommentServices, CommentServices>();
 builder.Services.AddScoped<IReactServices, ReactsServices>();
 builder.Services.AddScoped<INotificationServices,NotificationServices>();
+builder.Services.AddScoped<IRoitServices, RoitServices>();
 builder.Services.AddScoped<IChatServices, ChatServices>();
 builder.Services.AddSingleton<SignalRActions>();
 builder.Services.AddSingleton<UserConnectionManager>();
@@ -97,7 +103,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAnyOrigin",
         builder =>
         {
-            builder.WithOrigins("http://localhost:3000")
+            builder.WithOrigins(allowedOrigin)
                    .AllowAnyMethod()
                    .AllowAnyHeader()
                    .AllowCredentials();

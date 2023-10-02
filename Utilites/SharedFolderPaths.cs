@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Business
+namespace Utilites
 {
-    public static class SharedFolderPaths
+    public class SharedFolderPaths
     {
         public static string ProfilePhotos { get; set; }
         public static string CoverPhotos { get; set; }
@@ -18,5 +18,11 @@ namespace Business
         public static string CommentsVideos { get; set; }
         public static string ChatPhotos { get; set; }
         public static string ChatVideos { get; set; }
+        public static string orginUrl { get; set; }
+        public static string BackendUrl { get; set; }
+        public static string validIssuer { get; set; }
+        public static string validAudience { get; set; }
+        public static string key { get; set; }
+        public static string HostedFolderPath { get; set; }
     }
 }

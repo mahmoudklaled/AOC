@@ -8,7 +8,7 @@ namespace Utilites
 { 
     public static class AccountUtilites
     {
-        private static string PhotoPath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "StaticFiles", "Photos");
+        private static string PhotoPath = Path.Combine(SharedFolderPaths.HostedFolderPath, "StaticFiles", "Photos");
         public static MemoryStream  GetCoverPhoto(string PhotoName)
         {
             var path = Path.Combine(PhotoPath, "CoverPhoto", PhotoName);

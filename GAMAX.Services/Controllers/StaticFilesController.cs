@@ -1,5 +1,6 @@
 ﻿using Business;
 using Microsoft.AspNetCore.Mvc;
+using Utilites;
 
 namespace GAMAX.Services.Controllers
 {
@@ -7,8 +8,14 @@ namespace GAMAX.Services.Controllers
     [ApiController]
     public class StaticFilesController : ControllerBase
     {
-        private readonly string directoryPath = Directory.GetParent(Directory.GetCurrentDirectory())?.FullName;
-        
+        private readonly string directoryPath /*= Directory.GetParent(Directory.GetCurrentDirectory())?.FullName*/;
+        private readonly IWebHostEnvironment _env;
+        public StaticFilesController(IWebHostEnvironment env)
+        {
+            _env = env;
+            directoryPath = SharedFolderPaths.HostedFolderPath;
+        }
+
         [HttpGet("download")]
         public IActionResult DownloadFile(string filePath)
         {
