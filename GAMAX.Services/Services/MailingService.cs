@@ -72,7 +72,7 @@ namespace GAMAX.Services.Services
 
             using var smtp = new SmtpClient();
             //TODO : To be removed this for test in deployment mode Publsih
-            //smtp.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+            smtp.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
             smtp.Connect(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
             smtp.Authenticate(_mailSettings.Email, _mailSettings.Password);
             await smtp.SendAsync(email);
