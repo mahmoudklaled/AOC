@@ -1,3 +1,4 @@
+#GamaxHub
 GamaxHub is a groundbreaking project, a dynamic and feature-rich web API built on the foundation of 
 N-Tier architecture. It acts as a central social hub, connecting gamers, fostering communication, reminiscent of popular social media platforms.
 Key Features:
