@@ -1,8 +1,10 @@
 ﻿using BDataBase.Core.Models.Accounts;
 using DataBase.Core;
 using DataBase.Core.Interfaces;
+using DataBase.Core.Models;
 using DataBase.Core.Models.Accounts;
 using DataBase.Core.Models.CommentModels;
+using DataBase.Core.Models.Notifications;
 using DataBase.Core.Models.PhotoModels;
 using DataBase.Core.Models.Posts;
 using DataBase.Core.Models.Reacts;
@@ -22,6 +24,7 @@ namespace DataBase.EF
         public IBaseRepository<UserAccounts> UserAccounts { get; private set; }
         public IBaseRepository<Friend> Friends { get; private set; }
         public IBaseRepository<FriendRequest> FriendRequests { get; private set; }
+        public IBaseRepository<Notifications> Notification { get; private set; }
         public IBaseRepository<QuestionPost> QuestionPost { get; private set; }
         public IBaseRepository<Post> Post { get; private set; }
         public IBaseRepository<ProfilePhoto> ProfilePhoto { get; private set; }
@@ -40,7 +43,9 @@ namespace DataBase.EF
         public IBaseRepository<QuestionCommentPhoto> QuestionCommentPhoto { get; private set; }
         public IBaseRepository<PostCommentVedio> PostCommentVedio { get; private set; }
         public IBaseRepository<PostCommentPhoto> PostCommentPhoto { get; private set; }
-
+        public IBaseRepository<Chat> Chat { get; private set; }
+        public IBaseRepository<ChatPhoto> ChatPhoto { get; private set; }
+        public IBaseRepository<ChatVedio> ChatVedio { get; private set; }
 
         public UnitOfWork(ApplicationDbContext context)
         {
@@ -69,6 +74,10 @@ namespace DataBase.EF
 
             Friends = new BaseRepository<Friend>(_context);
             FriendRequests = new BaseRepository<FriendRequest>(_context);
+            Notification = new BaseRepository<Notifications>(_context);
+            Chat = new BaseRepository<Chat>(_context);
+            ChatPhoto = new BaseRepository<ChatPhoto>(_context);
+            ChatVedio = new BaseRepository<ChatVedio>(_context);
 
         }
 

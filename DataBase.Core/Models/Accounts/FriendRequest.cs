@@ -17,6 +17,7 @@ namespace DataBase.Core.Models.Accounts
         public Guid ReceiverId { get; set; }
         public UserAccounts Receiver { get; set; }
         public DateTime RequestTime { get; set; } = DateTime.UtcNow;
+        public bool Seen { get; set; }
 
     }
 }

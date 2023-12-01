@@ -87,7 +87,7 @@ namespace DataBase.EF.Migrations
 
                     b.HasIndex("SecondUserId");
 
-                    b.ToTable("Friend");
+                    b.ToTable("Friends");
                 });
 
             modelBuilder.Entity("DataBase.Core.Models.Accounts.FriendRequest", b =>
@@ -105,13 +105,16 @@ namespace DataBase.EF.Migrations
                     b.Property<Guid>("RequestorId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("Seen")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ReceiverId");
 
                     b.HasIndex("RequestorId");
 
-                    b.ToTable("FriendRequest");
+                    b.ToTable("FriendRequests");
                 });
 
             modelBuilder.Entity("DataBase.Core.Models.Authentication.ApplicationUser", b =>
@@ -207,6 +210,32 @@ namespace DataBase.EF.Migrations
                     b.ToTable("TokenCodes");
                 });
 
+            modelBuilder.Entity("DataBase.Core.Models.Chat", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Read")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("ReciveId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SenderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Chat");
+                });
+
             modelBuilder.Entity("DataBase.Core.Models.CommentModels.PostComment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -259,6 +288,51 @@ namespace DataBase.EF.Migrations
                     b.HasIndex("UserAccountsId");
 
                     b.ToTable("QuestionComments");
+                });
+
+            modelBuilder.Entity("DataBase.Core.Models.Notifications.Notifications", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ActionedUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("NotificatinType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("NotifiedUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActionedUserId");
+
+                    b.ToTable("Notification");
+                });
+
+            modelBuilder.Entity("DataBase.Core.Models.PhotoModels.ChatPhoto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ChatId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PhotoPath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatId");
+
+                    b.ToTable("ChatPhoto");
                 });
 
             modelBuilder.Entity("DataBase.Core.Models.PhotoModels.CoverPhoto", b =>
@@ -535,6 +609,26 @@ namespace DataBase.EF.Migrations
                     b.HasIndex("UserAccountsId");
 
                     b.ToTable("QuestionReacts");
+                });
+
+            modelBuilder.Entity("DataBase.Core.Models.VedioModels.ChatVedio", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ChatId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("VedioPath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatId");
+
+                    b.ToTable("ChatVedio");
                 });
 
             modelBuilder.Entity("DataBase.Core.Models.VedioModels.PostCommentVedio", b =>
@@ -865,6 +959,28 @@ namespace DataBase.EF.Migrations
                     b.Navigation("UserAccounts");
                 });
 
+            modelBuilder.Entity("DataBase.Core.Models.Notifications.Notifications", b =>
+                {
+                    b.HasOne("BDataBase.Core.Models.Accounts.UserAccounts", "ActionedUser")
+                        .WithMany("Notifications")
+                        .HasForeignKey("ActionedUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ActionedUser");
+                });
+
+            modelBuilder.Entity("DataBase.Core.Models.PhotoModels.ChatPhoto", b =>
+                {
+                    b.HasOne("DataBase.Core.Models.Chat", "Chat")
+                        .WithMany("Photos")
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chat");
+                });
+
             modelBuilder.Entity("DataBase.Core.Models.PhotoModels.CoverPhoto", b =>
                 {
                     b.HasOne("BDataBase.Core.Models.Accounts.UserAccounts", null)
@@ -1025,6 +1141,17 @@ namespace DataBase.EF.Migrations
                     b.Navigation("UserAccounts");
                 });
 
+            modelBuilder.Entity("DataBase.Core.Models.VedioModels.ChatVedio", b =>
+                {
+                    b.HasOne("DataBase.Core.Models.Chat", "Chat")
+                        .WithMany("Vedios")
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chat");
+                });
+
             modelBuilder.Entity("DataBase.Core.Models.VedioModels.PostCommentVedio", b =>
                 {
                     b.HasOne("DataBase.Core.Models.CommentModels.PostComment", "PostComment")
@@ -1129,12 +1256,21 @@ namespace DataBase.EF.Migrations
 
                     b.Navigation("Friends");
 
+                    b.Navigation("Notifications");
+
                     b.Navigation("Posts");
 
                     b.Navigation("ProfilePhoto")
                         .IsRequired();
 
                     b.Navigation("QuestionPosts");
+                });
+
+            modelBuilder.Entity("DataBase.Core.Models.Chat", b =>
+                {
+                    b.Navigation("Photos");
+
+                    b.Navigation("Vedios");
                 });
 
             modelBuilder.Entity("DataBase.Core.Models.CommentModels.PostComment", b =>

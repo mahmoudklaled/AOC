@@ -23,13 +23,14 @@ namespace DataBase.Core.Interfaces
 
         Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> criteria, string[] includes = null);
         Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> criteria, int skip, int take);
-        Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>>? criteria, int? skip, int? take,
+        Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>>? criteria, int? take, int? skip,
            string[] includes = null, Expression<Func<T, object>> orderBy = null, string orderByDirection = OrderBy.Descending);
         T Add(T entity);
         Task<T> AddAsync(T entity);
         IEnumerable<T> AddRange(IEnumerable<T> entities);
         Task<IEnumerable<T>> AddRangeAsync(IEnumerable<T> entities);
         T Update(T entity);
+        IEnumerable<T> UpdateRange(IEnumerable<T> entity);
         void Delete(T entity);
         void DeleteRange(IEnumerable<T> entities);
         void Attach(T entity);

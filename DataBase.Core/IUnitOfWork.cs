@@ -1,7 +1,9 @@
 ﻿using BDataBase.Core.Models.Accounts;
 using DataBase.Core.Interfaces;
+using DataBase.Core.Models;
 using DataBase.Core.Models.Accounts;
 using DataBase.Core.Models.CommentModels;
+using DataBase.Core.Models.Notifications;
 using DataBase.Core.Models.PhotoModels;
 using DataBase.Core.Models.Posts;
 using DataBase.Core.Models.Reacts;
@@ -19,6 +21,7 @@ namespace DataBase.Core
         IBaseRepository<UserAccounts> UserAccounts { get; }
         IBaseRepository<Friend> Friends { get; }
         IBaseRepository<FriendRequest> FriendRequests { get; }
+        IBaseRepository<Notifications> Notification { get; }
         IBaseRepository<QuestionPost> QuestionPost { get; }
         IBaseRepository<Post> Post { get; }
         IBaseRepository<ProfilePhoto> ProfilePhoto { get; }
@@ -37,6 +40,9 @@ namespace DataBase.Core
         IBaseRepository<QuestionCommentPhoto> QuestionCommentPhoto { get; }
         IBaseRepository<PostCommentVedio> PostCommentVedio { get; }
         IBaseRepository<PostCommentPhoto> PostCommentPhoto { get; }
+        IBaseRepository<Chat> Chat { get; }
+        IBaseRepository<ChatPhoto> ChatPhoto { get; }
+        IBaseRepository<ChatVedio> ChatVedio { get; }
         Task<int> Complete();
     }
 }

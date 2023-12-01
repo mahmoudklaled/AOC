@@ -94,9 +94,8 @@ namespace DomainModels.DTO
         public string UserLastName { get; set; }
         public DateTime Time { get; set; }
     }
-    
-    #endregion
 
+    #endregion
 
     #region comments
     public record CommentUpdateRequest
@@ -143,7 +142,6 @@ namespace DomainModels.DTO
 
     #endregion
 
-
     #region React
     public record ReactsDTO
     {
@@ -157,8 +155,23 @@ namespace DomainModels.DTO
     #endregion
 
     #region UserProfile
-    public record UserAccounts
+    public record UserAccount
     {
+        public Guid Id { get; set; }
+        public string Email { get; set; }
+        public string UserName { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string? Bio { get; set; }
+        public string? City { get; set; }
+        public string? Country { get; set; }
+        public DateTime? Birthdate { get; set; }
+        public string? gender { get; set; }
+        public string Type { get; set; }
+    }
+    public record FriendRequestUserAccount
+    {
+        public Guid RequestId { get; set; }
         public Guid Id { get; set; }
         public string Email { get; set; }
         public string UserName { get; set; }
@@ -182,5 +195,79 @@ namespace DomainModels.DTO
         public DateTime? Birthdate { get; set; }
         public string? gender { get; set; } = "Unknown";
     }
+
     #endregion
+
+    #region Notification
+    public record NotificationDTO
+    {
+        public Guid Id { get; set; }
+        public Guid NotifiedUserId { get; set; }
+        public Guid ActionedUserId { get; set; }
+        public string ActionUserFirstName { get; set; }
+        public string ActionUserLastName { get; set; }
+        public Guid ItemId { get; set; }
+        public Guid PostId { get; set; }
+        public PostsTypes PostsType { get; set; }
+        public NotificatinTypes NotificatinType { get; set; }
+    }
+    public record NotificationModel
+    {
+        public Guid Id { get; set; }
+        public Guid NotifiedUserId { get; set; }
+        public Guid ActionedUserId { get; set; }
+        public string ActionUserFirstName { get; set; }
+        public string ActionUserLastName { get; set; }
+        public Guid PostId { get; set; }
+        public PostsTypes PostsType { get; set; }
+        public NotificatinTypes NotificatinType { get; set; }
+        public string TimeCreated { get; set; }
+    }
+    #endregion
+
+    #region chat
+    public record ChatDTO
+    {
+        public Guid? Id { get; set; }
+        public Guid SenderId { get; set; }
+        public Guid ReciveId { get; set; }
+        public string? Message { get; set; }
+        public ICollection<BasePhoto>? Photos { get; set; }
+        public ICollection<BaseVedio>? Vedios { get; set; }
+        public bool Read { get; set; }
+        public string TimeCreated { get; set; }
+        public DateTime TimeStamp { get; set; }
+    }
+    public record UploadChatDTO
+    {
+        public Guid? Id { get; set; }
+        public Guid SenderId { get; set; }
+        public Guid ReciveId { get; set; }
+        public string? Message { get; set; }
+        //public List<Guid>? DeletedPhotoIds { get; set; }
+        //public List<Guid>? DeletedVedioIds { get; set; }
+        public List<IFormFile>? Photos { get; set; }
+        public List<IFormFile>? Vedios { get; set; }
+        public bool Read { get; set; } = false;
+        public DateTime TimeStamp { get; set; } = DateTime.UtcNow;
+    }
+    public record UpdateChatDTO
+    {
+        public Guid? Id { get; set; }
+        public Guid SenderId { get; set; }
+        public Guid ReciveId { get; set; }
+        public string? Message { get; set; }
+        public List<Guid>? DeletedPhotoIds { get; set; }
+        public List<Guid>? DeletedVedioIds { get; set; }
+        public List<IFormFile>? Photos { get; set; }
+        public List<IFormFile>? Vedios { get; set; }
+        public bool Read { get; set; } = false;
+        public DateTime TimeStamp { get; set; } = DateTime.UtcNow;
+    }
+    #endregion
+
+    public record PlayerStatus
+    {
+        public string Data { get; set; }
+    }
 }
