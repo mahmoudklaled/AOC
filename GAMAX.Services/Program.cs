@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using NETCore.MailKit.Extensions;
-using NETCore.MailKit.Infrastructure.Internal;
+
 using GAMAX.Services.Services;
 using GAMAX.Services.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
